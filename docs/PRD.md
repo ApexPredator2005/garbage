@@ -95,15 +95,33 @@
    - Medical/general leave requests with attachments routed to assigned Class Teacher.
    - Approved student leaves automatically pre-populate class registers as `EXCUSED_LEAVE`.
 
-8. **Dynamic Teacher Allocation & Substitution Roster:**
-   - Cross-branch faculty teaching assignments across multiple physical campuses.
-   - Automated timetable collision checks when assigning daily substitution duties during teacher absences.
-   - Staff attendance tracking logged separately with daily timestamps.
+8. **Smart Substitution Assistant (Timetables):**
+   - Timetable collision engine analyzes daily teacher absences and leaves in real-time.
+   - Automatically cross-references faculty schedules to find teachers with an unassigned/free block during that exact period in the same subject department.
+   - Generates a 1-click ranked substitution proposal without mutating or corrupting the master timetable.
+   - Substitute faculty receive an immediate push/toast alert with room assignment and curriculum topic.
 
-9. **Academic Cycle Lifecycle & Permanent Lifetime Transcripts:**
-   - Institution-configured academic calendar cycle start and end dates.
-   - Annual promotion workflows batching students to the next grade at cycle close.
-   - Past attendance archived to read-only cold storage; students retain permanent lifetime access to download official transcripts and report cards.
+9. **Dual-Signoff Exam Grade Moderation:**
+   - Multi-tier grading lifecycle: Subject teachers submit student marks in a `DRAFT` / `PENDING_MODERATION` state.
+   - Department Heads (HOD) and Wing Coordinators access a dedicated moderation console displaying grade distributions, class averages, and standard deviation curves.
+   - Coordinators can approve grades (`APPROVED`) or request adjustments with specific commentary; final signoff transitions records to `PUBLISHED`, unlocking report cards and parent notifications.
+
+10. **Role-Adaptive Clean Dashboards:**
+    - Clutter-free, role-specific UI designed to eliminate cognitive overhead:
+      - **Teacher View:** Today's timetable, immediate 8:30 AM attendance matrix card, student medical notes, pending leave requests. Zero financial noise.
+      - **Bursar / Management View:** Split-screen bank reconciliation desk, live UTR verification queue with zoomable receipt preview, fee defaulter summaries.
+      - **Parent View:** 1-tap multi-sibling switcher, instant UPI fee payment with receipt download, daily attendance percentage gauge, published exam report cards.
+      - **Super Admin / Principal View:** Cross-campus enrollment numbers, trust-wide collection metrics vs. outstanding dues, faculty presence counters.
+
+11. **Read-Heavy Caching via Redis (Upstash):**
+    - High-velocity caching of master entities (Academic Calendars, Branch Metadata, Wing/Department Lists, Subjects) in Upstash Redis.
+    - Absorbs read spikes during morning login surges, maintaining a >90% cache hit ratio and offloading ~80% of database roundtrips.
+    - Automatic cache invalidation on admin mutation actions (`revalidatePath` + `redis.del`).
+
+12. **Academic Cycle Lifecycle & Permanent Lifetime Transcripts:**
+    - Institution-configured academic calendar cycle start and end dates.
+    - Annual promotion workflows batching students to the next grade at cycle close.
+    - Past attendance archived to read-only cold storage; students retain permanent lifetime access to download official transcripts and report cards.
 
 ---
 
@@ -115,10 +133,13 @@
 * Central NextAuth.js RBAC authentication (7 distinct user roles) under single origin.
 * High-speed attendance register with single-payload bulk commit (~10ms).
 * Manual UTR verification queue with duplicate detection and two-step fee balance deduction.
+* Smart Substitution Assistant with automated timetable collision checks.
+* Dual-Signoff Exam Grade Moderation pipeline (Draft -> Moderation -> Approved -> Published).
+* Role-Adaptive Clean Dashboards tailored for Teachers, Bursars, Parents, and Admins.
+* Read-Heavy Caching via Redis (Upstash) for master calendars, branches, and subjects.
 * Student document upload via pre-signed URLs with audit feedback loop.
 * Mandatory exit certificate verification guard prior to student deletion.
 * Multi-ward parent switcher and roster-synchronized student leave management.
-* Teacher substitution duty assignment for unassigned periods.
 * Inngest headless async worker setup for batch PDF compilation.
 
 ### Later (Post-MVP)

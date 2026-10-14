@@ -33,6 +33,7 @@
 | **ORM / Query Engine** | Prisma ORM | Latest Stable | Type-safe migrations, auto-generated TypeScript models, dual-URL pooler compatibility. |
 | **Authentication** | NextAuth.js (Auth.js) | v5 (Beta / Latest) | Credentials Provider + Edge JWT session cookies; zero DB hits in middleware. |
 | **Async Task Runner** | Inngest | Headless Task Queue | Offloads multi-minute PDF rendering from main HTTP threads, preventing 504 timeouts. |
+| **In-Memory Cache & Rate Limiting** | Upstash Redis | Serverless REST Redis | Caches read-heavy master entities (calendars, branches, subjects) with >90% hit ratio; offloads 80% DB load. |
 | **Document Compiler** | `@react-pdf/renderer` | React-based PDF Engine | Headless generation of watermarked, multi-page admit cards and report card bundles. |
 | **Object Storage** | Supabase Storage | S3-Compatible Private Buckets | Stores student certificates and receipts outside SQL; pre-signed direct upload bypasses RAM. |
 | **Validation Layer** | Zod | Runtime Schema Validation | Validates all server actions, form submissions, and environment variables (`@/config/env.ts`). |
@@ -58,6 +59,8 @@
 3. **Document Audit & Rejection Loop:** Direct pre-signed S3 upload from browser $\rightarrow$ Document placed in Management Verification Queue $\rightarrow$ Bursar reviews split-screen document preview $\rightarrow$ `[VERIFY]` marks document approved; `[REJECT]` requires mandatory reason and renders active re-upload prompt on student/parent portal.
 4. **Permanent Deletion Barrier:** Delete request $\rightarrow$ Staff must type student's exact `admission_no` into confirmation modal $\rightarrow$ Server Action verifies existence of 4 statutory exit certificates (TC, Character, Migration, No-Dues) marked `VERIFIED` $\rightarrow$ Hard block (HTTP 403) if any are missing or unverified $\rightarrow$ Archival to cold storage upon verified exit.
 5. **Batch PDF Render (Buzzer Token Pattern):** Admin requests 2,000 admit cards/hall tickets $\rightarrow$ Next.js hands back `jobId` in ~30ms $\rightarrow$ Inngest headless worker compiles PDFs in chunks using `@react-pdf/renderer` $\rightarrow$ Streams zip/PDF directly to private Supabase Storage $\rightarrow$ Pre-signed 24h download URL saved to `bulk_job_logs` with active progress bar.
+6. **Smart Substitution Matching (Collision Engine):** Absent teacher triggers leave $\rightarrow$ Assistant queries branch faculty timetable matrix cached in Upstash Redis $\rightarrow$ Identifies teachers with free period, matched wing/subject, and lowest substitution load that week $\rightarrow$ Coordinator confirms with 1 click $\rightarrow$ Atomic commit to `substitution_duties` without mutating master timetable $\rightarrow$ Push alert sent to substitute.
+7. **Dual-Signoff Exam Grade Moderation:** Subject teacher inputs student term marks $\rightarrow$ Saved as `DRAFT` / `PENDING_MODERATION` $\rightarrow$ HOD opens moderation console with bell curves and class averages $\rightarrow$ `[APPROVE]` transitions status to `PUBLISHED` and unlocks student/parent lifetime report card download; `[REVISE]` flags anomalies with teacher feedback notes.
 
 ---
 
@@ -201,6 +204,7 @@ src/
 * `DATABASE_URL`: `postgresql://postgres:[PWD]@aws-0-[REGION].pooler.supabase.com:6543/postgres?pgbouncer=true` (Port 6543)
 * `DIRECT_URL`: `postgresql://postgres:[PWD]@db.[REF].supabase.co:5432/postgres` (Port 5432)
 * `AUTH_SECRET`: 32-byte cryptographic secret for NextAuth JWT encryption
+* `UPSTASH_REDIS_REST_URL` & `UPSTASH_REDIS_REST_TOKEN`: In-memory cache and API rate limiting
 * `NEXT_PUBLIC_SUPABASE_URL` & `SUPABASE_SERVICE_ROLE_KEY`: Supabase S3 private storage access
 * `INNGEST_EVENT_KEY` & `INNGEST_SIGNING_KEY`: Headless background queue synchronization
 * `SMS_GATEWAY_API_KEY`: SMS provider for morning unexcused absence alerts
@@ -219,3 +223,28 @@ Run `npm run db:seed` on a fresh database to automatically provision the JSS Sch
 | **Invalid or Unmatched Fee UTR** | **Ledger Drift & Fraudulent Clearance:** Deducting dues prematurely upon parent payment intent causes massive financial discrepancies if the bank transfer fails or the UTR reference is invalid. | **Two-Step Manual Audit Queue:** Submissions are tagged `PENDING_VERIFICATION`; **student balance remains strictly untouched**. The campus bursar verifies the UTR against the school's physical bank statement. Only manual `[VERIFY & APPROVE]` triggers the atomic ledger deduction and generates an immutable receipt. |
 | **Unverified Student Deletion** | **Regulatory Liability & Lost Transcripts:** Accidental or premature deletion before statutory clearance violates education board statutory mandates and permanently destroys student academic history. | **Statutory Exit Barrier Guard:** Programmatic barrier guards the deletion API. Checks `student_documents` to verify that **Transfer Certificate (TC)**, **Character Certificate**, and **No-Dues Clearance** exist with status `VERIFIED`. Deletion is hard-blocked if any slip is missing. |
 | **Local Dev Hot Reload Socket Leak** | **Exhausted Connection Slots:** Next.js hot module reloads create new Prisma client instances on every file save during development, rapidly saturating local PostgreSQL ports. | **Global Prisma Singleton:** `src/lib/db.ts` binds PrismaClient to `globalThis`, guaranteeing only one singleton instance is shared across module reloads. |
+
+---
+
+## 08. Read-Heavy Caching Architecture (Upstash Redis)
+
+```
+┌────────────────────────┐      ┌────────────────────────┐      ┌────────────────────────┐
+│ Client Request (RSC)   │ ───> │ Upstash Redis Cache    │ ───> │ Supabase PostgreSQL    │
+│ (e.g. Master Calendar) │      │ (Sub-5ms Edge Lookup)  │      │ (Fallback on Cache Miss│
+└────────────────────────┘      └────────────────────────┘      └────────────────────────┘
+                                    │ Cache HIT: Return (90%)       │ Cache MISS: Query DB,
+                                    ▼                               ▼ setex TTL (1h - 24h)
+```
+
+### 8.1 Cached Entities & Invalidation Matrix
+* **Academic Calendars & Cycles:** Cached at `cache:calendar:{branchId}` with 24-hour TTL; evicted on cycle modification.
+* **Branch & Department Topology:** Cached at `cache:topology:{branchSlug}` with 12-hour TTL; evicted when admin edits wing codes.
+* **Faculty Timetable Matrices (Smart Substitution):** Cached at `cache:timetables:{branchId}:{day}` with 6-hour TTL; evicted on permanent teacher re-allocation.
+* **Subject Lists & Class Rosters:** Cached at `cache:classes:{departmentId}` with 4-hour TTL; evicted on section adjustments.
+
+### 8.2 Strategic Benefits
+1. **80% Database Load Reduction:** Eliminates repetitive queries for stationary institutional metadata during morning peak logins.
+2. **Sub-15ms Page Initial Renders:** React Server Components (RSC) fetch cached metadata over low-latency REST calls before compiling layout HTML.
+3. **Connection Pool Protection:** Keeps Supavisor transaction slots dedicated purely to write-heavy operations (attendance commits, UTR reconciliation, and grade publishing).
+
