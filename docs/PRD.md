@@ -1,0 +1,148 @@
+# Product Requirements Document (PRD)
+> **MYSchool ERP — JSS School**  
+> *A clear, high-concurrency plan before the first line of code.*
+
+---
+
+## 01. Product Overview
+
+| Property | Specification Details |
+| :--- | :--- |
+| **Product Name** | **MYSchool ERP** (JSS School Edition) |
+| **Platform** | Responsive Web Application (Next.js 19 App Router, Tailwind CSS, shadcn/ui) |
+| **Target Institution** | **JSS School** (Central Board, multi-campus physical branches, academic wings) |
+| **Core Architecture** | Unified Full-Stack Repository, NextAuth.js (Auth.js v5) with Edge JWT cookies, URL-driven branch/wing tenancy (`/[branchSlug]/[deptCode]/[module]`), Managed Supabase PostgreSQL with Supavisor Connection Pooling, Inngest Async Workers |
+| **Primary Goal** | Digitize, automate, and connect all daily academic and administrative operations across all JSS School campuses into a single unified platform—absorbing peak 8:30 AM attendance spikes, safeguarding financial audits with strict manual UTR verification, enforcing statutory student exit barriers, and guaranteeing lifetime student transcript access. |
+
+---
+
+## 02. Problem & Goal
+
+```
+┌──────────────────────────────────────────────────────────┐  ┌──────────────────────────────────────────────────────────┐
+│ 🎯 DOWNSIDE OF NOT HAVING THIS SYSTEM                    │  │ 🏆 WHAT SUCCESS LOOKS LIKE (DIGITIZES & AUTOMATES)       │
+├──────────────────────────────────────────────────────────┤  ├──────────────────────────────────────────────────────────┤
+│ • 8:30 AM Attendance Bottleneck: Manual paper roll-calls │  │ • 100ms Bulk Attendance: 40-student single array payload │
+│   delay legal duty-of-care absence alerts to parents.    │  │   using Prisma `createMany` committed in ~10ms.           │
+│                                                          │  │                                                          │
+│ • Unverified Ledger Drift: Premature or unverified fee   │  │ • Immutable Financial Audit: Zero automated deductions;  │
+│   deposits cause accounting errors and audit chaos.      │  │   2-step UTR clearance by campus bursar before ledger cut│
+│                                                          │  │                                                          │
+│ • 504 Gateway Timeouts: Synchronous report card and      │  │ • Zero-Timeout Batch Engine: Inngest async workers render│
+│   admit card batch PDF generation hangs HTTP threads.    │  │   hundreds of PDFs into Supabase Storage with signed URLs│
+│                                                          │  │                                                          │
+│ • Accidental Student Purges: Missing transfer or conduct │  │ • Statutory Exit Barrier: Hard cryptographic barrier     │
+│   records during withdrawal leads to regulatory liability│  │   requiring verified TC, Character & No-Dues slips.      │
+│                                                          │  │                                                          │
+│ • Bloated Database Backups: Binary files inside SQL.     │  │ • Direct Pre-Signed Uploads: 60s client-to-storage stream.│
+└──────────────────────────────────────────────────────────┘  └──────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 03. Target User Personas
+
+| Persona | Role Scope | Key Responsibilities & Capabilities | Actions / Badges |
+| :--- | :--- | :--- | :--- |
+| **Super Admin** | Central JSS School Board Executive | Group-wide financial auditing, multi-campus consolidated roll calls, cross-branch policy configuration. | `Consolidated View` `Trust Audit` `Global Scoping` |
+| **Branch Admin** | Campus Principal / Director | Campus-wide admissions, academic cycle initialization, staff duty approvals, exam scheduling. | `Campus Locked` `Staff Approvals` `Cycle Control` |
+| **Department Head (HOD)** | Academic Wing Leader (e.g. PUC, Primary) | Curriculum pacing, class-to-teacher mapping, period substitutions, leave escalations. | `Wing Locked` `Substitutions` `Leave Signoff` |
+| **Class Teacher** | Classroom Instructor | 8:30 AM morning attendance matrix submission, daily student leave approval, student performance reviews. | `Roster Grid` `Attendance Submit` `Leave Review` |
+| **Management** | Campus Operations, Bursar & Records | Physical bank statement reconciliation, UTR queue clearance, admission & exit certificate verification, fee ledger auditing. | `UTR Queue` `Ledger Audit` `Doc Clearance` `Exit Barrier` |
+| **Parent / Guardian** | Household Pupil Guardian | Multi-ward toggling, fee payment submission (UTR + screenshot), leave application, receipt downloads. | `Ward Switcher` `Fee Submit` `Leave Apply` |
+| **Student** | Enrolled Pupil | Class timetable inspection, exam schedule view, permanent lifetime access to historical report cards. | `Self Service` `Lifetime Grades` `Schedule` |
+
+---
+
+## 04. Core Features Matrix
+
+*Concise technical feature listing without unnecessary narrative bloat:*
+
+1. **URL-Scoped Tenancy (`/[branchSlug]/[departmentCode]/[module]`):**
+   - Independent deep-linking across browser tabs without session or cookie collisions.
+   - Layout-level data scoping and isolated Next.js cache boundaries.
+   - Global sticky navbar combobox for instantaneous branch/wing switching by cleared personnel.
+
+2. **High-Speed 8:30 AM Attendance Matrix:**
+   - Single-payload JSON dispatch containing all 40 student records per classroom.
+   - Atomic database write via Prisma `createMany` (or bulk upsert) in a single round-trip.
+   - Non-blocking asynchronous trigger firing SMS/push notifications to guardians for unexcused absences.
+
+3. **Manual UTR Fee Verification Pipeline:**
+   - Student fee balances remain strictly untouched upon parent transaction initiation.
+   - Duplicate UTR check validates that the submitted transaction reference number has never been used.
+   - Partial payments fully supported: amount declared is credited against total dues only upon approval.
+   - Dedicated Bursar audit desk matches physical bank statements before ledger write and receipt issuance.
+
+4. **Headless Asynchronous Batch PDF Engine (Buzzer Token):**
+   - Offloaded rendering of 500–2,000 watermarked admit cards / report cards via Inngest workers.
+   - Fast token handoff: server returns `jobId` in ~30ms, preventing browser 504 Gateway Timeouts.
+   - Background compilation with `@react-pdf/renderer` directly streamed to private Supabase Storage.
+   - Pollable job log with 24-hour pre-signed ZIP/PDF download ticket upon completion.
+
+5. **Direct Pre-Signed Document Storage & Split-Screen Audit Loop:**
+   - Direct-to-bucket upload via 60-second HMAC pre-signed URLs, protecting Next.js server RAM.
+   - Split-screen verification interface: management previews documents alongside student data.
+   - Mandatory rejection reason: rejecting a document requires a written reason that immediately alerts the parent with a direct re-upload prompt.
+
+6. **Statutory Exit Document Barrier:**
+   - Hard programmatic blocker preventing permanent student deletion or archiving.
+   - Two-stage confirmation modal requiring staff to type the pupil's exact `admission_no`.
+   - Requires 4 verified statutory certificates: Transfer Certificate (TC), Character Certificate, Migration Certificate, and Campus No-Dues Slip.
+
+7. **Single-Parent Multi-Ward Hub & Roster-Linked Leaves:**
+   - Single-parent profile model (no dual-parenting overhead) mapped to multiple wards across campuses with top-bar switching.
+   - Medical/general leave requests with attachments routed to assigned Class Teacher.
+   - Approved student leaves automatically pre-populate class registers as `EXCUSED_LEAVE`.
+
+8. **Dynamic Teacher Allocation & Substitution Roster:**
+   - Cross-branch faculty teaching assignments across multiple physical campuses.
+   - Automated timetable collision checks when assigning daily substitution duties during teacher absences.
+   - Staff attendance tracking logged separately with daily timestamps.
+
+9. **Academic Cycle Lifecycle & Permanent Lifetime Transcripts:**
+   - Institution-configured academic calendar cycle start and end dates.
+   - Annual promotion workflows batching students to the next grade at cycle close.
+   - Past attendance archived to read-only cold storage; students retain permanent lifetime access to download official transcripts and report cards.
+
+---
+
+## 05. Scope Definition
+
+### Must Have (MVP)
+* Full-stack Next.js App Router with URL-driven multi-branch routing.
+* Supabase PostgreSQL 16+ integration with Supavisor transaction connection pooling.
+* Central NextAuth.js RBAC authentication (7 distinct user roles) under single origin.
+* High-speed attendance register with single-payload bulk commit (~10ms).
+* Manual UTR verification queue with duplicate detection and two-step fee balance deduction.
+* Student document upload via pre-signed URLs with audit feedback loop.
+* Mandatory exit certificate verification guard prior to student deletion.
+* Multi-ward parent switcher and roster-synchronized student leave management.
+* Teacher substitution duty assignment for unassigned periods.
+* Inngest headless async worker setup for batch PDF compilation.
+
+### Later (Post-MVP)
+* Biometric hardware fingerprint/RFID integration for automated staff attendance sync.
+* Push notification integration with WhatsApp Business API for fee and absence alerts.
+* Bus GPS tracking integration for real-time guardian transit visibility.
+* Native mobile applications (React Native / Expo) wrapping the existing Next.js backend API contracts.
+* AI-assisted fee default forecasting based on historical payment cadences.
+
+---
+
+## 06. Acceptance Criteria
+
+```
+┌──────────────────────────────────┐ ┌──────────────────────────────────┐ ┌──────────────────────────────────┐
+│ 📐 TECHNICAL INTEGRITY           │ │ 🛡️ ZERO-TOLERANCE EDGE CASES     │ │ 🚀 BUILD & QUALITY GATES         │
+├──────────────────────────────────┤ ├──────────────────────────────────┤ ├──────────────────────────────────┤
+│ • URL params define branch/wing; │ │ • Zero balance deduction on      │ │ • Zero TypeScript errors on      │
+│   no cross-branch query leaks.   │ │   payment submit without UTR sign│   `tsc --noEmit`.                  │
+│ • Max 25 physical connections    │ │ • Student delete hard-fails if   │ │ • Zero ESLint errors or unused   │
+│   used during 500-user spike via │ │   TC or No-Dues slip is missing. │   Prisma client instantiations.    │
+│   Supavisor transaction mode.    │ │ • Roster submit dispatches 1 HTTP│ │ • All environment variables      │
+│ • All files uploaded via 60s     │ │   request per room, not 40.      │   validated through Zod schema.    │
+│   signed direct-to-S3 URLs.      │ │ • Inngest job handles 500 PDFs   │ │ • Additive-only database         │
+│ • Prisma singleton used strictly.│ │   without browser 504 gateway err│   migrations applied via Port 5432.│
+└──────────────────────────────────┘ └──────────────────────────────────┘ └──────────────────────────────────┘
+```

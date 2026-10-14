@@ -1,0 +1,335 @@
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")  // Supavisor Transaction Pooler (Port 6543)
+  directUrl = env("DIRECT_URL")    // Direct Session Connection (Port 5432)
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ==================== ENUMS ====================
+
+enum Role {
+  SUPER_ADMIN      // JSS School Central Board Executive
+  BRANCH_ADMIN     // Campus Principal / Director
+  DEPT_HEAD        // Head of Department / Wing Head (HOD)
+  TEACHER          // Classroom Instructor
+  MANAGEMENT       // Campus Management / Bursar & Operations
+  STUDENT          // Enrolled Pupil
+  PARENT           // Guardian
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  LATE
+  EXCUSED_LEAVE
+}
+
+enum VerificationStatus {
+  PENDING_VERIFICATION
+  VERIFIED
+  REJECTED
+}
+
+enum CertificateType {
+  TRANSFER_CERTIFICATE
+  CHARACTER_CERTIFICATE
+  MIGRATION_CERTIFICATE
+  MEDICAL_CLEARANCE
+  NO_DUES_SLIP
+}
+
+enum LeaveStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+// ==================== INSTITUTIONAL HIERARCHY ====================
+
+model Organization {
+  id        String   @id @default(cuid())
+  name      String   // "JSS School"
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  branches  Branch[]
+
+  @@map("organizations")
+}
+
+model Branch {
+  id             String       @id @default(cuid())
+  organizationId String       @map("organization_id")
+  name           String       // "Main Campus", "North Campus", "Tech Campus"
+  slug           String       @unique // "main", "north", "tech"
+  city           String
+  createdAt      DateTime     @default(now()) @map("created_at")
+
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  departments    Department[]
+  users          User[]
+  academicCycles AcademicCycle[]
+  staffAttendance StaffAttendance[]
+
+  @@index([organizationId])
+  @@map("branches")
+}
+
+model Department {
+  id        String   @id @default(cuid())
+  branchId  String   @map("branch_id")
+  name      String   // "Primary Wing", "Secondary Wing", "PUC"
+  code      String   // "PRIM", "SEC", "PUC", "TECH"
+  createdAt DateTime @default(now()) @map("created_at")
+
+  branch    Branch   @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  classes   Class[]
+
+  @@unique([branchId, code])
+  @@index([branchId])
+  @@map("departments")
+}
+
+// ==================== USER ACCOUNTS & RBAC ====================
+
+model User {
+  id               String            @id @default(cuid())
+  branchId         String            @map("branch_id")
+  email            String            @unique
+  passwordHash     String            @map("password_hash")
+  firstName        String            @map("first_name")
+  lastName         String            @map("last_name")
+  phone            String?
+  role             Role              @default(STUDENT)
+  createdAt        DateTime          @default(now()) @map("created_at")
+
+  branch           Branch            @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  studentProfile   Student?          @relation("StudentUser")
+  parentWards      Student[]         @relation("ParentWards")
+  verifiedPayments PaymentSubmission[] @relation("PaymentAuditor")
+  verifiedDocs     StudentDocument[] @relation("DocumentAuditor")
+  recordedAttendance Attendance[]    @relation("AttendanceTaker")
+  reviewedLeaves   LeaveApplication[] @relation("LeaveApprover")
+  substituteDuties SubstitutionDuty[] @relation("SubstituteTeacher")
+  absentDuties     SubstitutionDuty[] @relation("AbsentTeacher")
+  staffAttendance  StaffAttendance[]
+
+  @@index([branchId])
+  @@map("users")
+}
+
+// ==================== ACADEMICS & ROSTERS ====================
+
+model AcademicCycle {
+  id        String    @id @default(cuid())
+  branchId  String    @map("branch_id")
+  name      String    // "Academic Year 2026-2027"
+  startDate DateTime  @map("start_date")
+  endDate   DateTime  @map("end_date")
+  isCurrent Boolean   @default(false) @map("is_current")
+
+  branch    Branch    @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  history   AcademicHistory[]
+
+  @@unique([branchId, name])
+  @@map("academic_cycles")
+}
+
+model Class {
+  id           String     @id @default(cuid())
+  departmentId String     @map("department_id")
+  name         String     // "Grade 10"
+  section      String     // "A"
+  createdAt    DateTime   @default(now()) @map("created_at")
+
+  department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  students     Student[]
+  substitutions SubstitutionDuty[]
+
+  @@unique([departmentId, name, section])
+  @@index([departmentId])
+  @@map("classes")
+}
+
+model Student {
+  id             String            @id @default(cuid())
+  userId         String            @unique @map("user_id")
+  classId        String            @map("class_id")
+  guardianId     String            @map("guardian_id") // Maps to parent User record
+  admissionNo    String            @unique @map("admission_no")
+  dob            DateTime
+  createdAt      DateTime          @default(now()) @map("created_at")
+
+  user           User              @relation("StudentUser", fields: [userId], references: [id], onDelete: Cascade)
+  guardian       User              @relation("ParentWards", fields: [guardianId], references: [id], onDelete: Cascade)
+  class          Class             @relation(fields: [classId], references: [id])
+  documents      StudentDocument[]
+  attendances    Attendance[]
+  invoices       FeeInvoice[]
+  leaves         LeaveApplication[]
+  history        AcademicHistory[]
+
+  @@index([classId])
+  @@index([guardianId])
+  @@map("students")
+}
+
+// ==================== WORKFLOW ENTITIES ====================
+
+model Attendance {
+  id           String           @id @default(cuid())
+  studentId    String           @map("student_id")
+  recordedById String           @map("recorded_by_id")
+  date         DateTime         @db.Date
+  status       AttendanceStatus @default(PRESENT)
+  createdAt    DateTime         @default(now()) @map("created_at")
+
+  student      Student          @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  recordedBy   User             @relation("AttendanceTaker", fields: [recordedById], references: [id])
+
+  @@unique([studentId, date])
+  @@index([studentId, date])
+  @@index([date])
+  @@map("attendances")
+}
+
+model StaffAttendance {
+  id           String           @id @default(cuid())
+  userId       String           @map("user_id")
+  branchId     String           @map("branch_id")
+  date         DateTime         @db.Date
+  status       AttendanceStatus @default(PRESENT)
+  checkIn      DateTime?        @map("check_in")
+  checkOut     DateTime?        @map("check_out")
+
+  user         User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  branch       Branch           @relation(fields: [branchId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+  @@index([branchId, date])
+  @@map("staff_attendances")
+}
+
+model LeaveApplication {
+  id           String      @id @default(cuid())
+  studentId    String      @map("student_id")
+  startDate    DateTime    @db.Date @map("start_date")
+  endDate      DateTime    @db.Date @map("end_date")
+  reason       String
+  proofUrl     String?     @map("proof_url")
+  status       LeaveStatus @default(PENDING)
+  reviewedById String?     @map("reviewed_by_id")
+  reviewNotes  String?     @map("review_notes")
+
+  student      Student     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  reviewedBy   User?       @relation("LeaveApprover", fields: [reviewedById], references: [id])
+
+  @@index([studentId])
+  @@map("leave_applications")
+}
+
+model FeeInvoice {
+  id          String        @id @default(cuid())
+  studentId   String        @map("student_id")
+  invoiceNo   String        @unique @map("invoice_no")
+  totalAmount Decimal       @db.Decimal(10, 2) @map("total_amount")
+  paidAmount  Decimal       @default(0.00) @db.Decimal(10, 2) @map("paid_amount")
+  dueAmount   Decimal       @db.Decimal(10, 2) @map("due_amount")
+  dueDate     DateTime      @map("due_date")
+  createdAt   DateTime      @default(now()) @map("created_at")
+
+  student     Student       @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  payments    PaymentSubmission[]
+
+  @@index([studentId])
+  @@map("fee_invoices")
+}
+
+model PaymentSubmission {
+  id              String             @id @default(cuid())
+  invoiceId       String             @map("invoice_id")
+  transactionId   String             @map("transaction_id") // Bank Ref / UTR
+  amountDeclared  Decimal            @db.Decimal(10, 2) @map("amount_declared")
+  receiptFileUrl  String?            @map("receipt_file_url")
+  status          VerificationStatus @default(PENDING_VERIFICATION)
+  rejectionReason String?            @map("rejection_reason")
+  verifiedById    String?            @map("verified_by_id")
+  verifiedAt      DateTime?          @map("verified_at")
+  createdAt       DateTime           @default(now()) @map("created_at")
+
+  invoice         FeeInvoice         @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  verifiedBy      User?              @relation("PaymentAuditor", fields: [verifiedById], references: [id])
+
+  @@index([invoiceId])
+  @@index([transactionId])
+  @@map("payment_submissions")
+}
+
+model StudentDocument {
+  id              String             @id @default(cuid())
+  studentId       String             @map("student_id")
+  title           String             // "Birth Certificate"
+  fileUrl         String             @map("file_url")
+  certificateType CertificateType?   @map("certificate_type") // For exit barriers
+  status          VerificationStatus @default(PENDING_VERIFICATION)
+  rejectionReason String?            @map("rejection_reason")
+  verifiedById    String?            @map("verified_by_id")
+  verifiedAt      DateTime?          @map("verified_at")
+  createdAt       DateTime           @default(now()) @map("created_at")
+
+  student         Student            @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  verifiedBy      User?              @relation("DocumentAuditor", fields: [verifiedById], references: [id])
+
+  @@index([studentId])
+  @@map("student_documents")
+}
+
+model SubstitutionDuty {
+  id                  String   @id @default(cuid())
+  date                DateTime @db.Date
+  periodNumber        Int      @map("period_number")
+  classId             String   @map("class_id")
+  absentTeacherId     String   @map("absent_teacher_id")
+  substituteTeacherId String   @map("substitute_teacher_id")
+
+  class               Class    @relation(fields: [classId], references: [id])
+  absentTeacher       User     @relation("AbsentTeacher", fields: [absentTeacherId], references: [id])
+  substituteTeacher   User     @relation("SubstituteTeacher", fields: [substituteTeacherId], references: [id])
+
+  @@unique([date, periodNumber, classId])
+  @@map("substitution_duties")
+}
+
+model AcademicHistory {
+  id               String        @id @default(cuid())
+  studentId        String        @map("student_id")
+  academicCycleId  String        @map("academic_cycle_id")
+  classSnapshot    String        @map("class_snapshot") // e.g., "Grade 9-A"
+  finalGpa         String?       @map("final_gpa")
+  reportCardPdfUrl String        @map("report_card_pdf_url") // Lifetime student download link
+  createdAt        DateTime      @default(now()) @map("created_at")
+
+  student          Student       @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  cycle            AcademicCycle @relation(fields: [academicCycleId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, academicCycleId])
+  @@index([studentId])
+  @@map("academic_histories")
+}
+
+model BulkJobLog {
+  id            String   @id @default(cuid())
+  branchId      String   @map("branch_id")
+  requestedById String   @map("requested_by_id")
+  jobType       String   @map("job_type") // e.g., "ADMIT_CARDS", "FEE_RECEIPTS"
+  fileUrl       String   @map("file_url")
+  status        String   @default("PENDING") // PENDING, COMPLETED, FAILED
+  itemCount     Int      @default(0) @map("item_count")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  @@index([branchId])
+  @@map("bulk_job_logs")
+}
