@@ -264,6 +264,7 @@ model PaymentSubmission {
   transactionId   String             @map("transaction_id") // Bank Ref / UTR
   amountDeclared  Decimal            @db.Decimal(10, 2) @map("amount_declared")
   receiptFileUrl  String?            @map("receipt_file_url")
+  idempotencyKey  String?            @unique @map("idempotency_key")
   status          VerificationStatus @default(PENDING_VERIFICATION)
   rejectionReason String?            @map("rejection_reason")
   verifiedById    String?            @map("verified_by_id")
@@ -275,6 +276,7 @@ model PaymentSubmission {
 
   @@index([invoiceId])
   @@index([transactionId])
+  @@index([idempotencyKey])
   @@map("payment_submissions")
 }
 

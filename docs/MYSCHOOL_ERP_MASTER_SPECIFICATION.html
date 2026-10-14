@@ -882,6 +882,16 @@
           <td><strong>Regulatory Liability & Lost Transcripts:</strong> Deleting a student before statutory clearance violates education board mandates and destroys academic history.</td>
           <td><strong>Statutory Exit Barrier Guard:</strong> Hard programmatic check in deletion API. Verifies that Transfer Certificate (TC), Character Certificate, and No-Dues Slip exist with status <code>VERIFIED</code> before deletion.</td>
         </tr>
+        <tr>
+          <td><strong>Heavy Document Uploads</strong></td>
+          <td><strong>Server Memory Exhaustion & Timeouts:</strong> Uploading 15MB certificates through server threads exhausts Node.js RAM and triggers HTTP 504 timeouts on mobile.</td>
+          <td><strong>Presigned S3 Direct Uploads (<code>src/lib/storage.ts</code>):</strong> Next.js signs a 60s HMAC token. Client browser streams file directly to S3 / Cloudflare R2, keeping server RAM at <strong>0MB</strong> and CPU at <strong>0%</strong>.</td>
+        </tr>
+        <tr>
+          <td><strong>Mobile Payment Double-Clicks</strong></td>
+          <td><strong>Duplicate Ledger Entries:</strong> Impatient parents on flaky mobile connections double-tap "Submit", generating race conditions and duplicate UTR records.</td>
+          <td><strong>Strict Idempotency Engine (<code>src/lib/idempotency.ts</code>):</strong> Client modal attaches a UUID. Server executes an atomic Redis lock (<code>SET key NX EX 60</code>), returning the cached pending response for subsequent taps.</td>
+        </tr>
       </tbody>
     </table>
   </section>

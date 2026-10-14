@@ -1711,6 +1711,16 @@
               <td><strong>Regulatory Liability & Lost Transcripts:</strong> Deleting or archiving a pupil before issuing statutory board documents creates severe educational compliance violations and irreversible record loss.</td>
               <td><strong>Statutory Exit Barrier Guard:</strong> Hard programmatic check in the deletion API. Verifies that Transfer Certificate (TC), Character Certificate, and No-Dues Slip exist with status <code>VERIFIED</code> in <code>student_documents</code> before allowing deletion confirmation.</td>
             </tr>
+            <tr>
+              <td><strong>Heavy Document Uploads (15MB Files)</strong></td>
+              <td><strong>Server RAM Exhaustion & 504 Timeouts:</strong> Streaming heavy PDFs through Next.js server threads burns CPU, saturates container RAM, and crashes under concurrent uploads.</td>
+              <td><strong>Presigned S3 Direct Uploads (<code>src/lib/storage.ts</code>):</strong> Next.js only signs a 60-second HMAC URL. Client browser streams the file directly to S3 / Cloudflare R2 via <code>DirectUploadZone.tsx</code>, keeping server RAM at <strong>0MB</strong> and CPU at <strong>0%</strong>.</td>
+            </tr>
+            <tr>
+              <td><strong>Mobile Payment Double-Clicks</strong></td>
+              <td><strong>Duplicate Ledger Submissions:</strong> Parents on weak 3G/4G connections double-click "Submit Payment", spawning race conditions and duplicate UTR entries.</td>
+              <td><strong>Strict Idempotency Engine (<code>src/lib/idempotency.ts</code>):</strong> Client modal attaches a UUID. Server executes an atomic Redis lock (<code>SET key NX EX 60</code>). Subsequent taps return the cached pending response without writing to PostgreSQL.</td>
+            </tr>
           </tbody>
         </table>
       </div>
