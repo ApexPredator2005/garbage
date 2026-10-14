@@ -41,6 +41,11 @@
       padding: 0;
     }
 
+    html, body {
+      max-width: 100%;
+      overflow-x: hidden;
+    }
+
     body {
       background-color: #EAE6DE;
       color: var(--text-main);
@@ -52,6 +57,8 @@
     /* Outer IDE Window Container (Matches reference screenshots) */
     .ide-window {
       max-width: 1220px;
+      width: 100%;
+      min-width: 0;
       margin: 0 auto;
       background: var(--bg-canvas);
       border: 1px solid #D6CEC4;
@@ -89,6 +96,7 @@
 
     .window-titlebar {
       flex: 1;
+      min-width: 0;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -111,6 +119,8 @@
     .ide-body {
       display: flex;
       min-height: 860px;
+      min-width: 0;
+      max-width: 100%;
     }
 
     /* Sidebar */
@@ -239,6 +249,10 @@
       display: flex;
       flex-direction: column;
       overflow-y: auto;
+      overflow-x: hidden;
+      min-width: 0;
+      max-width: 100%;
+      width: 100%;
     }
 
     /* Tabs Bar */
@@ -250,6 +264,11 @@
       height: 38px;
       padding: 0 12px;
       gap: 4px;
+      min-width: 0;
+      max-width: 100%;
+      width: 100%;
+      overflow-x: auto;
+      overflow-y: hidden;
     }
 
     .doc-tab {
@@ -405,21 +424,21 @@
     /* Grids & Cards */
     .grid-2 {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 14px;
       margin-bottom: 20px;
     }
 
     .grid-3 {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 14px;
       margin-bottom: 20px;
     }
 
     .grid-4 {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 12px;
       margin-bottom: 20px;
     }
@@ -430,6 +449,7 @@
       border-radius: var(--radius-md);
       padding: 16px 18px;
       box-shadow: var(--shadow-sm);
+      min-width: 0;
     }
 
     .card-head {
@@ -438,8 +458,11 @@
       color: var(--text-main);
       margin-bottom: 8px;
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       gap: 7px;
+      flex-wrap: wrap;
+      word-break: break-word;
+      line-height: 1.35;
     }
 
     .card-body {
@@ -781,6 +804,279 @@
       color: var(--text-main);
     }
 
+    /* Mobile & Tablet Responsiveness */
+    .sidebar-toggle-btn {
+      display: none;
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius-sm);
+      padding: 4px 10px;
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--primary-burgundy);
+      cursor: pointer;
+      align-items: center;
+      gap: 5px;
+      font-family: inherit;
+    }
+
+    @media (max-width: 960px) {
+      .grid-4 {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .grid-3 {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .swatch-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 4px;
+        background-color: var(--bg-canvas);
+        overflow-x: hidden;
+      }
+
+      .ide-window {
+        border-radius: 8px;
+        box-shadow: none;
+        border: 1px solid var(--border-card);
+        width: 100%;
+        max-width: 100%;
+        overflow-x: hidden;
+      }
+
+      .window-header {
+        height: 42px;
+        padding: 0 10px;
+        justify-content: space-between;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+      }
+
+      .window-controls {
+        display: none;
+      }
+
+      .window-titlebar {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        justify-content: flex-start;
+      }
+
+      .search-pill {
+        font-size: 11px;
+        padding: 3px 8px;
+        max-width: 100%;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .sidebar-toggle-btn {
+        display: inline-flex;
+        flex-shrink: 0;
+      }
+
+      .ide-body {
+        flex-direction: column;
+        min-height: auto;
+        min-width: 0;
+        max-width: 100%;
+      }
+
+      .sidebar {
+        display: none;
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid var(--border-card);
+        padding: 12px 16px;
+        box-sizing: border-box;
+      }
+
+      .sidebar.open {
+        display: flex;
+        animation: fadeIn 0.15s ease-in;
+      }
+
+      .tabs-bar {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        overflow-x: auto;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        padding: 0 8px;
+        height: 42px;
+        gap: 6px;
+        box-sizing: border-box;
+      }
+
+      .tabs-bar::-webkit-scrollbar {
+        display: none;
+      }
+
+      .doc-tab {
+        flex-shrink: 0;
+        padding: 8px 12px;
+        font-size: 12px;
+      }
+
+      .preview-pill {
+        display: none;
+      }
+
+      .doc-content {
+        padding: 18px 12px;
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+      }
+
+      .hero-banner {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+        margin-bottom: 20px;
+        padding-bottom: 16px;
+        width: 100%;
+      }
+
+      .hero-left {
+        width: 100%;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .mountain-art {
+        display: none;
+      }
+
+      .hero-title {
+        font-size: 19px;
+        line-height: 1.25;
+        word-break: break-word;
+      }
+
+      .hero-subtitle {
+        font-size: 12.5px;
+      }
+
+      .sec-header {
+        flex-wrap: wrap;
+        gap: 6px 8px;
+        margin-top: 22px;
+        margin-bottom: 12px;
+      }
+
+      .sec-title {
+        font-size: 16px;
+      }
+
+      .sec-desc {
+        font-size: 12px;
+        margin-left: 0;
+        width: 100%;
+      }
+
+      .grid-2,
+      .grid-3,
+      .grid-4 {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 12px;
+        margin-bottom: 16px;
+        width: 100%;
+      }
+
+      .grid-2 > *,
+      .grid-3 > *,
+      .grid-4 > * {
+        min-width: 0;
+        max-width: 100%;
+      }
+
+      .kv-grid {
+        grid-template-columns: 1fr;
+        width: 100%;
+      }
+
+      .kv-label {
+        background: #F4EFEB;
+        padding: 8px 12px;
+        border-bottom: 1px solid var(--border-subtle);
+      }
+
+      .kv-val {
+        padding: 8px 12px;
+        border-bottom: 1px solid var(--border-card);
+      }
+
+      .checklist-grid {
+        grid-template-columns: 1fr;
+        gap: 8px;
+        width: 100%;
+      }
+
+      .swatch-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+        width: 100%;
+      }
+
+      .clean-table {
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .clean-table th,
+      .clean-table td {
+        padding: 8px 10px;
+        font-size: 12px;
+      }
+
+      .flow-row {
+        padding: 6px 0;
+        width: 100%;
+        max-width: 100%;
+      }
+
+      .flow-node {
+        min-width: 125px;
+      }
+
+      .card {
+        padding: 14px 14px;
+        width: 100%;
+        box-sizing: border-box;
+      }
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 0;
+      }
+
+      .ide-window {
+        border-radius: 0;
+        border: none;
+      }
+
+      .doc-content {
+        padding: 16px 10px;
+      }
+
+      .hero-title {
+        font-size: 18px;
+      }
+    }
+
     /* Print Controls */
     @media print {
       body {
@@ -818,6 +1114,9 @@
         myschool-erp / docs
       </div>
     </div>
+    <button class="sidebar-toggle-btn" onclick="toggleSidebar()" aria-label="Toggle explorer">
+      <span>&#128194;</span> Files
+    </button>
   </header>
 
   <!-- IDE Body Layout -->
@@ -2007,6 +2306,11 @@
 </div>
 
 <script>
+  function toggleSidebar() {
+    const sb = document.querySelector('.sidebar');
+    if (sb) sb.classList.toggle('open');
+  }
+
   function switchDoc(docId) {
     // Hide all panels
     document.querySelectorAll('.doc-panel').forEach(p => p.classList.remove('active'));
@@ -2027,6 +2331,17 @@
         f.classList.add('active');
       }
     });
+
+    // Close sidebar on mobile after tapping a document
+    const sb = document.querySelector('.sidebar');
+    if (sb && window.innerWidth <= 768) {
+      sb.classList.remove('open');
+    }
+
+    // Scroll main viewport to top
+    const vp = document.querySelector('.main-viewport');
+    if (vp) vp.scrollTop = 0;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 </script>
 

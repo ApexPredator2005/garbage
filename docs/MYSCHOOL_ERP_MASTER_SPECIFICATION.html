@@ -465,6 +465,123 @@
       margin-bottom: 24px;
     }
 
+    /* Mobile & Tablet Responsiveness */
+    @media (max-width: 900px) {
+      .grid-4 {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .grid-3 {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .steps-chain {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 12px 8px;
+      }
+
+      .action-bar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+        padding: 12px 14px;
+        text-align: center;
+      }
+
+      .btn-print {
+        width: 100%;
+        padding: 10px 16px;
+      }
+
+      .sheet-page {
+        padding: 24px 16px;
+        margin-bottom: 24px;
+        border-radius: var(--radius-md);
+      }
+
+      .main-title {
+        font-size: 26px;
+      }
+
+      .main-subtitle {
+        font-size: 14px;
+        margin-bottom: 18px;
+      }
+
+      .badge-row {
+        gap: 8px;
+        margin-bottom: 24px;
+      }
+
+      .pill-badge {
+        padding: 5px 10px;
+        font-size: 11px;
+      }
+
+      .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+        margin-bottom: 18px;
+        padding-bottom: 12px;
+      }
+
+      .section-title {
+        font-size: 19px;
+      }
+
+      .grid-2,
+      .grid-3,
+      .grid-4,
+      .steps-chain,
+      .rules-grid,
+      .checklist-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        margin-bottom: 18px;
+      }
+
+      .spec-table {
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .spec-table th,
+      .spec-table td {
+        padding: 9px 12px;
+        font-size: 12px;
+      }
+
+      .flow-banner {
+        padding: 14px;
+        font-size: 11px;
+      }
+
+      .card {
+        padding: 16px 14px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 8px 4px;
+      }
+
+      .sheet-page {
+        padding: 18px 12px;
+        border-radius: 8px;
+      }
+
+      .main-title {
+        font-size: 22px;
+      }
+    }
+
     /* Print styling */
     @media print {
       body {
