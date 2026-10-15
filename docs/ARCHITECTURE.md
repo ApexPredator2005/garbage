@@ -22,22 +22,65 @@
 
 ---
 
-## 02. Technology Stack
+## 02. Technology Stack & Framework Specifications
 
-| Layer | Technology | Version / Configuration | Technical Justification |
+MYSchool ERP utilizes a unified, high-concurrency 7-tier architecture engineered for enterprise reliability across multi-campus operations:
+
+### Tier 1: Frontend & User Interface Layer
+- **Core Framework:** Next.js 15+ with React 19 (App Router). Leverages React Server Components (RSC) for instantaneous server rendering and minimal client JavaScript payload.
+- **Styling Engine:** Tailwind CSS v3.4+ configured with custom institutional color variables (`#682038` Burgundy, `#FAF6F0` Cream, `#8B5E3C` Warm Bronze).
+- **Component Primitives:** Accessible, headless primitives styled with Radix UI and Lucide React icons for dense, high-efficiency data tables, multi-campus comboboxes, and responsive modal dialogues.
+- **Client State & Tenancy:** URL-driven state scoping (`/[branchSlug]/[departmentCode]/[module]`) ensuring zero cross-tab session bleeding and full deep-linking fidelity.
+
+### Tier 2: Backend, API & Validation Layer
+- **Runtime Environment:** Next.js App Router Server Actions and typed Route Handlers running on Node.js 20+ LTS / Edge Runtimes.
+- **Programming Language:** TypeScript 5.x+ in Strict Mode (`"strict": true`, `"noImplicitAny": true`) enforcing end-to-end type safety from the SQL schema to frontend form fields.
+- **Runtime Validation:** Zod schema validation across all Server Actions, public endpoints, and environment variables (`@/config/env.ts`), ensuring fail-safe runtime verification before any database interaction.
+
+### Tier 3: Database & Connection Pooling Tier
+- **Relational Core:** Supabase PostgreSQL 16+ featuring ACID compliance, foreign key relational integrity, automated 7-day Point-In-Time Recovery (PITR), and zero Linux VM maintenance overhead.
+- **High-Concurrency Pooler:** Supabase Supavisor running in **Transaction Mode on Port 6543**. Multiplexes 500+ concurrent 8:30 AM attendance spikes into 15–25 physical database connections, completely eliminating serverless socket exhaustion.
+- **Migration & Admin Port:** Direct PostgreSQL connection on **Port 5432**, strictly isolated for Prisma CLI migrations and schema pushes.
+
+### Tier 4: ORM & Data Access Layer
+- **Object-Relational Mapping:** Prisma ORM (Latest Stable) providing type-safe database queries, schema migrations (`prisma/schema.prisma`), and auto-generated TypeScript client typings.
+- **Database Client Singleton:** Centralized singleton (`src/lib/prisma.ts`) preventing redundant connection pool spawning across serverless hot reloads.
+- **Dual-URL Configuration:** Configured with `DATABASE_URL` (Supavisor pooler on port 6543) and `DIRECT_URL` (direct PostgreSQL on port 5432).
+
+### Tier 5: In-Memory Cache, Rate Limiting & Idempotency
+- **Cache Engine:** Upstash Redis (Serverless HTTP/REST Redis).
+- **Read-Heavy Caching:** Master metadata (academic calendars, branch configurations, department rosters, subjects) cached with a >90% hit ratio, deflecting ~80% of read traffic away from PostgreSQL during peak morning login hours.
+- **Strict Idempotency Engine (`src/lib/idempotency.ts`):** Employs atomic Redis locks (`SET key NX EX 60`) on financial submissions (fees, UTR uploads) to prevent duplicate ledger records when parents double-tap submit on mobile connections.
+
+### Tier 6: Authentication & Role-Based Access Control (RBAC)
+- **Identity Provider:** NextAuth.js (Auth.js v5) with Credentials Provider.
+- **Session Strategy:** Stateless, HTTP-only, encrypted Edge JWT cookies. Eliminates round-trip database queries inside Edge middleware for route protection (0ms auth latency).
+- **7-Tier Role Hierarchy:** Enforces discrete permission boundaries for `SUPER_ADMIN`, `BRANCH_ADMIN`, `HOD`, `TEACHER`, `MANAGEMENT`, `PARENT`, and `STUDENT`.
+
+### Tier 7: Object Storage, Media Pipeline & Async Background Workers
+- **Direct S3 Upload Pipeline (`src/lib/storage.ts`):** Students and parents upload large fee receipts and statutory documents directly to Cloudflare R2 / Supabase Storage S3 buckets via short-lived (60s) HMAC pre-signed URLs. Completely bypasses Next.js server RAM and CPU (0MB server buffer).
+- **Asynchronous Task Queue:** Inngest Headless Queue Worker. Implements the "Buzzer Token" pattern—returning an instant HTTP 200 with `jobId` in ~30ms for long-running batch operations.
+- **Document Compilation:** `@react-pdf/renderer` compiling watermarked admit cards, multi-page fee receipts, and term report cards off-thread, streaming generated artifacts directly to private storage.
+
+---
+
+### Quick Sharing Summary Table
+
+| Category | Technology | Target / Version | Core Architectural Function |
 | :--- | :--- | :--- | :--- |
-| **Framework** | Next.js (App Router) | React 19 / Next.js 15+ | Unified repository eliminates CORS; shares Zod & Prisma types; halves hosting overhead. |
-| **Language** | TypeScript | Strict Mode (`5.x+`) | End-to-end type safety from database models to frontend form components. |
-| **Database** | Supabase PostgreSQL | PostgreSQL 16+ | Managed ACID compliance, 7-day Point-In-Time Recovery (PITR), zero Linux VM maintenance. |
-| **Connection Pooling** | Supabase Supavisor | Port `6543` (Transaction Mode) | Multiplexes 500+ concurrent requests into 15–25 physical connections during 8:30 AM peak. |
-| **ORM / Query Engine** | Prisma ORM | Latest Stable | Type-safe migrations, auto-generated TypeScript models, dual-URL pooler compatibility. |
-| **Authentication** | NextAuth.js (Auth.js) | v5 (Beta / Latest) | Credentials Provider + Edge JWT session cookies; zero DB hits in middleware. |
-| **Async Task Runner** | Inngest | Headless Task Queue | Offloads multi-minute PDF rendering from main HTTP threads, preventing 504 timeouts. |
-| **In-Memory Cache & Rate Limiting** | Upstash Redis | Serverless REST Redis | Caches read-heavy master entities (calendars, branches, subjects) with >90% hit ratio; offloads 80% DB load. |
-| **Document Compiler** | `@react-pdf/renderer` | React-based PDF Engine | Headless generation of watermarked, multi-page admit cards and report card bundles. |
-| **Object Storage** | Supabase Storage | S3-Compatible Private Buckets | Stores student certificates and receipts outside SQL; pre-signed direct upload bypasses RAM. |
-| **Validation Layer** | Zod | Runtime Schema Validation | Validates all server actions, form submissions, and environment variables (`@/config/env.ts`). |
-| **Styling & Icons** | Tailwind CSS + Lucide | Vanilla CSS Variables | Clean, accessible design system matching institutional typography and high-density tables. |
+| **Frontend Framework** | Next.js (App Router) | React 19 / Next.js 15+ | Server components (RSC), URL-scoped multi-branch routing, zero client bloat. |
+| **Language & Typings** | TypeScript | v5.x+ (Strict Mode) | Complete type safety from PostgreSQL schema to frontend client forms. |
+| **UI & Styling** | Tailwind CSS + Lucide | v3.4+ / Vanilla CSS Vars | Accessible institutional design tokens, high-density data tables, responsive grids. |
+| **Backend & API** | Next.js Server Actions | Node.js 20 LTS / Edge | Co-located RPC actions, zero REST boilerplate, typed mutations. |
+| **Schema Validation** | Zod | v3.23+ | Runtime payload sanitization on forms, server actions, and environment variables. |
+| **Relational Database** | Supabase PostgreSQL | PostgreSQL 16+ | Managed ACID database, row-level safety, 7-day point-in-time recovery (PITR). |
+| **Connection Pooling** | Supabase Supavisor | Port 6543 (Transaction) | Multiplexes 500+ callers into 15–25 physical sockets; stops socket exhaustion. |
+| **ORM & Data Layer** | Prisma ORM | Latest Stable | Type-safe migrations, auto-generated TypeScript models, dual-URL pooler support. |
+| **In-Memory Cache** | Upstash Redis | Serverless REST Redis | Read-heavy caching (>90% hit rate) and atomic financial idempotency locks (`SET NX`). |
+| **Auth & Security** | NextAuth.js (Auth.js) | v5 (Edge JWT) | Stateless encrypted session cookies; 0ms DB overhead in middleware; 7 RBAC roles. |
+| **Object Storage** | Cloudflare R2 / S3 | S3-Compatible Buckets | 60-second HMAC presigned direct client uploads; 0MB server memory burden. |
+| **Background Queue** | Inngest | Headless Task Queue | Async batch job queue (Buzzer Token pattern); prevents HTTP 504 timeouts. |
+| **Document Compiler** | `@react-pdf/renderer` | Latest Stable | Headless rendering of watermarked admit cards and multi-page transcripts. |
 
 ---
 

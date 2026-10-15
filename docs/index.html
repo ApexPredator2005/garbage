@@ -1495,53 +1495,173 @@
         <!-- 02 Technology Stack -->
         <div class="sec-header">
           <span class="num-badge">02</span>
-          <span class="sec-title">Technology stack</span>
-          <span class="sec-desc">Modern, reliable tools chosen for developer experience and long-term scalability.</span>
+          <span class="sec-title">Technology stack & framework specifications</span>
+          <span class="sec-desc">Comprehensive 7-tier architecture engineered for enterprise multi-campus concurrency.</span>
+        </div>
+
+        <div class="grid-3" style="margin-bottom: 20px;">
+          <div class="card">
+            <div class="card-head">1. Frontend & Presentation</div>
+            <div class="card-body">
+              <strong>Next.js 15+ & React 19:</strong> Server Components (RSC) deliver zero-JS page loads. URL-scoped tenancy (<code>/[branch]/[dept]/[module]</code>) guarantees complete isolation between campus tabs. Tailwind CSS + Lucide icons.
+              <div class="tag-row">
+                <span class="tag-pill">React 19</span>
+                <span class="tag-pill">App Router</span>
+                <span class="tag-pill">Tailwind CSS</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">2. Backend & Runtime</div>
+            <div class="card-body">
+              <strong>Next.js Server Actions:</strong> Co-located, strongly typed RPC actions. Strict TypeScript 5.x+ across all layers. Zod runtime schema sanitization ensures fail-safe execution before database touch.
+              <div class="tag-row">
+                <span class="tag-pill">TypeScript 5.x</span>
+                <span class="tag-pill">Zod Validation</span>
+                <span class="tag-pill">Server Actions</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">3. Database & Supavisor</div>
+            <div class="card-body">
+              <strong>Supabase PostgreSQL 16+:</strong> ACID compliance with 7-day PITR. Supavisor pooler (Port 6543) in Transaction Mode multiplexes 500+ callers into 15–25 physical sockets. Direct Port 5432 for Prisma migrations.
+              <div class="tag-row">
+                <span class="tag-pill">Postgres 16</span>
+                <span class="tag-pill">Supavisor :6543</span>
+                <span class="tag-pill">Prisma ORM</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-3" style="margin-bottom: 20px;">
+          <div class="card">
+            <div class="card-head">4. In-Memory Cache & Lock</div>
+            <div class="card-body">
+              <strong>Upstash Redis:</strong> Sub-10ms REST edge caching for master calendars, branches, and subjects (>90% hit rate). Atomic distributed idempotency locks (<code>SET NX EX 60</code>) prevent double fee submissions on mobile.
+              <div class="tag-row">
+                <span class="tag-pill">Upstash Redis</span>
+                <span class="tag-pill">Idempotency</span>
+                <span class="tag-pill">&gt;90% Hit Rate</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">5. Auth & RBAC Security</div>
+            <div class="card-body">
+              <strong>NextAuth.js (Auth.js v5):</strong> Stateless HTTP-only Edge JWT session cookies. Eliminates database roundtrips in Edge middleware (0ms auth latency). Enforces 7 distinct role hierarchies.
+              <div class="tag-row">
+                <span class="tag-pill">NextAuth v5</span>
+                <span class="tag-pill">Edge JWT</span>
+                <span class="tag-pill">7 RBAC Roles</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">6. Storage & Batch Workers</div>
+            <div class="card-body">
+              <strong>S3 Presigned URLs + Inngest:</strong> 60s HMAC presigned direct client uploads bypass server RAM. Inngest async queue workers compile 500+ admit cards via <code>@react-pdf/renderer</code> (Buzzer Token pattern).
+              <div class="tag-row">
+                <span class="tag-pill">Cloudflare R2 / S3</span>
+                <span class="tag-pill">Inngest Workers</span>
+                <span class="tag-pill">React-PDF</span>
+              </div>
+            </div>
+          </div>
         </div>
 
         <table class="clean-table">
           <thead>
             <tr>
-              <th style="width: 25%;">Layer</th>
-              <th style="width: 30%;">Technology</th>
-              <th>Architectural Role</th>
+              <th style="width: 20%;">Architectural Tier</th>
+              <th style="width: 25%;">Technology & Framework</th>
+              <th style="width: 20%;">Version / Mode</th>
+              <th>Architectural Role & Justification</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td><strong>Frontend & API</strong></td>
-              <td>Next.js 15+ (React 19)</td>
-              <td>Unified App Router eliminates cross-origin CORS errors and shares Zod contracts.</td>
+              <td><strong>Frontend & UI</strong></td>
+              <td>Next.js + React 19</td>
+              <td>App Router (RSC)</td>
+              <td>Server-rendered UI with URL-scoped tenancy (<code>/[branch]/[dept]</code>); eliminates CORS and client bloat.</td>
             </tr>
             <tr>
-              <td><strong>Database</strong></td>
-              <td>Supabase PostgreSQL 16+</td>
-              <td>Managed relational engine with 7-day Point-In-Time Recovery (PITR).</td>
+              <td><strong>Language & Types</strong></td>
+              <td>TypeScript</td>
+              <td>v5.x+ (Strict Mode)</td>
+              <td>End-to-end type safety from PostgreSQL schema models to client form components.</td>
+            </tr>
+            <tr>
+              <td><strong>Styling & Design</strong></td>
+              <td>Tailwind CSS + Lucide</td>
+              <td>v3.4+ / Vanilla CSS</td>
+              <td>Institutional typography, responsive mobile grids, and high-density data tables.</td>
+            </tr>
+            <tr>
+              <td><strong>Backend & API</strong></td>
+              <td>Next.js Server Actions</td>
+              <td>Node.js 20 LTS / Edge</td>
+              <td>Co-located RPC mutations without REST boilerplate; strict single-origin security.</td>
+            </tr>
+            <tr>
+              <td><strong>Validation Layer</strong></td>
+              <td>Zod</td>
+              <td>v3.23+ Runtime Schemas</td>
+              <td>Runtime sanitization on Server Actions, URL params, forms, and environment variables.</td>
+            </tr>
+            <tr>
+              <td><strong>Relational Database</strong></td>
+              <td>Supabase PostgreSQL</td>
+              <td>PostgreSQL 16+</td>
+              <td>Managed relational engine with foreign key integrity and 7-day Point-In-Time Recovery (PITR).</td>
             </tr>
             <tr>
               <td><strong>Connection Pooler</strong></td>
-              <td>Supavisor (Port 6543)</td>
-              <td>Transaction pooling holds connections only during query run (~10ms), multiplexing 500+ users.</td>
+              <td>Supabase Supavisor</td>
+              <td>Port 6543 (Transaction)</td>
+              <td>Multiplexes 500+ callers into 15–25 physical sockets; stops serverless socket exhaustion.</td>
             </tr>
             <tr>
-              <td><strong>Authentication</strong></td>
-              <td>NextAuth.js (Auth.js v5)</td>
-              <td>Credentials Provider with HTTP-only, encrypted JWT cookies; validates roles in Edge middleware with 0ms DB latency.</td>
+              <td><strong>ORM & Migrations</strong></td>
+              <td>Prisma ORM</td>
+              <td>Latest Stable</td>
+              <td>Type-safe migrations, auto-generated TypeScript models, and dual-URL pooler support.</td>
+            </tr>
+            <tr>
+              <td><strong>In-Memory Cache & Locks</strong></td>
+              <td>Upstash Redis</td>
+              <td>Serverless REST Redis</td>
+              <td>Read-heavy caching (>90% hit rate) and atomic financial idempotency locks (<code>SET NX EX 60</code>).</td>
+            </tr>
+            <tr>
+              <td><strong>Auth & RBAC Security</strong></td>
+              <td>NextAuth.js (Auth.js)</td>
+              <td>v5 (Edge JWT)</td>
+              <td>Stateless encrypted session cookies; 0ms DB overhead in middleware; 7 RBAC roles.</td>
+            </tr>
+            <tr>
+              <td><strong>Object Storage</strong></td>
+              <td>Cloudflare R2 / S3</td>
+              <td>S3-Compatible Buckets</td>
+              <td>60-second HMAC presigned direct client uploads; 0MB server memory burden.</td>
             </tr>
             <tr>
               <td><strong>Background Queue</strong></td>
               <td>Inngest</td>
-              <td>Renders mass PDFs off-thread, returning instant job IDs to prevent 504 timeouts.</td>
+              <td>Headless Task Queue</td>
+              <td>Async batch job queue (Buzzer Token pattern); prevents HTTP 504 gateway timeouts.</td>
             </tr>
             <tr>
-              <td><strong>In-Memory Cache</strong></td>
-              <td>Upstash Redis</td>
-              <td>Serverless edge caching for master calendars, branches & subject lists; >90% cache hit ratio offloading 80% DB load.</td>
-            </tr>
-            <tr>
-              <td><strong>Document Engine</strong></td>
+              <td><strong>Document Compiler</strong></td>
               <td>@react-pdf/renderer</td>
-              <td>Compiles watermarked admit cards and grade transcripts directly to private S3.</td>
+              <td>Latest Stable</td>
+              <td>Headless rendering of watermarked admit cards and multi-page transcripts directly to S3.</td>
             </tr>
           </tbody>
         </table>

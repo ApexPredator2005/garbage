@@ -9,10 +9,29 @@
 | Property | Specification Details |
 | :--- | :--- |
 | **Product Name** | **MYSchool ERP** (JSS School Edition) |
-| **Platform** | Responsive Web Application (Next.js 19 App Router, Tailwind CSS, shadcn/ui) |
+| **Platform** | Responsive Web Application (Next.js 15+ App Router, React 19, Tailwind CSS, shadcn/ui) |
 | **Target Institution** | **JSS School** (Central Board, multi-campus physical branches, academic wings) |
-| **Core Architecture** | Unified Full-Stack Repository, NextAuth.js (Auth.js v5) with Edge JWT cookies, URL-driven branch/wing tenancy (`/[branchSlug]/[deptCode]/[module]`), Managed Supabase PostgreSQL with Supavisor Connection Pooling, Inngest Async Workers |
+| **Core Architecture** | Unified Full-Stack Repository, NextAuth.js (Auth.js v5) with Edge JWT cookies, URL-driven branch/wing tenancy (`/[branchSlug]/[deptCode]/[module]`), Managed Supabase PostgreSQL with Supavisor Connection Pooling, Upstash Redis In-Memory Cache, Inngest Async Workers |
 | **Primary Goal** | Digitize, automate, and connect all daily academic and administrative operations across all JSS School campuses into a single unified platform—absorbing peak 8:30 AM attendance spikes, safeguarding financial audits with strict manual UTR verification, enforcing statutory student exit barriers, and guaranteeing lifetime student transcript access. |
+
+### Technology Stack & Frameworks Summary
+
+| Architectural Tier | Technology & Framework | Version / Configuration | Core Architectural Role |
+| :--- | :--- | :--- | :--- |
+| **Frontend / UI** | Next.js + React 19 | App Router / React Server Components | High-performance server rendering, URL-scoped tenancy, zero client bloat. |
+| **Styling & Design** | Tailwind CSS + Lucide | v3.4+ / Vanilla CSS Variables | Institutional typography, responsive mobile grids, high-density data tables. |
+| **Backend & Runtime** | Next.js Server Actions | Node.js 20 LTS / Edge Runtimes | Co-located RPC mutations, typed server operations without REST overhead. |
+| **Language & Typings** | TypeScript | v5.x+ (Strict Mode) | End-to-end compile-time contract safety from PostgreSQL to form UI. |
+| **Validation Layer** | Zod | Runtime Schema Validation | Runtime data sanitization on Server Actions, public APIs, and environment vars. |
+| **Relational Database** | Supabase PostgreSQL | PostgreSQL 16+ | Managed ACID relational database, foreign-key integrity, 7-day PITR. |
+| **Connection Pooler** | Supabase Supavisor | Port 6543 (Transaction Mode) | Multiplexes 500+ callers into 15–25 physical sockets; stops socket exhaustion. |
+| **ORM & Migrations** | Prisma ORM | Latest Stable | Type-safe migrations, auto-generated TypeScript models, dual-URL pooler support. |
+| **In-Memory Cache** | Upstash Redis | Serverless REST Redis | Read-heavy caching (>90% hit rate) and atomic financial idempotency locks (`SET NX`). |
+| **Auth & RBAC** | NextAuth.js (Auth.js) | v5 (Edge JWT) | Stateless encrypted session cookies; 0ms DB overhead in middleware; 7 RBAC roles. |
+| **Object Storage** | Cloudflare R2 / S3 | S3-Compatible Buckets | 60-second HMAC presigned direct client uploads; 0MB server memory burden. |
+| **Background Queue** | Inngest | Headless Task Queue | Async batch job queue (Buzzer Token pattern); prevents HTTP 504 timeouts. |
+| **Document Compiler** | `@react-pdf/renderer` | Latest Stable | Headless rendering of watermarked admit cards and multi-page transcripts. |
+
 
 ---
 

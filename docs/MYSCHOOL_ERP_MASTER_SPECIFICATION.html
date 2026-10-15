@@ -852,7 +852,105 @@
       </div>
     </div>
 
+    <!-- Technology Stack & Framework Specifications Table -->
+    <div style="font-size: 13px; font-weight: 700; color: var(--primary-burgundy); margin: 20px 0 8px 0; text-transform: uppercase; letter-spacing: 0.06em; display: flex; align-items: center; gap: 8px;">
+      <span>Technology Stack & Framework Specifications (7 Tiers)</span>
+    </div>
+    <table class="spec-table" style="margin-bottom: 20px;">
+      <thead>
+        <tr>
+          <th style="width: 20%;">Architectural Tier</th>
+          <th style="width: 25%;">Technology & Framework</th>
+          <th style="width: 20%;">Target / Mode</th>
+          <th>Core Role & Architectural Justification</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Frontend & UI</strong></td>
+          <td>Next.js 15+ & React 19</td>
+          <td>App Router / RSC</td>
+          <td>React Server Components render zero-JS HTML; URL-scoped tenancy (<code>/[branch]/[dept]</code>) eliminates CORS & cross-tab state collision.</td>
+        </tr>
+        <tr>
+          <td><strong>Language & Typings</strong></td>
+          <td>TypeScript</td>
+          <td>v5.x+ (Strict Mode)</td>
+          <td>End-to-end type safety from PostgreSQL schema models to client form inputs (<code>strict: true</code>).</td>
+        </tr>
+        <tr>
+          <td><strong>Styling & Design</strong></td>
+          <td>Tailwind CSS + Lucide</td>
+          <td>v3.4+ / Vanilla CSS</td>
+          <td>Accessible institutional design tokens, responsive mobile grids, and high-density academic tables.</td>
+        </tr>
+        <tr>
+          <td><strong>Backend & API</strong></td>
+          <td>Next.js Server Actions</td>
+          <td>Node.js 20 LTS / Edge</td>
+          <td>Co-located RPC server mutations without REST boilerplate; strict single-origin same-site security.</td>
+        </tr>
+        <tr>
+          <td><strong>Validation Layer</strong></td>
+          <td>Zod</td>
+          <td>v3.23+ Runtime Schemas</td>
+          <td>Runtime validation of Server Actions, forms, and environment variables (<code>@/config/env.ts</code>).</td>
+        </tr>
+        <tr>
+          <td><strong>Relational Database</strong></td>
+          <td>Supabase PostgreSQL</td>
+          <td>PostgreSQL 16+</td>
+          <td>Managed relational engine with ACID guarantees, foreign key cascade rules, and 7-day PITR.</td>
+        </tr>
+        <tr>
+          <td><strong>Connection Pooler</strong></td>
+          <td>Supabase Supavisor</td>
+          <td>Port 6543 (Transaction)</td>
+          <td>Multiplexes 500+ callers into 15–25 physical sockets; stops serverless socket exhaustion during morning peak.</td>
+        </tr>
+        <tr>
+          <td><strong>ORM & Migrations</strong></td>
+          <td>Prisma ORM</td>
+          <td>Latest Stable</td>
+          <td>Type-safe migrations, auto-generated TypeScript models, and dual-URL pooler connection management.</td>
+        </tr>
+        <tr>
+          <td><strong>In-Memory Cache & Lock</strong></td>
+          <td>Upstash Redis</td>
+          <td>Serverless REST Redis</td>
+          <td>Read-heavy caching (>90% hit rate) and atomic financial idempotency locks (<code>SET NX EX 60</code>).</td>
+        </tr>
+        <tr>
+          <td><strong>Auth & RBAC Security</strong></td>
+          <td>NextAuth.js (Auth.js)</td>
+          <td>v5 (Edge JWT)</td>
+          <td>Stateless encrypted session cookies; 0ms DB overhead in Edge middleware; 7 discrete RBAC roles.</td>
+        </tr>
+        <tr>
+          <td><strong>Object Storage</strong></td>
+          <td>Cloudflare R2 / S3</td>
+          <td>S3-Compatible Buckets</td>
+          <td>60-second HMAC presigned direct client uploads; 0MB server memory buffer on large documents.</td>
+        </tr>
+        <tr>
+          <td><strong>Background Queue</strong></td>
+          <td>Inngest</td>
+          <td>Headless Task Queue</td>
+          <td>Async batch job queue (Buzzer Token pattern); prevents HTTP 504 gateway timeouts on report cards.</td>
+        </tr>
+        <tr>
+          <td><strong>Document Compiler</strong></td>
+          <td>@react-pdf/renderer</td>
+          <td>Latest Stable</td>
+          <td>Headless rendering of watermarked admit cards and multi-page transcripts directly to private S3.</td>
+        </tr>
+      </tbody>
+    </table>
+
     <!-- Failure Handling Resilience Table -->
+    <div style="font-size: 13px; font-weight: 700; color: var(--primary-burgundy); margin: 20px 0 8px 0; text-transform: uppercase; letter-spacing: 0.06em; display: flex; align-items: center; gap: 8px;">
+      <span>Failure Handling & Concurrency Resilience Matrix</span>
+    </div>
     <table class="spec-table" style="margin-top: 8px;">
       <thead>
         <tr>
