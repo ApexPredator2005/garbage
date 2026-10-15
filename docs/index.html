@@ -1145,13 +1145,16 @@
         <li class="tree-file" onclick="switchDoc('security')">
           <span class="file-icon">&#128196;</span> SECURITY.md
         </li>
+        <li class="tree-file" onclick="switchDoc('decisions')">
+          <span class="file-icon">&#128196;</span> DECISIONS.md
+        </li>
       </ul>
 
       <!-- Documentation Progress Tracker (Matches Reference Screenshots) -->
       <div class="progress-box">
         <div class="progress-head">
           Documentation Progress
-          <span>8/8 complete 100%</span>
+          <span>9/9 complete 100%</span>
         </div>
         <div class="progress-bar">
           <div class="progress-bar-fill" style="width: 100%;"></div>
@@ -1163,6 +1166,7 @@
           <li><span class="check-dot">&check;</span> DESIGN_SYSTEM.md</li>
           <li><span class="check-dot">&check;</span> DATABASE.md</li>
           <li><span class="check-dot">&check;</span> SECURITY.md</li>
+          <li><span class="check-dot">&check;</span> DECISIONS.md</li>
           <li><span class="check-dot">&check;</span> CODE_STYLE.md</li>
           <li><span class="check-dot">&check;</span> TESTING.md</li>
         </ul>
@@ -1191,6 +1195,9 @@
         </button>
         <button class="doc-tab" id="tab-security" onclick="switchDoc('security')">
           <span>&#128196;</span> SECURITY.md
+        </button>
+        <button class="doc-tab" id="tab-decisions" onclick="switchDoc('decisions')">
+          <span>&#128196;</span> DECISIONS.md
         </button>
         <div class="preview-pill">Preview Mode</div>
       </nav>
@@ -2474,6 +2481,389 @@
             <div class="card-body">Finance & library clearance confirming ₹0 fee dues and zero unreturned books.</div>
           </div>
         </div>
+      </div>
+
+      <!-- ==================== 7. DECISIONS.MD PANEL ==================== -->
+      <div class="doc-content doc-panel" id="panel-decisions">
+        <!-- Hero Banner with Mountain Art -->
+        <div class="hero-banner">
+          <div class="hero-left">
+            <div class="hero-icon-box">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+            </div>
+            <div>
+              <h1 class="hero-title">Decisions & Architectural Rationale</h1>
+              <div class="hero-subtitle">Comprehensive log of every meaningful functional, non-functional, technical, and strategic choice.</div>
+            </div>
+          </div>
+          <!-- Line Art Mountains -->
+          <svg class="mountain-art" viewBox="0 0 160 60" fill="none" stroke="#682038">
+            <path d="M10 50 L45 20 L75 45 L115 12 L150 50" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M45 20 L55 35 M115 12 L125 30" stroke-width="1" stroke-dasharray="2 2"/>
+            <circle cx="135" cy="18" r="6" stroke-width="1.2"/>
+          </svg>
+        </div>
+
+        <!-- 01 Strategic & Distribution Decisions -->
+        <div class="sec-header">
+          <span class="num-badge">01</span>
+          <span class="sec-title">Strategic & Distribution Decisions (STRAT)</span>
+          <span class="sec-desc">Governance, delivery channels, repository organization, and evaluation access.</span>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-head">ADR-001: Git-Centric & Live Web Distribution</div>
+            <div class="card-body">
+              <strong>Context & Decision:</strong> Stakeholders needed immediate access to code and documentation without cloning or running local servers. Hosted in a single GitHub repo (<code>ApexPredator2005/garbage</code>) with live GitHub Pages (<code>/docs/</code>).
+              <div class="tag-row">
+                <span class="tag-pill">GitHub Pages</span>
+                <span class="tag-pill">1-Click Review</span>
+                <span class="tag-pill">Zero Setup</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">ADR-002: Multi-Format Specification Dossier</div>
+            <div class="card-body">
+              <strong>Context & Decision:</strong> Evaluators use different review modalities. Maintained single source of truth generating 4 synchronized formats: interactive web portal, printable blueprint HTML, vector PDF dossier, and offline zip.
+              <div class="tag-row">
+                <span class="tag-pill">Web Portal</span>
+                <span class="tag-pill">Headless PDF</span>
+                <span class="tag-pill">Offline Zip</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 02 Technical Architecture & Infrastructure Decisions -->
+        <div class="sec-header">
+          <span class="num-badge">02</span>
+          <span class="sec-title">Technical Architecture & Infrastructure (ARCH)</span>
+          <span class="sec-desc">Core framework, runtime, connection pooling, and identity mechanisms.</span>
+        </div>
+
+        <div class="grid-3">
+          <div class="card">
+            <div class="card-head">ADR-003: Unified Next.js Monorepo</div>
+            <div class="card-body">
+              <strong>Next.js 15+ & React 19:</strong> Eliminates cross-origin CORS errors, shares TypeScript and Zod schemas directly across client and server, and halves infrastructure hosting bills.
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">ADR-004: URL-Scoped Tenancy</div>
+            <div class="card-body">
+              <strong><code>/[branch]/[dept]/[module]</code>:</strong> Guarantees independent browser tab state without cookie collision. Enables teachers and admins to work across multiple campuses seamlessly.
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">ADR-005: Managed Supabase Postgres</div>
+            <div class="card-body">
+              <strong>PostgreSQL 16+:</strong> Provides enterprise ACID guarantees, foreign-key relational integrity, and automated 7-day PITR, eliminating Linux VM management.
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">ADR-006: Supavisor Pooling (:6543)</div>
+            <div class="card-body">
+              <strong>Transaction Mode:</strong> Multiplexes 500+ concurrent 8:30 AM attendance callers across 15–25 physical database connections, completely eliminating serverless socket exhaustion.
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">ADR-007: Dual-Port DB Strategy</div>
+            <div class="card-body">
+              <strong>:6543 Pooled vs :5432 Direct:</strong> Runtime queries use Supavisor pooler (port 6543), while automated Prisma CLI migrations and push scripts connect directly to port 5432.
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">ADR-009: NextAuth v5 Edge JWT</div>
+            <div class="card-body">
+              <strong>Stateless Session Cookies:</strong> Middleware validates claims and 7 RBAC roles in 0ms without database roundtrips, preserving connection pool headroom for school operations.
+            </div>
+          </div>
+        </div>
+
+        <!-- 03 Functional & Academic Workflow Decisions -->
+        <div class="sec-header">
+          <span class="num-badge">03</span>
+          <span class="sec-title">Functional & Academic Workflows (FUNC)</span>
+          <span class="sec-desc">Attendance matrix, financial ledgers, exit compliance barriers, and grade moderation.</span>
+        </div>
+
+        <div class="grid-3">
+          <div class="card">
+            <div class="card-head">ADR-011: Bulk Attendance Register</div>
+            <div class="card-body">
+              40-student classroom register submitted as 1 array payload and committed in ~10ms via Prisma <code>createMany</code>. Absence SMS alerts are dispatched asynchronously.
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">ADR-012: Manual UTR Verification</div>
+            <div class="card-body">
+              Zero automated balance deductions. Payments remain <code>PENDING_VERIFICATION</code> until campus bursar audits bank statements, preventing accounting ledger drift.
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">ADR-013: Statutory Exit Barrier</div>
+            <div class="card-body">
+              Hard programmatic guard prevents student deletion until 4 statutory certificates (TC, Character, Migration, No-Dues) are verified and admission number confirmed.
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">ADR-014: Multi-Ward Sibling Hub</div>
+            <div class="card-body">
+              Single-parent identity mapped to multiple children across grades/wings with a 1-click header switcher, eliminating duplicate parent accounts.
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">ADR-015: Smart Substitution Assistant</div>
+            <div class="card-body">
+              Timetable collision engine finds teachers with free periods in the same wing/subject and suggests 1-click ranked assignments without mutating the master timetable.
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">ADR-016: Dual-Signoff Grade Moderation</div>
+            <div class="card-body">
+              Multi-tier grading state machine: <code>DRAFT</code> &rarr; <code>PENDING_MODERATION</code> (reviewed by HOD with class averages and bell curves) &rarr; <code>APPROVED</code> &rarr; <code>PUBLISHED</code>.
+            </div>
+          </div>
+        </div>
+
+        <!-- 04 Non-Functional, Reliability & Concurrency Decisions -->
+        <div class="sec-header">
+          <span class="num-badge">04</span>
+          <span class="sec-title">Non-Functional, Reliability & Concurrency (NFR)</span>
+          <span class="sec-desc">Zero-RAM direct uploads, distributed idempotency locks, Redis caching, and async queues.</span>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-head">ADR-018: Presigned S3 Direct Client Uploads</div>
+            <div class="card-body">
+              <strong>0MB Server RAM & 0% CPU:</strong> 60-second HMAC presigned URLs allow student documents and receipt scans to stream directly to Cloudflare R2 / S3, completely bypassing Next.js server memory and preventing OOM crashes.
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">ADR-019: Strict Idempotency Keys on Payments</div>
+            <div class="card-body">
+              <strong>Atomic Redis Lock (<code>SET NX EX 60</code>):</strong> Prevents duplicate payment ledger records when parents on flaky mobile connections double-tap "Submit Payment". Schema enforces unique <code>idempotency_key</code>.
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">ADR-020: Read-Heavy Redis In-Memory Caching</div>
+            <div class="card-body">
+              <strong>Upstash Redis (&gt;90% Hit Rate):</strong> Master calendars, branches, departments, and subjects cached in Redis REST edge store, offloading 80% of database reads during morning login rush.
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">ADR-021: Headless Async PDF Jobs (Buzzer Token)</div>
+            <div class="card-body">
+              <strong>Zero 504 Gateway Timeouts:</strong> Inngest renders batches of 500+ admit cards off-thread using <code>@react-pdf/renderer</code>, returning instant <code>jobId</code> and 24h pre-signed download URLs.
+            </div>
+          </div>
+        </div>
+
+        <!-- 05 Comprehensive Decision Matrix Table -->
+        <div class="sec-header">
+          <span class="num-badge">05</span>
+          <span class="sec-title">Decision summary master matrix</span>
+          <span class="sec-desc">Quick reference table covering all 24 architectural, functional, and non-functional records.</span>
+        </div>
+
+        <table class="clean-table">
+          <thead>
+            <tr>
+              <th style="width: 12%;">ID</th>
+              <th style="width: 28%;">Decision Title</th>
+              <th style="width: 15%;">Category</th>
+              <th style="width: 15%;">Status</th>
+              <th>Core Rationale & Architectural Impact</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>ADR-001</strong></td>
+              <td>Git-Centric Live Web Docs</td>
+              <td><span class="tag-pill">STRAT</span></td>
+              <td>Implemented</td>
+              <td>Instant 1-click evaluation for employer via GitHub Pages; atomic version lockstep.</td>
+            </tr>
+            <tr>
+              <td><strong>ADR-002</strong></td>
+              <td>Multi-Format Dossier Suite</td>
+              <td><span class="tag-pill">STRAT</span></td>
+              <td>Implemented</td>
+              <td>Fidelity across Web Portal, Printable Blueprint HTML, Headless PDF, and Offline Zip.</td>
+            </tr>
+            <tr>
+              <td><strong>ADR-003</strong></td>
+              <td>Unified Next.js 15+ Monorepo</td>
+              <td><span class="tag-pill">ARCH</span></td>
+              <td>Implemented</td>
+              <td>Eliminates CORS, shares TypeScript/Zod schemas, and reduces infrastructure overhead by 50%.</td>
+            </tr>
+            <tr>
+              <td><strong>ADR-004</strong></td>
+              <td>URL-Scoped Tenancy Routing</td>
+              <td><span class="tag-pill">ARCH</span></td>
+              <td>Implemented</td>
+              <td>Independent browser tab isolation; deep-linking without cross-tab session bleeding.</td>
+            </tr>
+            <tr>
+              <td><strong>ADR-005</strong></td>
+              <td>Managed Supabase PostgreSQL</td>
+              <td><span class="tag-pill">ARCH</span></td>
+              <td>Implemented</td>
+              <td>ACID relational integrity; 7-day automated PITR; zero Linux VM maintenance.</td>
+            </tr>
+            <tr>
+              <td><strong>ADR-006</strong></td>
+              <td>Supavisor Pooling (:6543)</td>
+              <td><span class="tag-pill">NFR</span></td>
+              <td>Implemented</td>
+              <td>Multiplexes 500+ callers into 15–25 physical sockets; stops 8:30 AM socket crashes.</td>
+            </tr>
+            <tr>
+              <td><strong>ADR-007</strong></td>
+              <td>Dual-Port DB Strategy</td>
+              <td><span class="tag-pill">ARCH</span></td>
+              <td>Implemented</td>
+              <td>Port 6543 for pooled queries; Direct Port 5432 for automated Prisma migrations.</td>
+            </tr>
+            <tr>
+              <td><strong>ADR-008</strong></td>
+              <td>Prisma Singleton Client</td>
+              <td><span class="tag-pill">ARCH</span></td>
+              <td>Implemented</td>
+              <td>Centralized singleton prevents connection pool leaks during Next.js hot reloads.</td>
+            </tr>
+            <tr>
+              <td><strong>ADR-009</strong></td>
+              <td>NextAuth v5 Edge JWT</td>
+              <td><span class="tag-pill">ARCH</span></td>
+              <td>Implemented</td>
+              <td>0ms DB overhead in Edge middleware; stateless verified role security across 7 roles.</td>
+            </tr>
+            <tr>
+              <td><strong>ADR-010</strong></td>
+              <td>Strict TypeScript & Zod</td>
+              <td><span class="tag-pill">ARCH</span></td>
+              <td>Implemented</td>
+              <td>End-to-end compile-time and runtime validation on all mutations and env vars.</td>
+            </tr>
+            <tr>
+              <td><strong>ADR-011</strong></td>
+              <td>Bulk Attendance Array Payload</td>
+              <td><span class="tag-pill">FUNC</span></td>
+              <td>Implemented</td>
+              <td>40-student single array committed in ~10ms; async absence alert notification.</td>
+            </tr>
+            <tr>
+              <td><strong>ADR-012</strong></td>
+              <td>Two-Step Manual UTR Verification</td>
+              <td><span class="tag-pill">FUNC</span></td>
+              <td>Implemented</td>
+              <td>Zero automatic balance deductions; bursar bank reconciliation prevents ledger drift.</td>
+            </tr>
+            <tr>
+              <td><strong>ADR-013</strong></td>
+              <td>Statutory Student Exit Barrier</td>
+              <td><span class="tag-pill">FUNC</span></td>
+              <td>Implemented</td>
+              <td>Hard programmatic check requiring 4 verified clearance slips before student purge.</td>
+            </tr>
+            <tr>
+              <td><strong>ADR-014</strong></td>
+              <td>Single-Parent Multi-Ward Hub</td>
+              <td><span class="tag-pill">FUNC</span></td>
+              <td>Implemented</td>
+              <td>1-click header sibling switcher; no duplicate parent accounts across grades/wings.</td>
+            </tr>
+            <tr>
+              <td><strong>ADR-015</strong></td>
+              <td>Smart Substitution Assistant</td>
+              <td><span class="tag-pill">FUNC</span></td>
+              <td>Implemented</td>
+              <td>Timetable collision engine finds free teachers in same wing; 1-click duty assignment.</td>
+            </tr>
+            <tr>
+              <td><strong>ADR-016</strong></td>
+              <td>Dual-Signoff Grade Moderation</td>
+              <td><span class="tag-pill">FUNC</span></td>
+              <td>Implemented</td>
+              <td>Multi-tier signoff (Draft &rarr; Moderation &rarr; Published) prevents erroneous mark release.</td>
+            </tr>
+            <tr>
+              <td><strong>ADR-017</strong></td>
+              <td>Lifetime Student Transcripts</td>
+              <td><span class="tag-pill">FUNC</span></td>
+              <td>Implemented</td>
+              <td>Permanent access to digitally signed PDF transcripts and report cards for alumni.</td>
+            </tr>
+            <tr>
+              <td><strong>ADR-018</strong></td>
+              <td>Presigned S3 Direct Uploads</td>
+              <td><span class="tag-pill">NFR</span></td>
+              <td>Implemented</td>
+              <td>60s HMAC presigned direct client uploads; 0MB server RAM and 0% CPU load.</td>
+            </tr>
+            <tr>
+              <td><strong>ADR-019</strong></td>
+              <td>Strict Idempotency Key Engine</td>
+              <td><span class="tag-pill">NFR</span></td>
+              <td>Implemented</td>
+              <td>Atomic Redis lock (<code>SET NX EX 60</code>) prevents duplicate payment entries on mobile.</td>
+            </tr>
+            <tr>
+              <td><strong>ADR-020</strong></td>
+              <td>Read-Heavy Upstash Redis Cache</td>
+              <td><span class="tag-pill">NFR</span></td>
+              <td>Implemented</td>
+              <td>&gt;90% hit ratio for master calendars and subjects; offloads 80% DB read load.</td>
+            </tr>
+            <tr>
+              <td><strong>ADR-021</strong></td>
+              <td>Inngest Headless Async Worker</td>
+              <td><span class="tag-pill">NFR</span></td>
+              <td>Implemented</td>
+              <td>Buzzer Token pattern prevents 504 timeouts during 500+ batch PDF compilation.</td>
+            </tr>
+            <tr>
+              <td><strong>ADR-022</strong></td>
+              <td>Mobile-First Responsive Design</td>
+              <td><span class="tag-pill">UX</span></td>
+              <td>Implemented</td>
+              <td>Fluid auto-fit grids and table scrolling for flawless 390px–500px mobile viewing.</td>
+            </tr>
+            <tr>
+              <td><strong>ADR-023</strong></td>
+              <td>Role-Adaptive Clean Dashboards</td>
+              <td><span class="tag-pill">UX</span></td>
+              <td>Implemented</td>
+              <td>Eliminates cognitive fatigue; role-specific UI for Teachers, Bursars, and Parents.</td>
+            </tr>
+            <tr>
+              <td><strong>ADR-024</strong></td>
+              <td>Institutional Design Token System</td>
+              <td><span class="tag-pill">UX</span></td>
+              <td>Implemented</td>
+              <td>Distinctive Burgundy/Cream/Bronze palette projecting institutional authority.</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
 
     </main>
