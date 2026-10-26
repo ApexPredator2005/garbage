@@ -1,0 +1,24 @@
+{
+  "name": "campus-management-system",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Multi-tenant College Campus Management System (NestJS, React+Vite, PostgreSQL RLS, BullMQ)",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev --parallel",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "type-check": "turbo run type-check",
+    "db:migrate": "pnpm --filter @campus/api run db:migrate",
+    "db:seed": "pnpm --filter @campus/api run db:seed"
+  },
+  "devDependencies": {
+    "turbo": "^2.4.0",
+    "typescript": "^5.7.0"
+  },
+  "packageManager": "pnpm@12.15.0"
+}

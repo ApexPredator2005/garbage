@@ -334,19 +334,35 @@ This document chronicles the fundamental engineering and product decisions made 
 
 ---
 
+### [ADR-025] Transition to Devloft College Campus Management System Specification with Unified User Feature Preservation
+- **Classification:** Strategic & Technical Architecture (STRAT / ARCH)
+- **Status:** Approved & Implemented
+- **Decision Owner:** Employer Directive & Stakeholder Synthesis
+- **Context:** The employer supplied the official specification (*Devloft Technologies — College Campus Management System, 21 Oct 2026*), defining an 8-module higher-education college ERP built on a modular NestJS monolith (Fastify adapter) + BullMQ background worker, React 18 + Vite SPA/PWA in a Turborepo monorepo, and PostgreSQL 16+ with Row-Level Security (RLS). Simultaneously, the stakeholder mandated retaining all previously approved user-specified innovations (Smart Substitution Assistant, Dual-Signoff Grade Moderation, Presigned S3 Direct Uploads, Strict Idempotency Locks, Statutory Exit Barrier Guard, Single-Parent Multi-Ward Sibling Hub, Role-Adaptive Clean Dashboards, and Manual UTR Audit Desk).
+- **Decision:** Fully adopt the employer's NestJS + Fastify + React Vite Turborepo architecture and 8-module college domain model, while seamlessly embedding and preserving all user-specified features:
+  1. **Academics & Timetables:** Embed the *Smart Substitution Assistant* into the timetable engine to provide real-time collision detection and 1-click ranked duty proposals.
+  2. **Exams & Results:** Embed the *Dual-Signoff Grade Moderation* workflow (Draft $\rightarrow$ HOD Moderation with bell curves $\rightarrow$ Approved $\rightarrow$ Published) prior to SGPA/CGPA snapshot computation.
+  3. **Fees & Accounting:** Retain the *Two-Step Manual UTR Verification Desk* alongside automated payment gateway webhooks (Razorpay/Cashfree), with all payment submissions protected by *Strict Redis Idempotency Locks* (`SET NX EX 60`).
+  4. **Admissions & SIS:** Retain the *Statutory Student Exit Barrier Guard* (requiring 4 verified certificates—TC, Character, Migration, No-Dues—before student deletion/exit) and the *Single-Parent Multi-Ward Sibling Hub*.
+  5. **Storage & Performance:** Port the *60s Presigned S3 Direct Upload* pipeline (0MB server RAM) to NestJS and keep *Read-Heavy Redis In-Memory Caching* for master college metadata.
+  6. **UI/UX:** Retain *Role-Adaptive Clean Dashboards* in the React+Vite frontend.
+- **Rationale:** Strictly follows the employer's architectural standard, domain requirements, and delivery formats while preserving 100% of the stakeholder's operational and functional priorities.
+
+---
+
 ## 6. Comprehensive Decision Summary Matrix
 
 | ID | Decision Title | Category | Status | Primary Rationale & Impact |
 | :--- | :--- | :--- | :--- | :--- |
 | **ADR-001** | Git-Centric & Live Web Docs | STRAT | Implemented | Immediate 1-click evaluation for employer via GitHub Pages; atomic versioning. |
 | **ADR-002** | Multi-Format Dossier Suite | STRAT | Implemented | 100% presentation fidelity across Web, Printable HTML, Vector PDF, and ZIP. |
-| **ADR-003** | Unified Next.js 15+ Monorepo | ARCH | Implemented | Eliminates CORS; shares TypeScript/Zod types; reduces hosting overhead by 50%. |
-| **ADR-004** | URL-Scoped Tenancy Routing | ARCH | Implemented | Independent multi-tab branch isolation; deep-linking without cookie collision. |
+| **ADR-003** | Unified Next.js 15+ Monorepo | ARCH | Superseded | Initial prototype full-stack framework; superseded by ADR-025 (NestJS + Vite). |
+| **ADR-004** | URL-Scoped Tenancy Routing | ARCH | Superseded | Initial path-based tenancy; superseded by ADR-025 (Subdomain + DB RLS). |
 | **ADR-005** | Managed Supabase PostgreSQL 16+ | ARCH | Implemented | ACID compliance; 7-day PITR; zero Linux OS/database administration maintenance. |
 | **ADR-006** | Supavisor Pooling (:6543) | NFR | Implemented | Multiplexes 500+ callers into 15–25 physical sockets; stops 8:30 AM socket crashes. |
 | **ADR-007** | Dual-Port DB Connectivity | ARCH | Implemented | Port 6543 for runtime queries; Direct Port 5432 for automated Prisma migrations. |
-| **ADR-008** | Prisma Singleton Client | ARCH | Implemented | Prevents multiple pool instantiation during Next.js serverless hot reloads. |
-| **ADR-009** | NextAuth v5 Edge JWT Cookies | ARCH | Implemented | 0ms DB overhead in Edge middleware; stateless verified role security. |
+| **ADR-008** | Prisma Singleton Client | ARCH | Implemented | Prevents multiple pool instantiation during serverless / worker reloads. |
+| **ADR-009** | NextAuth v5 Edge JWT Cookies | ARCH | Superseded | Initial web-only auth; superseded by ADR-025 (NestJS JWT + CASL ABAC). |
 | **ADR-010** | Strict TypeScript & Zod Validation | ARCH | Implemented | End-to-end compile-time and runtime validation on all mutations and env vars. |
 | **ADR-011** | Bulk Attendance Array Payload | FUNC/NFR | Implemented | 40-student single array committed in ~10ms; async absence alert dispatch. |
 | **ADR-012** | Two-Step Manual UTR Verification | FUNC | Implemented | Zero automatic balance deductions; bursar bank reconciliation prevents ledger drift. |
@@ -358,7 +374,8 @@ This document chronicles the fundamental engineering and product decisions made 
 | **ADR-018** | Presigned S3 Direct Uploads | NFR | Implemented | 60s HMAC presigned direct client uploads; **0MB server RAM** and **0% CPU** load. |
 | **ADR-019** | Strict Idempotency Key Engine | NFR | Implemented | Atomic Redis lock (`SET NX EX 60`) prevents duplicate payment entries on mobile. |
 | **ADR-020** | Read-Heavy Upstash Redis Cache | NFR | Implemented | >90% hit ratio for master calendars and subjects; offloads 80% DB load. |
-| **ADR-021** | Inngest Headless Async Worker | NFR | Implemented | Buzzer Token pattern prevents 504 timeouts during 500+ batch PDF compilation. |
+| **ADR-021** | Inngest Headless Async Worker | NFR | Superseded | Serverless event runner; superseded by ADR-025 (BullMQ + Redis worker process). |
 | **ADR-022** | Mobile-First Responsive Design | UX | Implemented | Fluid auto-fit grids and table scrolling for flawless 390px–500px mobile viewing. |
 | **ADR-023** | Role-Adaptive Clean Dashboards | UX | Implemented | Eliminates cognitive fatigue; role-specific UI for Teachers, Bursars, and Parents. |
 | **ADR-024** | Institutional Design Token System | UX | Implemented | Distinctive Burgundy/Cream/Bronze palette projecting institutional authority. |
+| **ADR-025** | Devloft CMS Transition & Feature Unification | STRAT/ARCH | Implemented | Modular NestJS monolith (Fastify) + BullMQ worker + React Vite SPA + RLS; preserves all user features. |

@@ -1503,42 +1503,42 @@
         <div class="sec-header">
           <span class="num-badge">02</span>
           <span class="sec-title">Technology stack & framework specifications</span>
-          <span class="sec-desc">Comprehensive 7-tier architecture engineered for enterprise multi-campus concurrency.</span>
+          <span class="sec-desc">Devloft modular monolith with BullMQ workers, React Vite PWA, and PostgreSQL Row-Level Security.</span>
         </div>
 
         <div class="grid-3" style="margin-bottom: 20px;">
           <div class="card">
-            <div class="card-head">1. Frontend & Presentation</div>
+            <div class="card-head">1. Backend API & Framework</div>
             <div class="card-body">
-              <strong>Next.js 15+ & React 19:</strong> Server Components (RSC) deliver zero-JS page loads. URL-scoped tenancy (<code>/[branch]/[dept]/[module]</code>) guarantees complete isolation between campus tabs. Tailwind CSS + Lucide icons.
+              <strong>NestJS (Fastify Adapter):</strong> High-throughput modular monolith running <code>main.ts</code> on port 4000. Features DI, guards, DTO validation with class-validator/Zod, and automatic OpenAPI Swagger generation.
               <div class="tag-row">
-                <span class="tag-pill">React 19</span>
-                <span class="tag-pill">App Router</span>
-                <span class="tag-pill">Tailwind CSS</span>
+                <span class="tag-pill">NestJS</span>
+                <span class="tag-pill">Fastify</span>
+                <span class="tag-pill">OpenAPI</span>
               </div>
             </div>
           </div>
 
           <div class="card">
-            <div class="card-head">2. Backend & Runtime</div>
+            <div class="card-head">2. Off-Thread Worker Process</div>
             <div class="card-body">
-              <strong>Next.js Server Actions:</strong> Co-located, strongly typed RPC actions. Strict TypeScript 5.x+ across all layers. Zod runtime schema sanitization ensures fail-safe execution before database touch.
+              <strong>BullMQ with Redis:</strong> Dedicated <code>worker.ts</code> process for heavy tasks: Puppeteer HTML-to-PDF compilation (marksheets, admit cards), bulk emails, report generation, and student promotion runs.
               <div class="tag-row">
-                <span class="tag-pill">TypeScript 5.x</span>
-                <span class="tag-pill">Zod Validation</span>
-                <span class="tag-pill">Server Actions</span>
+                <span class="tag-pill">BullMQ</span>
+                <span class="tag-pill">Puppeteer</span>
+                <span class="tag-pill">Redis</span>
               </div>
             </div>
           </div>
 
           <div class="card">
-            <div class="card-head">3. Database & Supavisor</div>
+            <div class="card-head">3. Database & Multi-Tenant RLS</div>
             <div class="card-body">
-              <strong>Supabase PostgreSQL 16+:</strong> ACID compliance with 7-day PITR. Supavisor pooler (Port 6543) in Transaction Mode multiplexes 500+ callers into 15–25 physical sockets. Direct Port 5432 for Prisma migrations.
+              <strong>PostgreSQL 16+ & RLS:</strong> Strict per-tenant isolation enforced at the database layer via <code>SET LOCAL app.tenant_id = &lt;id&gt;</code> inside transactional requests. Subdomain resolution per college.
               <div class="tag-row">
                 <span class="tag-pill">Postgres 16</span>
-                <span class="tag-pill">Supavisor :6543</span>
-                <span class="tag-pill">Prisma ORM</span>
+                <span class="tag-pill">Tenant RLS</span>
+                <span class="tag-pill">Subdomains</span>
               </div>
             </div>
           </div>
@@ -1546,37 +1546,37 @@
 
         <div class="grid-3" style="margin-bottom: 20px;">
           <div class="card">
-            <div class="card-head">4. In-Memory Cache & Lock</div>
+            <div class="card-head">4. Frontend Web SPA / PWA</div>
             <div class="card-body">
-              <strong>Upstash Redis:</strong> Sub-10ms REST edge caching for master calendars, branches, and subjects (>90% hit rate). Atomic distributed idempotency locks (<code>SET NX EX 60</code>) prevent double fee submissions on mobile.
+              <strong>React 18 + Vite (apps/web):</strong> Single-page application and PWA with route-based code splitting, TanStack Query/Table, Tailwind CSS, shadcn/ui, and Role-Adaptive Clean Dashboards.
               <div class="tag-row">
-                <span class="tag-pill">Upstash Redis</span>
+                <span class="tag-pill">React 18</span>
+                <span class="tag-pill">Vite</span>
+                <span class="tag-pill">TanStack</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">5. Auth & CASL Permissions</div>
+            <div class="card-body">
+              <strong>JWT + CASL (ABAC):</strong> Short-lived 15m access tokens with rotating refresh cookies for web and body tokens for mobile. CASL data-driven action:subject permissions with scope conditions across 11 roles.
+              <div class="tag-row">
+                <span class="tag-pill">Argon2id</span>
+                <span class="tag-pill">CASL ABAC</span>
+                <span class="tag-pill">11 Roles</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">6. Presigned S3 & Idempotency</div>
+            <div class="card-body">
+              <strong>0MB Server RAM & Locks:</strong> 60s HMAC presigned direct uploads bypass server memory. Redis atomic locks (<code>SET NX EX 60</code>) prevent duplicate payment ledger entries on mobile connections.
+              <div class="tag-row">
+                <span class="tag-pill">Presigned S3</span>
                 <span class="tag-pill">Idempotency</span>
-                <span class="tag-pill">&gt;90% Hit Rate</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="card">
-            <div class="card-head">5. Auth & RBAC Security</div>
-            <div class="card-body">
-              <strong>NextAuth.js (Auth.js v5):</strong> Stateless HTTP-only Edge JWT session cookies. Eliminates database roundtrips in Edge middleware (0ms auth latency). Enforces 7 distinct role hierarchies.
-              <div class="tag-row">
-                <span class="tag-pill">NextAuth v5</span>
-                <span class="tag-pill">Edge JWT</span>
-                <span class="tag-pill">7 RBAC Roles</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="card">
-            <div class="card-head">6. Storage & Batch Workers</div>
-            <div class="card-body">
-              <strong>S3 Presigned URLs + Inngest:</strong> 60s HMAC presigned direct client uploads bypass server RAM. Inngest async queue workers compile 500+ admit cards via <code>@react-pdf/renderer</code> (Buzzer Token pattern).
-              <div class="tag-row">
-                <span class="tag-pill">Cloudflare R2 / S3</span>
-                <span class="tag-pill">Inngest Workers</span>
-                <span class="tag-pill">React-PDF</span>
+                <span class="tag-pill">0MB RAM</span>
               </div>
             </div>
           </div>
@@ -1593,82 +1593,82 @@
           </thead>
           <tbody>
             <tr>
+              <td><strong>Monorepo & Build</strong></td>
+              <td>Turborepo + pnpm</td>
+              <td>v2.4+ / pnpm v12</td>
+              <td>Monorepo orchestration, cached builds, shared packages (shared, ui, api-client, config).</td>
+            </tr>
+            <tr>
+              <td><strong>Backend API</strong></td>
+              <td>NestJS (Fastify Adapter)</td>
+              <td>Node LTS / Fastify</td>
+              <td>Modular monolith API (<code>main.ts</code>); dependency injection, guards, DTOs, OpenAPI contract.</td>
+            </tr>
+            <tr>
+              <td><strong>Worker Process</strong></td>
+              <td>BullMQ with Redis</td>
+              <td><code>worker.ts</code></td>
+              <td>Off-thread background processing: Puppeteer PDF pool, email queue, imports, report batch runs.</td>
+            </tr>
+            <tr>
               <td><strong>Frontend & UI</strong></td>
-              <td>Next.js + React 19</td>
-              <td>App Router (RSC)</td>
-              <td>Server-rendered UI with URL-scoped tenancy (<code>/[branch]/[dept]</code>); eliminates CORS and client bloat.</td>
+              <td>React 18 + Vite</td>
+              <td>SPA / PWA</td>
+              <td>Client-rendered application with TanStack Query server-state caching and Role-Adaptive Dashboards.</td>
             </tr>
             <tr>
               <td><strong>Language & Types</strong></td>
               <td>TypeScript</td>
               <td>v5.x+ (Strict Mode)</td>
-              <td>End-to-end type safety from PostgreSQL schema models to client form components.</td>
+              <td>End-to-end type safety shared across API, web, and packages via <code>@campus/shared</code>.</td>
             </tr>
             <tr>
               <td><strong>Styling & Design</strong></td>
-              <td>Tailwind CSS + Lucide</td>
-              <td>v3.4+ / Vanilla CSS</td>
-              <td>Institutional typography, responsive mobile grids, and high-density data tables.</td>
-            </tr>
-            <tr>
-              <td><strong>Backend & API</strong></td>
-              <td>Next.js Server Actions</td>
-              <td>Node.js 20 LTS / Edge</td>
-              <td>Co-located RPC mutations without REST boilerplate; strict single-origin security.</td>
-            </tr>
-            <tr>
-              <td><strong>Validation Layer</strong></td>
-              <td>Zod</td>
-              <td>v3.23+ Runtime Schemas</td>
-              <td>Runtime sanitization on Server Actions, URL params, forms, and environment variables.</td>
+              <td>Tailwind CSS + shadcn/ui</td>
+              <td>Radix Primitives</td>
+              <td>Accessible institutional design tokens, high-density academic grids, and mobile-first tables.</td>
             </tr>
             <tr>
               <td><strong>Relational Database</strong></td>
-              <td>Supabase PostgreSQL</td>
               <td>PostgreSQL 16+</td>
-              <td>Managed relational engine with foreign key integrity and 7-day Point-In-Time Recovery (PITR).</td>
+              <td>RLS Enabled</td>
+              <td>ACID relational integrity, JSONB configuration, and strict tenant isolation via database policies.</td>
             </tr>
             <tr>
-              <td><strong>Connection Pooler</strong></td>
-              <td>Supabase Supavisor</td>
-              <td>Port 6543 (Transaction)</td>
-              <td>Multiplexes 500+ callers into 15–25 physical sockets; stops serverless socket exhaustion.</td>
-            </tr>
-            <tr>
-              <td><strong>ORM & Migrations</strong></td>
+              <td><strong>ORM & Access</strong></td>
               <td>Prisma ORM</td>
-              <td>Latest Stable</td>
-              <td>Type-safe migrations, auto-generated TypeScript models, and dual-URL pooler support.</td>
+              <td>Dual-URL Pooler</td>
+              <td>Typed database client, versioned migrations, and transaction-scoped RLS setting.</td>
             </tr>
             <tr>
-              <td><strong>In-Memory Cache & Locks</strong></td>
-              <td>Upstash Redis</td>
-              <td>Serverless REST Redis</td>
-              <td>Read-heavy caching (>90% hit rate) and atomic financial idempotency locks (<code>SET NX EX 60</code>).</td>
+              <td><strong>Cache & Locks</strong></td>
+              <td>Redis (ioredis)</td>
+              <td>Standalone / Cluster</td>
+              <td>Read-heavy master caching (>90% hit rate) and atomic payment idempotency locks (<code>SET NX EX 60</code>).</td>
             </tr>
             <tr>
-              <td><strong>Auth & RBAC Security</strong></td>
-              <td>NextAuth.js (Auth.js)</td>
-              <td>v5 (Edge JWT)</td>
-              <td>Stateless encrypted session cookies; 0ms DB overhead in middleware; 7 RBAC roles.</td>
+              <td><strong>Auth & Authorization</strong></td>
+              <td>JWT + CASL</td>
+              <td>`@casl/ability`</td>
+              <td>Stateless access tokens, rotating refresh cookies/body tokens, and fine-grained ABAC permissions.</td>
             </tr>
             <tr>
               <td><strong>Object Storage</strong></td>
-              <td>Cloudflare R2 / S3</td>
-              <td>S3-Compatible Buckets</td>
-              <td>60-second HMAC presigned direct client uploads; 0MB server memory burden.</td>
-            </tr>
-            <tr>
-              <td><strong>Background Queue</strong></td>
-              <td>Inngest</td>
-              <td>Headless Task Queue</td>
-              <td>Async batch job queue (Buzzer Token pattern); prevents HTTP 504 gateway timeouts.</td>
+              <td>S3-Compatible (R2 / S3)</td>
+              <td>S3 Buckets</td>
+              <td>60-second HMAC presigned direct client uploads; 0MB server memory overhead during transfers.</td>
             </tr>
             <tr>
               <td><strong>Document Compiler</strong></td>
-              <td>@react-pdf/renderer</td>
-              <td>Latest Stable</td>
-              <td>Headless rendering of watermarked admit cards and multi-page transcripts directly to S3.</td>
+              <td>Puppeteer (Headless Chrome)</td>
+              <td>Worker Pool</td>
+              <td>High-fidelity HTML-to-PDF rendering of marksheets, admit cards, receipts, and certificates.</td>
+            </tr>
+            <tr>
+              <td><strong>Validation Layer</strong></td>
+              <td>Zod + class-validator</td>
+              <td>v3.24+</td>
+              <td>Runtime DTO validation on API endpoints and client-side forms from shared contracts.</td>
             </tr>
           </tbody>
         </table>

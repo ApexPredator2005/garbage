@@ -867,82 +867,82 @@
       </thead>
       <tbody>
         <tr>
-          <td><strong>Frontend & UI</strong></td>
-          <td>Next.js 15+ & React 19</td>
-          <td>App Router / RSC</td>
-          <td>React Server Components render zero-JS HTML; URL-scoped tenancy (<code>/[branch]/[dept]</code>) eliminates CORS & cross-tab state collision.</td>
+          <td><strong>Monorepo & Build</strong></td>
+          <td>Turborepo + pnpm</td>
+          <td>v2.4+ / pnpm v12</td>
+          <td>Workspace management, cached builds, shared packages (shared, ui, api-client, config).</td>
         </tr>
         <tr>
-          <td><strong>Language & Typings</strong></td>
+          <td><strong>Backend API</strong></td>
+          <td>NestJS (Fastify Adapter)</td>
+          <td>Node LTS / Fastify</td>
+          <td>Modular monolith API (<code>main.ts</code>); dependency injection, guards, DTOs, OpenAPI contract.</td>
+        </tr>
+        <tr>
+          <td><strong>Worker Process</strong></td>
+          <td>BullMQ with Redis</td>
+          <td><code>worker.ts</code></td>
+          <td>Off-thread background processing: Puppeteer PDF pool, email queue, imports, report batch runs.</td>
+        </tr>
+        <tr>
+          <td><strong>Frontend & UI</strong></td>
+          <td>React 18 + Vite</td>
+          <td>SPA / PWA</td>
+          <td>Client-rendered application with TanStack Query server-state caching and Role-Adaptive Dashboards.</td>
+        </tr>
+        <tr>
+          <td><strong>Language & Types</strong></td>
           <td>TypeScript</td>
           <td>v5.x+ (Strict Mode)</td>
-          <td>End-to-end type safety from PostgreSQL schema models to client form inputs (<code>strict: true</code>).</td>
+          <td>End-to-end type safety shared across API, web, and packages via <code>@campus/shared</code>.</td>
         </tr>
         <tr>
           <td><strong>Styling & Design</strong></td>
-          <td>Tailwind CSS + Lucide</td>
-          <td>v3.4+ / Vanilla CSS</td>
-          <td>Accessible institutional design tokens, responsive mobile grids, and high-density academic tables.</td>
-        </tr>
-        <tr>
-          <td><strong>Backend & API</strong></td>
-          <td>Next.js Server Actions</td>
-          <td>Node.js 20 LTS / Edge</td>
-          <td>Co-located RPC server mutations without REST boilerplate; strict single-origin same-site security.</td>
-        </tr>
-        <tr>
-          <td><strong>Validation Layer</strong></td>
-          <td>Zod</td>
-          <td>v3.23+ Runtime Schemas</td>
-          <td>Runtime validation of Server Actions, forms, and environment variables (<code>@/config/env.ts</code>).</td>
+          <td>Tailwind CSS + shadcn/ui</td>
+          <td>Radix Primitives</td>
+          <td>Accessible institutional design tokens, high-density academic grids, and mobile-first tables.</td>
         </tr>
         <tr>
           <td><strong>Relational Database</strong></td>
-          <td>Supabase PostgreSQL</td>
           <td>PostgreSQL 16+</td>
-          <td>Managed relational engine with ACID guarantees, foreign key cascade rules, and 7-day PITR.</td>
+          <td>RLS Enabled</td>
+          <td>ACID relational integrity, JSONB configuration, and strict tenant isolation via database policies.</td>
         </tr>
         <tr>
-          <td><strong>Connection Pooler</strong></td>
-          <td>Supabase Supavisor</td>
-          <td>Port 6543 (Transaction)</td>
-          <td>Multiplexes 500+ callers into 15–25 physical sockets; stops serverless socket exhaustion during morning peak.</td>
-        </tr>
-        <tr>
-          <td><strong>ORM & Migrations</strong></td>
+          <td><strong>ORM & Access</strong></td>
           <td>Prisma ORM</td>
-          <td>Latest Stable</td>
-          <td>Type-safe migrations, auto-generated TypeScript models, and dual-URL pooler connection management.</td>
+          <td>Dual-URL Pooler</td>
+          <td>Typed database client, versioned migrations, and transaction-scoped RLS setting.</td>
         </tr>
         <tr>
-          <td><strong>In-Memory Cache & Lock</strong></td>
-          <td>Upstash Redis</td>
-          <td>Serverless REST Redis</td>
-          <td>Read-heavy caching (>90% hit rate) and atomic financial idempotency locks (<code>SET NX EX 60</code>).</td>
+          <td><strong>Cache & Locks</strong></td>
+          <td>Redis (ioredis)</td>
+          <td>Standalone / Cluster</td>
+          <td>Read-heavy master caching (>90% hit rate) and atomic payment idempotency locks (<code>SET NX EX 60</code>).</td>
         </tr>
         <tr>
-          <td><strong>Auth & RBAC Security</strong></td>
-          <td>NextAuth.js (Auth.js)</td>
-          <td>v5 (Edge JWT)</td>
-          <td>Stateless encrypted session cookies; 0ms DB overhead in Edge middleware; 7 discrete RBAC roles.</td>
+          <td><strong>Auth & Authorization</strong></td>
+          <td>JWT + CASL</td>
+          <td>`@casl/ability`</td>
+          <td>Stateless access tokens, rotating refresh cookies/body tokens, and fine-grained ABAC permissions.</td>
         </tr>
         <tr>
           <td><strong>Object Storage</strong></td>
-          <td>Cloudflare R2 / S3</td>
-          <td>S3-Compatible Buckets</td>
-          <td>60-second HMAC presigned direct client uploads; 0MB server memory buffer on large documents.</td>
-        </tr>
-        <tr>
-          <td><strong>Background Queue</strong></td>
-          <td>Inngest</td>
-          <td>Headless Task Queue</td>
-          <td>Async batch job queue (Buzzer Token pattern); prevents HTTP 504 gateway timeouts on report cards.</td>
+          <td>S3-Compatible (R2 / S3)</td>
+          <td>S3 Buckets</td>
+          <td>60-second HMAC presigned direct client uploads; 0MB server memory overhead during transfers.</td>
         </tr>
         <tr>
           <td><strong>Document Compiler</strong></td>
-          <td>@react-pdf/renderer</td>
-          <td>Latest Stable</td>
-          <td>Headless rendering of watermarked admit cards and multi-page transcripts directly to private S3.</td>
+          <td>Puppeteer (Headless Chrome)</td>
+          <td>Worker Pool</td>
+          <td>High-fidelity HTML-to-PDF rendering of marksheets, admit cards, receipts, and certificates.</td>
+        </tr>
+        <tr>
+          <td><strong>Validation Layer</strong></td>
+          <td>Zod + class-validator</td>
+          <td>v3.24+</td>
+          <td>Runtime DTO validation on API endpoints and client-side forms from shared contracts.</td>
         </tr>
       </tbody>
     </table>

@@ -1,0 +1,508 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ==========================================
+// 01. PLATFORM & TENANCY
+// ==========================================
+
+model Tenant {
+  id          String   @id @default(uuid()) @db.Uuid
+  code        String   @unique
+  name        String
+  subdomain   String   @unique
+  timeZone    String   @default("Asia/Kolkata")
+  currency    String   @default("INR")
+  settings    Json?    @default("{}")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  academicYears AcademicYear[]
+  departments   Department[]
+  users         User[]
+  students      Student[]
+  employees     Employee[]
+
+  @@map("tenants")
+}
+
+model AcademicYear {
+  id        String   @id @default(uuid()) @db.Uuid
+  tenantId  String   @map("tenant_id") @db.Uuid
+  label     String
+  startDate DateTime @map("start_date")
+  endDate   DateTime @map("end_date")
+  isCurrent Boolean  @default(false) @map("is_current")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, label])
+  @@map("academic_years")
+}
+
+model Department {
+  id        String   @id @default(uuid()) @db.Uuid
+  tenantId  String   @map("tenant_id") @db.Uuid
+  name      String
+  code      String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  tenant   Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  programs Program[]
+
+  @@unique([tenantId, code])
+  @@map("departments")
+}
+
+model Program {
+  id           String   @id @default(uuid()) @db.Uuid
+  tenantId     String   @map("tenant_id") @db.Uuid
+  departmentId String   @map("department_id") @db.Uuid
+  name         String
+  code         String
+  durationSem  Int      @default(8) @map("duration_sem")
+  level        String   @default("UG") // UG, PG, Diploma
+  regulation   String   @default("2026")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  department Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  batches    Batch[]
+
+  @@unique([tenantId, code])
+  @@map("programs")
+}
+
+model Batch {
+  id        String   @id @default(uuid()) @db.Uuid
+  tenantId  String   @map("tenant_id") @db.Uuid
+  programId String   @map("program_id") @db.Uuid
+  name      String   // e.g. 2026-2030
+  startYear Int      @map("start_year")
+  endYear   Int      @map("end_year")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  program   Program    @relation(fields: [programId], references: [id], onDelete: Cascade)
+  semesters Semester[]
+  students  Student[]
+
+  @@map("batches")
+}
+
+model Semester {
+  id        String   @id @default(uuid()) @db.Uuid
+  tenantId  String   @map("tenant_id") @db.Uuid
+  batchId   String   @map("batch_id") @db.Uuid
+  number    Int
+  startDate DateTime @map("start_date")
+  endDate   DateTime @map("end_date")
+  isActive  Boolean  @default(false) @map("is_active")
+
+  batch    Batch     @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  sections Section[]
+
+  @@unique([batchId, number])
+  @@map("semesters")
+}
+
+model Section {
+  id         String   @id @default(uuid()) @db.Uuid
+  tenantId   String   @map("tenant_id") @db.Uuid
+  semesterId String   @map("semester_id") @db.Uuid
+  name       String   // A, B, C
+  capacity   Int      @default(60)
+
+  semester Semester  @relation(fields: [semesterId], references: [id], onDelete: Cascade)
+  students Student[]
+
+  @@unique([semesterId, name])
+  @@map("sections")
+}
+
+// ==========================================
+// 02. IDENTITY & AUTHENTICATION
+// ==========================================
+
+model User {
+  id           String   @id @default(uuid()) @db.Uuid
+  tenantId     String   @map("tenant_id") @db.Uuid
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  role         String   @default("STUDENT") // 11 roles per spec
+  status       String   @default("ACTIVE")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  tenant   Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  student  Student?
+  employee Employee?
+
+  @@index([tenantId, role])
+  @@map("users")
+}
+
+model Person {
+  id        String    @id @default(uuid()) @db.Uuid
+  tenantId  String    @map("tenant_id") @db.Uuid
+  firstName String    @map("first_name")
+  lastName  String    @map("last_name")
+  gender    String?
+  dob       DateTime?
+  phone     String?
+  photoUrl  String?   @map("photo_url")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  students  Student[]
+  employees Employee[]
+
+  @@map("persons")
+}
+
+// ==========================================
+// 03. ADMISSIONS & SIS (MODULE 01)
+// ==========================================
+
+model Student {
+  id             String   @id @default(uuid()) @db.Uuid
+  tenantId       String   @map("tenant_id") @db.Uuid
+  userId         String?  @unique @map("user_id") @db.Uuid
+  personId       String   @map("person_id") @db.Uuid
+  batchId        String   @map("batch_id") @db.Uuid
+  sectionId      String?  @map("section_id") @db.Uuid
+  enrollmentNo   String   @unique @map("enrollment_no")
+  rollNo         String?  @map("roll_no")
+  status         String   @default("ACTIVE") // ACTIVE, DETAINED, WITHDRAWN, GRADUATED
+  isExitCleared  Boolean  @default(false) @map("is_exit_cleared") // Statutory Exit Barrier Guard
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  tenant  Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user    User?    @relation(fields: [userId], references: [id])
+  person  Person   @relation(fields: [personId], references: [id])
+  batch   Batch    @relation(fields: [batchId], references: [id])
+  section Section? @relation(fields: [sectionId], references: [id])
+
+  guardians    GuardianLink[]
+  attendance   AttendanceRecord[]
+  marks        MarkEntry[]
+  feeDemands   FeeDemand[]
+  payments     PaymentSubmission[]
+  certificates CertificateIssue[]
+
+  @@index([tenantId, status])
+  @@map("students")
+}
+
+model GuardianLink {
+  id          String   @id @default(uuid()) @db.Uuid
+  tenantId    String   @map("tenant_id") @db.Uuid
+  studentId   String   @map("student_id") @db.Uuid
+  parentEmail String   @map("parent_email")
+  relation    String   @default("FATHER") // Single-Parent Multi-Ward Sibling Hub
+  isPrimary   Boolean  @default(true) @map("is_primary")
+
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([parentEmail])
+  @@map("guardian_links")
+}
+
+model CertificateIssue {
+  id             String   @id @default(uuid()) @db.Uuid
+  tenantId       String   @map("tenant_id") @db.Uuid
+  studentId      String   @map("student_id") @db.Uuid
+  type           String   // BONAFIDE, TRANSFER, MIGRATION, CONDUCT, NO_DUES
+  serialNo       String   @unique @map("serial_no")
+  status         String   @default("PENDING") // PENDING, VERIFIED, ISSUED
+  issuedPdfUrl   String?  @map("issued_pdf_url")
+  verifiedAt     DateTime? @map("verified_at")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, studentId, type])
+  @@map("certificate_issues")
+}
+
+// ==========================================
+// 04. ATTENDANCE (MODULE 02)
+// ==========================================
+
+model AttendanceSession {
+  id               String   @id @default(uuid()) @db.Uuid
+  tenantId         String   @map("tenant_id") @db.Uuid
+  courseOfferingId String   @map("course_offering_id") @db.Uuid
+  facultyId        String   @map("faculty_id") @db.Uuid
+  date             DateTime
+  periodNumber     Int      @map("period_number")
+  isLocked         Boolean  @default(false) @map("is_locked")
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  records AttendanceRecord[]
+
+  @@unique([tenantId, courseOfferingId, date, periodNumber])
+  @@map("attendance_sessions")
+}
+
+model AttendanceRecord {
+  id        String   @id @default(uuid()) @db.Uuid
+  sessionId String   @map("session_id") @db.Uuid
+  studentId String   @map("student_id") @db.Uuid
+  status    String   // PRESENT, ABSENT, LATE, ON_DUTY, LEAVE
+  markedAt  DateTime @default(now()) @map("marked_at")
+
+  session AttendanceSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  student Student           @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([sessionId, studentId])
+  @@map("attendance_records")
+}
+
+// ==========================================
+// 05. ACADEMICS, TIMETABLE & SUBSTITUTIONS (MODULE 03)
+// ==========================================
+
+model Course {
+  id           String   @id @default(uuid()) @db.Uuid
+  tenantId     String   @map("tenant_id") @db.Uuid
+  code         String
+  title        String
+  credits      Int      @default(3)
+  type         String   @default("THEORY") // THEORY, LAB, ELECTIVE, OPEN_ELECTIVE
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  offerings CourseOffering[]
+
+  @@unique([tenantId, code])
+  @@map("courses")
+}
+
+model CourseOffering {
+  id        String   @id @default(uuid()) @db.Uuid
+  tenantId  String   @map("tenant_id") @db.Uuid
+  courseId  String   @map("course_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at")
+
+  course    Course              @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  sessions  AttendanceSession[]
+  slots     TimetableSlot[]
+
+  @@map("course_offerings")
+}
+
+model TimetableSlot {
+  id               String   @id @default(uuid()) @db.Uuid
+  tenantId         String   @map("tenant_id") @db.Uuid
+  courseOfferingId String   @map("course_offering_id") @db.Uuid
+  facultyId        String   @map("faculty_id") @db.Uuid
+  dayOfWeek        Int      @map("day_of_week") // 1-7
+  periodNumber     Int      @map("period_number")
+  roomNumber       String   @map("room_number")
+
+  courseOffering CourseOffering     @relation(fields: [courseOfferingId], references: [id], onDelete: Cascade)
+  substitutions  SubstitutionDuty[]
+
+  @@map("timetable_slots")
+}
+
+model SubstitutionDuty {
+  id                  String   @id @default(uuid()) @db.Uuid
+  tenantId            String   @map("tenant_id") @db.Uuid
+  timetableSlotId     String   @map("timetable_slot_id") @db.Uuid
+  originalFacultyId   String   @map("original_faculty_id") @db.Uuid
+  substituteFacultyId String   @map("substitute_faculty_id") @db.Uuid
+  dutyDate            DateTime @map("duty_date")
+  reason              String
+  status              String   @default("ASSIGNED") // ASSIGNED, COMPLETED, CANCELLED
+  createdAt           DateTime @default(now()) @map("created_at")
+
+  slot TimetableSlot @relation(fields: [timetableSlotId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, dutyDate, substituteFacultyId])
+  @@map("substitution_duties")
+}
+
+// ==========================================
+// 06. EXAMINATIONS & MODERATION (MODULE 04)
+// ==========================================
+
+model MarkEntry {
+  id                   String   @id @default(uuid()) @db.Uuid
+  tenantId             String   @map("tenant_id") @db.Uuid
+  studentId            String   @map("student_id") @db.Uuid
+  componentId          String   @map("component_id") @db.Uuid
+  marksObtained        Float    @map("marks_obtained")
+  moderatedMarks       Float?   @map("moderated_marks")
+  status               String   @default("DRAFT") // DRAFT, SUBMITTED, MODERATED, LOCKED
+  moderationNotes      String?  @map("moderation_notes")
+  moderatedByFacultyId String?  @map("moderated_by_faculty_id") @db.Uuid
+  updatedAt            DateTime @updatedAt @map("updated_at")
+
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, studentId, componentId])
+  @@index([tenantId, status])
+  @@map("mark_entries")
+}
+
+// ==========================================
+// 07. FEES & DOUBLE-ENTRY ACCOUNTING (MODULE 05)
+// ==========================================
+
+model FeeDemand {
+  id        String   @id @default(uuid()) @db.Uuid
+  tenantId  String   @map("tenant_id") @db.Uuid
+  studentId String   @map("student_id") @db.Uuid
+  title     String
+  amount    Decimal  @db.Decimal(12, 2)
+  paid      Decimal  @default(0) @db.Decimal(12, 2)
+  dueDate   DateTime @map("due_date")
+  status    String   @default("PENDING") // PENDING, PARTIALLY_PAID, PAID
+
+  student  Student             @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  payments PaymentSubmission[]
+
+  @@map("fee_demands")
+}
+
+model PaymentSubmission {
+  id                 String   @id @default(uuid()) @db.Uuid
+  tenantId           String   @map("tenant_id") @db.Uuid
+  studentId          String   @map("student_id") @db.Uuid
+  feeDemandId        String   @map("fee_demand_id") @db.Uuid
+  amount             Decimal  @db.Decimal(12, 2)
+  method             String   // ONLINE_GATEWAY, BANK_TRANSFER_UTR, CASH
+  status             String   @default("PENDING_VERIFICATION") // PENDING_VERIFICATION, APPROVED, REJECTED
+  idempotencyKey     String   @unique @map("idempotency_key") // Strict Redis + DB lock
+  utrReference       String?  @unique @map("utr_reference") // Unique UTR check
+  receiptDocumentUrl String?  @map("receipt_document_url") // 60s Presigned S3 upload
+  approvedBy         String?  @map("approved_by") @db.Uuid
+  createdAt          DateTime @default(now()) @map("created_at")
+
+  student Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  demand  FeeDemand @relation(fields: [feeDemandId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, status])
+  @@map("payment_submissions")
+}
+
+model LedgerAccount {
+  id        String   @id @default(uuid()) @db.Uuid
+  tenantId  String   @map("tenant_id") @db.Uuid
+  name      String
+  code      String
+  type      String   // ASSET, LIABILITY, EQUITY, INCOME, EXPENSE
+  balance   Decimal  @default(0) @db.Decimal(14, 2)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  voucherLines VoucherLine[]
+
+  @@unique([tenantId, code])
+  @@map("ledger_accounts")
+}
+
+model Voucher {
+  id          String   @id @default(uuid()) @db.Uuid
+  tenantId    String   @map("tenant_id") @db.Uuid
+  voucherNo   String   @unique @map("voucher_no")
+  type        String   // RECEIPT, PAYMENT, JOURNAL, CONTRA
+  date        DateTime
+  narration   String
+  isPosted    Boolean  @default(true) @map("is_posted")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  lines VoucherLine[]
+
+  @@map("vouchers")
+}
+
+model VoucherLine {
+  id        String  @id @default(uuid()) @db.Uuid
+  voucherId String  @map("voucher_id") @db.Uuid
+  accountId String  @map("account_id") @db.Uuid
+  debit     Decimal @default(0) @db.Decimal(14, 2)
+  credit    Decimal @default(0) @db.Decimal(14, 2)
+
+  voucher Voucher       @relation(fields: [voucherId], references: [id], onDelete: Cascade)
+  account LedgerAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@map("voucher_lines")
+}
+
+// ==========================================
+// 08. HR & PAYROLL (MODULE 06)
+// ==========================================
+
+model Employee {
+  id           String   @id @default(uuid()) @db.Uuid
+  tenantId     String   @map("tenant_id") @db.Uuid
+  userId       String?  @unique @map("user_id") @db.Uuid
+  personId     String   @map("person_id") @db.Uuid
+  employeeCode String   @unique @map("employee_code")
+  designation  String
+  joiningDate  DateTime @map("joining_date")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user   User?  @relation(fields: [userId], references: [id])
+  person Person @relation(fields: [personId], references: [id])
+
+  payslips Payslip[]
+
+  @@map("employees")
+}
+
+model Payslip {
+  id          String   @id @default(uuid()) @db.Uuid
+  tenantId    String   @map("tenant_id") @db.Uuid
+  employeeId  String   @map("employee_id") @db.Uuid
+  month       Int
+  year        Int
+  grossSalary Decimal  @map("gross_salary") @db.Decimal(12, 2)
+  deductions  Decimal  @db.Decimal(12, 2)
+  netSalary   Decimal  @map("net_salary") @db.Decimal(12, 2)
+  pdfUrl      String?  @map("pdf_url")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, employeeId, month, year])
+  @@map("payslips")
+}
+
+// ==========================================
+// 09. COMMUNICATION & AUDIT (MODULE 07 & PLATFORM)
+// ==========================================
+
+model Notice {
+  id        String   @id @default(uuid()) @db.Uuid
+  tenantId  String   @map("tenant_id") @db.Uuid
+  title     String
+  content   String
+  targetRole String? @map("target_role")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([tenantId, createdAt])
+  @@map("notices")
+}
+
+model AuditLog {
+  id         String   @id @default(uuid()) @db.Uuid
+  tenantId   String   @map("tenant_id") @db.Uuid
+  actorId    String   @map("actor_id") @db.Uuid
+  action     String   // e.g. MARKS_LOCKED, UTR_APPROVED, STUDENT_PURGED
+  entity     String   // MarkEntry, PaymentSubmission, Student
+  entityId   String   @map("entity_id")
+  beforeJson Json?    @map("before_json")
+  afterJson  Json?    @map("after_json")
+  ipAddress  String?  @map("ip_address")
+  timestamp  DateTime @default(now())
+
+  @@index([tenantId, entity, entityId])
+  @@map("audit_logs")
+}
