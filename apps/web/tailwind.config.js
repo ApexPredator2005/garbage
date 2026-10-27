@@ -30,9 +30,6 @@ export default {
       fontFamily: {
         sans: [
           'Inter',
-          '"Helvetica Neue"',
-          'Helvetica',
-          'Arial',
           'system-ui',
           '-apple-system',
           'BlinkMacSystemFont',
@@ -44,8 +41,6 @@ export default {
           '"Helvetica Neue"',
           'Helvetica',
           'Arial',
-          'system-ui',
-          '-apple-system',
           'sans-serif',
         ],
         mono: [

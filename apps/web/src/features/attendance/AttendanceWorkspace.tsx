@@ -1298,9 +1298,9 @@ export const AttendanceWorkspace: React.FC = () => {
             </div>
 
             {/* Letterhead Preview Box */}
-            <div className="bg-[#FAF7F2] p-5 rounded-xl border border-[#E5DFD7] space-y-3 font-sans font-helvetica">
+            <div className="bg-[#FAF7F2] p-5 rounded-xl border border-[#E5DFD7] space-y-3 font-sans">
               <div className="text-center pb-2 border-b border-[#E5DFD7] space-y-0.5">
-                <h4 className="font-bold text-xs uppercase tracking-widest text-[#682038]">
+                <h4 className="font-bold text-xs uppercase tracking-widest text-[#682038] font-helvetica">
                   MYSCHOOL AUTONOMOUS INSTITUTE OF TECHNOLOGY
                 </h4>
                 <p className="text-[10px] text-[#6E6862]">
