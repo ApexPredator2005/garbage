@@ -21,6 +21,12 @@ import {
   AlertCircle,
   ArrowUpRight,
   ShieldAlert,
+  Send,
+  Mail,
+  Eye,
+  Bell,
+  Sparkles,
+  Phone,
 } from 'lucide-react';
 
 type AttendanceStatus = 'PRESENT' | 'ABSENT' | 'LATE' | 'ON_DUTY';
@@ -64,6 +70,93 @@ interface BiometricPunchLog {
   matchedShift: string;
   status: 'ON_TIME' | 'GRACE_PERIOD' | 'LATE_IN';
 }
+
+interface ParentWarningItem {
+  id: string;
+  studentId: string;
+  rollNo: string;
+  name: string;
+  program: string;
+  attended: number;
+  total: number;
+  percentage: number;
+  marginSessionsToDebarment: number;
+  zone: 'AMBER_WARNING_78' | 'CRITICAL_BARRED_75';
+  parentName: string;
+  parentEmail: string;
+  parentPhone: string;
+  warningDispatched: boolean;
+  dispatchedAt?: string;
+}
+
+const INITIAL_PARENT_WARNINGS: ParentWarningItem[] = [
+  {
+    id: 'pw-01',
+    studentId: 's-105',
+    rollNo: '2023CSE045',
+    name: 'Karthik Menon',
+    program: 'B.Tech CSE Sem 6',
+    attended: 46,
+    total: 60,
+    percentage: 76.6,
+    marginSessionsToDebarment: 1,
+    zone: 'AMBER_WARNING_78',
+    parentName: 'Mr. Suresh Menon',
+    parentEmail: 'suresh.menon@example.com',
+    parentPhone: '+91 98450 12345',
+    warningDispatched: false,
+  },
+  {
+    id: 'pw-02',
+    studentId: 's-107',
+    rollNo: '2023CSE047',
+    name: 'Zaid Al-Mansoor',
+    program: 'B.Tech CSE Sem 6',
+    attended: 47,
+    total: 60,
+    percentage: 78.3,
+    marginSessionsToDebarment: 2,
+    zone: 'AMBER_WARNING_78',
+    parentName: 'Mr. Tariq Al-Mansoor',
+    parentEmail: 'tariq.mansoor@example.com',
+    parentPhone: '+91 98450 67890',
+    warningDispatched: false,
+  },
+  {
+    id: 'pw-03',
+    studentId: 's-102',
+    rollNo: '2023CSE042',
+    name: 'Sneha Patel',
+    program: 'B.Tech CSE Sem 6',
+    attended: 41,
+    total: 60,
+    percentage: 68.3,
+    marginSessionsToDebarment: 0,
+    zone: 'CRITICAL_BARRED_75',
+    parentName: 'Dr. Kirit Patel',
+    parentEmail: 'kirit.patel@example.com',
+    parentPhone: '+91 98450 54321',
+    warningDispatched: true,
+    dispatchedAt: 'Today, 10:14 AM',
+  },
+  {
+    id: 'pw-04',
+    studentId: 's-104',
+    rollNo: '2023CSE044',
+    name: 'Ananya Iyer',
+    program: 'B.Tech CSE Sem 6',
+    attended: 43,
+    total: 60,
+    percentage: 71.6,
+    marginSessionsToDebarment: 0,
+    zone: 'CRITICAL_BARRED_75',
+    parentName: 'Mrs. Radha Iyer',
+    parentEmail: 'radha.iyer@example.com',
+    parentPhone: '+91 98450 77665',
+    warningDispatched: true,
+    dispatchedAt: 'Yesterday, 04:30 PM',
+  },
+];
 
 const INITIAL_STUDENTS: StudentAttendance[] = [
   {
@@ -221,9 +314,10 @@ const BIOMETRIC_LOGS: BiometricPunchLog[] = [
 ];
 
 export const AttendanceWorkspace: React.FC = () => {
-  const [subTab, setSubTab] = useState<'matrix' | 'condonation' | 'biometric'>('matrix');
+  const [subTab, setSubTab] = useState<'matrix' | 'condonation' | 'biometric' | 'radar'>('matrix');
   const [students, setStudents] = useState<StudentAttendance[]>(INITIAL_STUDENTS);
   const [condonations, setCondonations] = useState<CondonationRequest[]>(INITIAL_CONDONATIONS);
+  const [parentWarnings, setParentWarnings] = useState<ParentWarningItem[]>(INITIAL_PARENT_WARNINGS);
   const [selectedPeriod, setSelectedPeriod] = useState<number>(2);
   const [selectedSubject, setSelectedSubject] = useState('CS601 Distributed Systems');
   const [isSessionLocked, setIsSessionLocked] = useState(false);
@@ -231,6 +325,45 @@ export const AttendanceWorkspace: React.FC = () => {
   const [unlockReason, setUnlockReason] = useState('');
   const [isFlushing, setIsFlushing] = useState(false);
   const [lastFlushTime, setLastFlushTime] = useState<string | null>(null);
+  const [activePreviewNotice, setActivePreviewNotice] = useState<ParentWarningItem | null>(null);
+  const [dispatchingId, setDispatchingId] = useState<string | null>(null);
+  const [radarFilter, setRadarFilter] = useState<'ALL' | 'AMBER_78' | 'BARRED_75'>('ALL');
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 4000);
+  };
+
+  const handleDispatchParentWarning = (warningId: string) => {
+    setDispatchingId(warningId);
+    setTimeout(() => {
+      setParentWarnings((prev) =>
+        prev.map((item) =>
+          item.id === warningId
+            ? { ...item, warningDispatched: true, dispatchedAt: 'Just now via SMTP & In-App' }
+            : item
+        )
+      );
+      setDispatchingId(null);
+      showToast('Automated 78% Threshold Notice successfully sent to Parent Portal & Email! (Zero-SMS: ₹0.28 saved)');
+    }, 800);
+  };
+
+  const handleBulkDispatchAmberWarnings = () => {
+    setDispatchingId('bulk');
+    setTimeout(() => {
+      setParentWarnings((prev) =>
+        prev.map((item) =>
+          item.zone === 'AMBER_WARNING_78'
+            ? { ...item, warningDispatched: true, dispatchedAt: 'Just now (Bulk Batch)' }
+            : item
+        )
+      );
+      setDispatchingId(null);
+      showToast('Dispatched 78% Defaulter Warning emails & parent portal push notifications to all Amber Zone parents.');
+    }, 1200);
+  };
 
   // Stats calculation
   const totalStudents = students.length;
@@ -374,6 +507,22 @@ export const AttendanceWorkspace: React.FC = () => {
           >
             <Fingerprint className="w-3.5 h-3.5" />
             <span>Biometric Audit</span>
+          </button>
+          <button
+            onClick={() => setSubTab('radar')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
+              subTab === 'radar'
+                ? 'bg-[#682038] text-white shadow-sm'
+                : 'text-[#6E6862] hover:bg-[#F4ECE2]'
+            }`}
+          >
+            <AlertCircle className="w-3.5 h-3.5" />
+            <span>78% Parent Radar</span>
+            {parentWarnings.filter((w) => w.zone === 'AMBER_WARNING_78' && !w.warningDispatched).length > 0 && (
+              <span className="w-4 h-4 rounded-full bg-amber-500 text-white text-[10px] flex items-center justify-center font-mono">
+                {parentWarnings.filter((w) => w.zone === 'AMBER_WARNING_78' && !w.warningDispatched).length}
+              </span>
+            )}
           </button>
         </div>
       </div>
@@ -829,6 +978,406 @@ export const AttendanceWorkspace: React.FC = () => {
                   ))}
                 </tbody>
               </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* SUB-TAB 4: AUTOMATED PARENT DEFAULTER THRESHOLD WARNING (78% BUFFER RADAR) */}
+      {subTab === 'radar' && (
+        <div className="space-y-6">
+          {/* Statutory Policy & Zero-SMS Banner */}
+          <div className="bg-[#FAF7F2] border border-[#E5DFD7] rounded-2xl p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div className="flex items-start gap-3">
+              <div className="w-9 h-9 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center shrink-0 mt-0.5">
+                <AlertCircle className="w-5 h-5 text-amber-700" />
+              </div>
+              <div className="space-y-1 text-xs text-[#242424]">
+                <h3 className="font-bold text-sm">Automated 78% Buffer Early-Warning Radar</h3>
+                <p className="text-[#6E6862]">
+                  Statutory debarment from autonomous examinations is strictly enforced at &lt;75% attendance. The 78% buffer triggers proactive early intervention (1–2 absences prior to debarment).
+                </p>
+                <div className="flex items-center gap-3 pt-1 text-[11px] text-[#8B5E3C] font-semibold">
+                  <span className="flex items-center gap-1">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                    Zero-SMS Policy: In-App Push &amp; SMTP Email Only
+                  </span>
+                  <span>•</span>
+                  <span>Statutory Condonation Window: 65%–74.9% with ₹500 fee</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                onClick={handleBulkDispatchAmberWarnings}
+                disabled={dispatchingId === 'bulk' || parentWarnings.filter((w) => w.zone === 'AMBER_WARNING_78' && !w.warningDispatched).length === 0}
+                className="px-4 py-2 rounded-xl bg-[#682038] hover:bg-[#54192D] text-white text-xs font-bold shadow-sm disabled:opacity-50 flex items-center gap-2 transition-all"
+              >
+                {dispatchingId === 'bulk' ? (
+                  <>
+                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                    <span>Broadcasting Batch...</span>
+                  </>
+                ) : (
+                  <>
+                    <Send className="w-3.5 h-3.5" />
+                    <span>Dispatch All Amber Warnings ({parentWarnings.filter((w) => w.zone === 'AMBER_WARNING_78' && !w.warningDispatched).length})</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+
+          {/* Metric KPI Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="bg-white p-4 rounded-xl border border-amber-200 shadow-sm space-y-1 bg-gradient-to-br from-amber-50/50 to-white">
+              <span className="text-xs font-semibold text-amber-900">78% Buffer Warning Zone</span>
+              <div className="flex items-baseline justify-between">
+                <span className="text-2xl font-bold font-mono text-amber-700">
+                  {parentWarnings.filter((w) => w.zone === 'AMBER_WARNING_78').length}
+                </span>
+                <span className="text-[11px] font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded">
+                  1–2 Absences Left
+                </span>
+              </div>
+              <p className="text-[10px] text-[#6E6862]">Proactive warning triggered before debarment</p>
+            </div>
+
+            <div className="bg-white p-4 rounded-xl border border-rose-200 shadow-sm space-y-1 bg-gradient-to-br from-rose-50/50 to-white">
+              <span className="text-xs font-semibold text-rose-900">Hard Debarred (&lt;75%)</span>
+              <div className="flex items-baseline justify-between">
+                <span className="text-2xl font-bold font-mono text-rose-700">
+                  {parentWarnings.filter((w) => w.zone === 'CRITICAL_BARRED_75').length}
+                </span>
+                <span className="text-[11px] font-bold text-rose-800 bg-rose-100 px-2 py-0.5 rounded">
+                  Hall Ticket Barred
+                </span>
+              </div>
+              <p className="text-[10px] text-[#6E6862]">Referred to Medical Condonation Desk</p>
+            </div>
+
+            <div className="bg-white p-4 rounded-xl border border-[#E5DFD7] shadow-sm space-y-1">
+              <span className="text-xs font-medium text-[#6E6862]">Cohort Average Attendance</span>
+              <div className="flex items-baseline justify-between">
+                <span className="text-2xl font-bold font-mono text-[#242424]">81.4%</span>
+                <span className="text-xs text-emerald-600 font-bold">Above 75% Par</span>
+              </div>
+              <p className="text-[10px] text-[#6E6862]">60 Total Statutory Periods Delivered</p>
+            </div>
+
+            <div className="bg-white p-4 rounded-xl border border-emerald-200 shadow-sm space-y-1 bg-gradient-to-br from-emerald-50/50 to-white">
+              <span className="text-xs font-semibold text-emerald-900">Zero-SMS Cost Saved</span>
+              <div className="flex items-baseline justify-between">
+                <span className="text-2xl font-bold font-mono text-emerald-700">₹8,400.00</span>
+                <span className="text-[11px] font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded">
+                  ₹0.28 / SMS Saved
+                </span>
+              </div>
+              <p className="text-[10px] text-[#6E6862]">In-App Push + Institutional SMTP Routing</p>
+            </div>
+          </div>
+
+          {/* Filter Bar */}
+          <div className="bg-white rounded-xl border border-[#E5DFD7] p-3 shadow-sm flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold text-[#6E6862] flex items-center gap-1.5 pl-1">
+                <Filter className="w-3.5 h-3.5" />
+                Filter Defaulters:
+              </span>
+              <button
+                onClick={() => setRadarFilter('ALL')}
+                className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
+                  radarFilter === 'ALL'
+                    ? 'bg-[#682038] text-white shadow-xs'
+                    : 'text-[#6E6862] hover:bg-[#FAF7F2]'
+                }`}
+              >
+                All Defaulters ({parentWarnings.length})
+              </button>
+              <button
+                onClick={() => setRadarFilter('AMBER_78')}
+                className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
+                  radarFilter === 'AMBER_78'
+                    ? 'bg-amber-600 text-white shadow-xs'
+                    : 'text-amber-800 bg-amber-50 hover:bg-amber-100'
+                }`}
+              >
+                Amber 78% Buffer ({parentWarnings.filter((w) => w.zone === 'AMBER_WARNING_78').length})
+              </button>
+              <button
+                onClick={() => setRadarFilter('BARRED_75')}
+                className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
+                  radarFilter === 'BARRED_75'
+                    ? 'bg-rose-600 text-white shadow-xs'
+                    : 'text-rose-800 bg-rose-50 hover:bg-rose-100'
+                }`}
+              >
+                Barred &lt;75% ({parentWarnings.filter((w) => w.zone === 'CRITICAL_BARRED_75').length})
+              </button>
+            </div>
+
+            <div className="text-[11px] font-mono text-[#6E6862]">
+              Auto-sync with biometric logs enabled
+            </div>
+          </div>
+
+          {/* Defaulter Radar Table */}
+          <div className="bg-white rounded-2xl border border-[#E5DFD7] shadow-sm overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-[#FAF7F2] text-[#6E6862] border-b border-[#E5DFD7]">
+                  <tr>
+                    <th className="py-3 px-4 font-semibold">Student &amp; Roll No</th>
+                    <th className="py-3 px-4 font-semibold">Program</th>
+                    <th className="py-3 px-4 font-semibold">Attendance Ratio</th>
+                    <th className="py-3 px-4 font-semibold">Risk &amp; Margin</th>
+                    <th className="py-3 px-4 font-semibold">Parent Contact</th>
+                    <th className="py-3 px-4 font-semibold">Dispatch Audit</th>
+                    <th className="py-3 px-4 font-semibold text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#E5DFD7]">
+                  {parentWarnings
+                    .filter((w) => {
+                      if (radarFilter === 'AMBER_78') return w.zone === 'AMBER_WARNING_78';
+                      if (radarFilter === 'BARRED_75') return w.zone === 'CRITICAL_BARRED_75';
+                      return true;
+                    })
+                    .map((item) => (
+                      <tr key={item.id} className="hover:bg-[#FAF7F2]/40 transition-colors">
+                        <td className="py-3.5 px-4">
+                          <div className="font-bold text-[#242424]">{item.name}</div>
+                          <div className="font-mono text-[11px] text-[#8B5E3C]">{item.rollNo}</div>
+                        </td>
+                        <td className="py-3.5 px-4 text-[#6E6862]">{item.program}</td>
+                        <td className="py-3.5 px-4">
+                          <div className="space-y-1">
+                            <div className="flex items-center justify-between gap-3">
+                              <span className="font-mono font-bold text-[#242424]">
+                                {item.attended} / {item.total}
+                              </span>
+                              <span
+                                className={`font-mono font-bold ${
+                                  item.zone === 'AMBER_WARNING_78' ? 'text-amber-700' : 'text-rose-700'
+                                }`}
+                              >
+                                {item.percentage}%
+                              </span>
+                            </div>
+                            <div className="w-28 h-1.5 rounded-full bg-[#E5DFD7] overflow-hidden">
+                              <div
+                                className={`h-full rounded-full ${
+                                  item.zone === 'AMBER_WARNING_78' ? 'bg-amber-500' : 'bg-rose-500'
+                                }`}
+                                style={{ width: `${item.percentage}%` }}
+                              />
+                            </div>
+                          </div>
+                        </td>
+                        <td className="py-3.5 px-4">
+                          {item.zone === 'AMBER_WARNING_78' ? (
+                            <div className="space-y-0.5">
+                              <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-200">
+                                78% Amber Buffer
+                              </span>
+                              <div className="text-[11px] font-semibold text-amber-700">
+                                {item.marginSessionsToDebarment === 1
+                                  ? '⚠️ Only 1 absence left before debarment!'
+                                  : `⚠️ ${item.marginSessionsToDebarment} absences left before debarment`}
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="space-y-0.5">
+                              <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-100 text-rose-900 border border-rose-200">
+                                Barred from Hall Ticket
+                              </span>
+                              <div className="text-[11px] font-semibold text-rose-700">
+                                Deficit: {Math.ceil(item.total * 0.75) - item.attended} classes short
+                              </div>
+                            </div>
+                          )}
+                        </td>
+                        <td className="py-3.5 px-4">
+                          <div className="font-medium text-[#242424]">{item.parentName}</div>
+                          <div className="text-[11px] text-[#6E6862] flex items-center gap-1">
+                            <Mail className="w-3 h-3 text-[#8B5E3C]" />
+                            <span>{item.parentEmail}</span>
+                          </div>
+                          <div className="text-[11px] text-[#6E6862] flex items-center gap-1 font-mono">
+                            <Phone className="w-3 h-3 text-[#8B5E3C]" />
+                            <span>{item.parentPhone}</span>
+                          </div>
+                        </td>
+                        <td className="py-3.5 px-4">
+                          {item.warningDispatched ? (
+                            <div className="space-y-0.5">
+                              <span className="flex items-center gap-1 text-[11px] font-bold text-emerald-700">
+                                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                                Notice Sent
+                              </span>
+                              <div className="text-[10px] text-[#6E6862]">{item.dispatchedAt || 'Today'}</div>
+                            </div>
+                          ) : (
+                            <span className="text-[11px] text-amber-700 font-medium">Pending Dispatch</span>
+                          )}
+                        </td>
+                        <td className="py-3.5 px-4 text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            <button
+                              onClick={() => setActivePreviewNotice(item)}
+                              className="px-2.5 py-1.5 rounded-lg bg-[#FAF7F2] hover:bg-[#F4ECE2] text-[#8B5E3C] border border-[#E5DFD7] text-xs font-semibold flex items-center gap-1 transition-all"
+                              title="Preview Official Notice"
+                            >
+                              <Eye className="w-3.5 h-3.5" />
+                              <span>Notice</span>
+                            </button>
+                            <button
+                              onClick={() => handleDispatchParentWarning(item.id)}
+                              disabled={dispatchingId === item.id || item.warningDispatched}
+                              className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all ${
+                                item.warningDispatched
+                                  ? 'bg-emerald-50 text-emerald-800 border border-emerald-200 cursor-default'
+                                  : 'bg-[#682038] hover:bg-[#54192D] text-white shadow-xs'
+                              }`}
+                            >
+                              {dispatchingId === item.id ? (
+                                <>
+                                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                                  <span>Sending...</span>
+                                </>
+                              ) : item.warningDispatched ? (
+                                <>
+                                  <Check className="w-3.5 h-3.5 text-emerald-600" />
+                                  <span>Sent</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Send className="w-3.5 h-3.5" />
+                                  <span>Dispatch Warning</span>
+                                </>
+                              )}
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Toast Notification */}
+      {toastMessage && (
+        <div className="fixed bottom-6 right-6 z-50 bg-[#242424] text-white px-4 py-3 rounded-xl shadow-xl flex items-center gap-3 text-xs border border-white/10 animate-in slide-in-from-bottom-2 duration-200">
+          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+          <span>{toastMessage}</span>
+          <button onClick={() => setToastMessage(null)} className="text-white/60 hover:text-white">
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
+
+      {/* Official Parent Notice Preview Modal */}
+      {activePreviewNotice && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-[#E5DFD7] space-y-4 animate-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between pb-3 border-b border-[#E5DFD7]">
+              <div className="flex items-center gap-2">
+                <ShieldAlert className="w-5 h-5 text-[#682038]" />
+                <h3 className="font-bold text-sm text-[#242424]">Official Parent Notice Preview</h3>
+              </div>
+              <button
+                onClick={() => setActivePreviewNotice(null)}
+                className="p-1 rounded-lg text-[#6E6862] hover:bg-[#F4ECE2]"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Letterhead Preview Box */}
+            <div className="bg-[#FAF7F2] p-5 rounded-xl border border-[#E5DFD7] space-y-3 font-serif">
+              <div className="text-center pb-2 border-b border-[#E5DFD7] space-y-0.5">
+                <h4 className="font-bold text-xs uppercase tracking-widest text-[#682038]">
+                  MYSCHOOL AUTONOMOUS INSTITUTE OF TECHNOLOGY
+                </h4>
+                <p className="text-[10px] text-[#6E6862] font-sans">
+                  Office of the Controller of Examinations &amp; Academic Dean
+                </p>
+                <span className="inline-block text-[9px] font-mono px-2 py-0.5 bg-white rounded border border-[#E5DFD7] text-[#8B5E3C]">
+                  DISPATCH REF: ACAD-ATT-2026/SEC-78/{activePreviewNotice.rollNo}
+                </span>
+              </div>
+
+              <div className="text-xs space-y-2 text-[#242424] font-sans leading-relaxed">
+                <p>
+                  <strong>To:</strong> {activePreviewNotice.parentName}
+                  <br />
+                  <strong>Re:</strong> Attendance Threshold Warning for Ward:{' '}
+                  <strong>
+                    {activePreviewNotice.name} ({activePreviewNotice.rollNo})
+                  </strong>
+                </p>
+
+                <p className="text-[11px] text-[#6E6862]">
+                  This is an automated regulatory notification to alert you that your ward's attendance in{' '}
+                  <strong>{activePreviewNotice.program}</strong> stands at{' '}
+                  <span className="font-bold text-rose-700 font-mono">
+                    {activePreviewNotice.percentage}%
+                  </span>{' '}
+                  ({activePreviewNotice.attended} of {activePreviewNotice.total} periods attended).
+                </p>
+
+                <div className="p-2.5 rounded-lg bg-amber-50 border border-amber-200 text-amber-900 text-[11px] space-y-1">
+                  <div className="font-bold flex items-center gap-1.5">
+                    <AlertTriangle className="w-3.5 h-3.5 text-amber-700" />
+                    <span>Statutory University Regulation Clause 7.2:</span>
+                  </div>
+                  <p>
+                    Students with attendance strictly below <strong>75%</strong> are debarred from appearing in autonomous end-semester theory and laboratory examinations.
+                  </p>
+                  {activePreviewNotice.zone === 'AMBER_WARNING_78' ? (
+                    <p className="font-bold text-amber-800">
+                      Margin Warning: Your ward is within <strong>{activePreviewNotice.marginSessionsToDebarment} absence(s)</strong> of automatic debarment.
+                    </p>
+                  ) : (
+                    <p className="font-bold text-rose-800">
+                      Debarred: Your ward is currently ineligible for exam hall ticket generation.
+                    </p>
+                  )}
+                </div>
+
+                <p className="text-[10px] text-[#6E6862]">
+                  If the shortage is due to hospitalization or certified medical reasons, submit a condonation application accompanied by medical certificate and statutory ₹500 fee UTR on the Student/Parent Portal within 3 working days.
+                </p>
+              </div>
+
+              <div className="pt-2 border-t border-[#E5DFD7] flex items-center justify-between text-[10px] text-[#6E6862] font-sans">
+                <span>Channel: Encrypted SMTP &amp; Parent App Push</span>
+                <span className="font-mono text-emerald-700 font-bold">Zero-SMS Verified (Cost: ₹0.00)</span>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-1">
+              <button
+                onClick={() => setActivePreviewNotice(null)}
+                className="px-4 py-2 rounded-xl text-xs font-semibold text-[#6E6862] hover:bg-[#F4ECE2]"
+              >
+                Close Preview
+              </button>
+              <button
+                onClick={() => {
+                  handleDispatchParentWarning(activePreviewNotice.id);
+                  setActivePreviewNotice(null);
+                }}
+                disabled={activePreviewNotice.warningDispatched}
+                className="px-4 py-2 rounded-xl bg-[#682038] hover:bg-[#54192D] text-white text-xs font-bold shadow-sm disabled:opacity-50 flex items-center gap-1.5"
+              >
+                <Send className="w-3.5 h-3.5" />
+                <span>{activePreviewNotice.warningDispatched ? 'Already Dispatched' : 'Dispatch Now'}</span>
+              </button>
             </div>
           </div>
         </div>

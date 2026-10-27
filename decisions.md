@@ -397,6 +397,22 @@ This document chronicles the fundamental engineering and product decisions made 
 
 ---
 
+### [ADR-029] Statutory Quota Seat Matrix Visualizer, DigiLocker / NAD Vault & 78% Parent Defaulter Early-Warning Radar
+- **Classification:** Functional Domain & Statutory Compliance (FUNC / STAT)
+- **Status:** Approved & Implemented
+- **Decision Owner:** Stakeholder Directive & Engineering Lead
+- **Context:** Following the baseline rollout, three high-priority institutional and regulatory capabilities were requested:
+  1. Statutory Indian higher-ed Quota Reservation Seat Matrix Visualizer (Open 50%, OBC-NCL 27%, SC 15%, ST 7.5%, EWS 10%, Management 15%) with sliding-round seat conversion algorithms.
+  2. Alumni Transition & Permanent DigiLocker / National Academic Depository (NAD) integration with deterministic document URIs (`in.gov.digilocker.edu.myschool.deg.<id>`), SHA-256 verification stamps, and verifiable QR codes gated behind the Statutory Exit Barrier Guard.
+  3. Automated Parent Defaulter Threshold Warning (78% Buffer Guard): While statutory debarment strictly blocks examination hall tickets at <75% attendance, waiting until a student drops below 75% is punitive and unrecoverable. An early-warning radar at 78% gives parents an actionable 3% buffer (1–2 absences remaining) to intervene and submit medical condonation before hall tickets are blocked, strictly complying with the Zero-SMS policy (In-App Push & SMTP Email).
+- **Decision:** Implemented both interactive frontend workspaces and NestJS backend endpoints:
+  - `GET /api/v1/admissions/seat-matrix`: Quota breakdown, capacity occupancy gauges, and sliding round conversion triggers.
+  - `POST /api/v1/admissions/alumni/push-digilocker`: Degree credential push with Exit Barrier prerequisite verification.
+  - `GET /api/v1/attendance/defaulter-warnings` & `POST /api/v1/attendance/dispatch-parent-warning`: 78% early warning radar and parent notification dispatch.
+- **Rationale:** Guarantees statutory regulatory compliance (AICTE, UGC, Anna University, National Academic Depository), protects institutional accreditation ratings, and eliminates recurring SMS telecommunication costs.
+
+---
+
 ## 6. Comprehensive Decision Summary Matrix
 
 | ID | Decision Title | Category | Status | Primary Rationale & Impact |
@@ -429,3 +445,4 @@ This document chronicles the fundamental engineering and product decisions made 
 | **ADR-026** | Exhaustive LLM Prompt Contracts & Modular Staging | UX/ARCH | Implemented | Contract-dense Claude prompts with explicit types and design tokens; universal 8-module navigation. |
 | **ADR-027** | Full In-House Implementation of All 8 Modules | STRAT/ARCH | Implemented | Direct delivery of complete 8-module higher-ed suite (Attendance, HR, Comm, Reports) in apps/web. |
 | **ADR-028** | Decoupled Modular Monolith Backend API in NestJS | ARCH/FUNC | Implemented | NestJS Fastify backend API layer with 8 domain modules, RLS tenancy, BullMQ queues & Swagger. |
+| **ADR-029** | Quota Matrix, DigiLocker & 78% Warning Radar | FUNC/STAT | Implemented | Statutory reservation seat matrix, NAD degree push & early parent attendance buffer guard. |

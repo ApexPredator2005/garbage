@@ -13,6 +13,12 @@ export class AdmissionsController {
     return this.admissionsService.generateMeritList(programCode);
   }
 
+  @Get('seat-matrix')
+  @ApiOperation({ summary: 'Quota Reservation Seat Matrix Visualizer (Open, OBC, SC, ST, EWS, Mgmt)' })
+  async getSeatMatrix(@Query('programCode') programCode = 'CSE') {
+    return this.admissionsService.getSeatMatrix(programCode);
+  }
+
   @Get('exit-clearance/:studentId')
   @ApiOperation({ summary: 'Check Statutory Student Exit Barrier Guard status' })
   async checkExitClearance(@Param('studentId') studentId: string) {
@@ -26,6 +32,18 @@ export class AdmissionsController {
     @Body() body: { confirmAdmissionNo: string }
   ) {
     return this.admissionsService.executeStudentExit(studentId, body.confirmAdmissionNo);
+  }
+
+  @Post('alumni/push-digilocker')
+  @ApiOperation({ summary: 'Alumni Transition & Permanent DigiLocker / NAD Integration' })
+  async pushToDigiLocker(
+    @Body()
+    body: {
+      studentId: string;
+      degreeRegNo: string;
+    }
+  ) {
+    return this.admissionsService.pushDegreeToDigiLocker(body.studentId, body.degreeRegNo);
   }
 
   @Get('guardian-wards')

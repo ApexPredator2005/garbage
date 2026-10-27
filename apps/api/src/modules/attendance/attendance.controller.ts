@@ -32,6 +32,24 @@ export class AttendanceController {
     return this.attendanceService.checkExamEligibility(studentId);
   }
 
+  @Get('defaulter-warnings')
+  @ApiOperation({ summary: 'Automated Parent Defaulter Threshold Warning (78% Buffer Guard)' })
+  async getDefaulterWarnings() {
+    return this.attendanceService.getParentDefaulterWarnings();
+  }
+
+  @Post('dispatch-parent-warning')
+  @ApiOperation({ summary: 'Dispatch automated 78% early warning notice to parents via In-App & Email' })
+  async dispatchWarning(
+    @Body()
+    body: {
+      studentId: string;
+      parentEmail: string;
+    }
+  ) {
+    return this.attendanceService.dispatchParentWarning(body.studentId, body.parentEmail);
+  }
+
   @Post('condonation')
   @ApiOperation({ summary: 'Submit medical condonation request with ₹500 fee UTR receipt' })
   async applyCondonation(
