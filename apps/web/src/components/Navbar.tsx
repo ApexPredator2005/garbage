@@ -1,7 +1,7 @@
 import React from 'react';
 import { MOCK_TENANTS } from '../mockData';
 import { RoleType } from '../types';
-import { Building2, Users2, Shield, Bell, Cloud, Code2 } from 'lucide-react';
+import { Building2, Users2, Shield, Bell, Cloud } from 'lucide-react';
 
 interface NavbarProps {
   currentTenantId: string;
@@ -9,7 +9,6 @@ interface NavbarProps {
   currentRole: RoleType;
   onRoleChange: (role: RoleType) => void;
   onOpenUpload: () => void;
-  onOpenClaudePrompts: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -18,7 +17,6 @@ export const Navbar: React.FC<NavbarProps> = ({
   currentRole,
   onRoleChange,
   onOpenUpload,
-  onOpenClaudePrompts,
 }) => {
   const currentTenant = MOCK_TENANTS.find((t) => t.id === currentTenantId) || MOCK_TENANTS[0];
 
@@ -57,18 +55,8 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
         </div>
 
-        {/* Right: User Features (Ward Switcher, Upload, Claude Prompts, Role Selector) */}
+        {/* Right: User Features (Ward Switcher, Upload, Role Selector) */}
         <div className="flex items-center gap-2 sm:gap-3">
-          {/* Claude Modular Prompts Pill */}
-          <button
-            onClick={onOpenClaudePrompts}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#682038] hover:bg-[#54192D] text-white text-xs font-bold shadow-sm transition-all"
-            title="Open copy-paste prompts for Claude to build complementary modules"
-          >
-            <Code2 className="w-3.5 h-3.5" />
-            <span>Claude Prompts</span>
-          </button>
-
           {/* Presigned S3 Direct Upload Quick-Action */}
           <button
             onClick={onOpenUpload}

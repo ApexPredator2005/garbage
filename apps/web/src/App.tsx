@@ -61,7 +61,6 @@ export const App: React.FC = () => {
         currentRole={currentRole}
         onRoleChange={setCurrentRole}
         onOpenUpload={() => setIsUploadOpen(true)}
-        onOpenClaudePrompts={() => setIsClaudePromptsOpen(true)}
       />
 
       {/* Main Workspace Container */}
