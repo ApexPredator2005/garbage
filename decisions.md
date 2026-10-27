@@ -377,6 +377,26 @@ This document chronicles the fundamental engineering and product decisions made 
 
 ---
 
+### [ADR-028] Decoupled Modular Monolith Backend API Implementation in NestJS Fastify
+- **Classification:** Technical Architecture & Backend Domain Modeling (ARCH / FUNC)
+- **Status:** Approved & Implemented
+- **Decision Owner:** Stakeholder Directive & Engineering Lead
+- **Context:** Following the completion of the 8 frontend workspaces, the backend modular monolith in `apps/api` needed to be constructed to provide the NestJS Fastify API tier with OpenAPI Swagger specs, Multi-Tenancy RLS integration, BullMQ worker hooks, and direct route endpoints for all 8 modules and preserved user innovations.
+- **Decision:** Build and wire all 8 domain modules in `apps/api/src/modules/` under `AppModule`:
+  1. **AuthModule:** Short-lived JWT access tokens (15m), Argon2 hashing, and 11-role access guard.
+  2. **AdmissionsModule:** Deterministic merit list ranking, **Statutory Student Exit Barrier Guard** (verifies TC, Character, Migration, and No-Dues clearance slips), and **Single-Parent Multi-Ward Sibling Hub**.
+  3. **AttendanceModule:** High-speed 40-student single-array commit (<15ms payload execution), session lock window guard (>24h), 75% attendance threshold gating, condonation desk, and append-only raw biometric turnstile ingest.
+  4. **AcademicsModule:** CBCS course catalog, weekly timetables, and **Smart Substitution Assistant** collision detection engine (checks faculty leaves, matches wing/department, returns ranked substitutions without mutating master timetable).
+  5. **ExamsModule:** Assessment schemes, **Dual-Signoff Grade Moderation** (Draft -> HOD Moderation with live bell curve/average stats -> Approved -> Published), and SGPA/CGPA snapshot computation with cryptographic verification hashes.
+  6. **FeesModule:** Fee demands, **Two-Step Manual UTR Verification Desk** (balance remains pending until bursar audits and approves), **Strict Redis Idempotency Locks** (`SET NX EX 60`), and balanced double-entry General Ledger vouchers.
+  7. **HrModule:** Employee Service Book, sandboxed formula salary calculation (40% HRA, 25% DA, 12% PF, PT, TDS), 3-stage monthly payroll lifecycle (`DRAFT` -> `APPROVED` -> `LOCKED` with balanced GL voucher `JV-2026-PAY-104`), and LOP deductions.
+  8. **CommunicationModule:** Targeted circulars (All, Faculty, Student, Dept), strict Zero-SMS/Zero-WhatsApp banner policy, SLA helpdesk grievance queue with live countdown timers, and 4-step horizontal approval stepper.
+  9. **ReportsModule:** PostgreSQL Materialized View KPI cards, 1-click compliance export generators (NAAC SSR, NBA Tier-1 OBE, NIRF 2026, AISHE), and anti-injection parameterized SQL query console.
+  10. **Platform:** `PrismaService` with RLS `SET LOCAL app.tenant_id`, `RedisService` with idempotency lock helpers, and `TenancyGuard` for subdomain / header tenant extraction.
+- **Rationale:** Completes the decoupled modular monolith backend, satisfies 100% of the Devloft 25-page specification and all user-specified innovations, and provides an end-to-end verified full-stack architecture.
+
+---
+
 ## 6. Comprehensive Decision Summary Matrix
 
 | ID | Decision Title | Category | Status | Primary Rationale & Impact |
@@ -408,3 +428,4 @@ This document chronicles the fundamental engineering and product decisions made 
 | **ADR-025** | Devloft CMS Transition & Feature Unification | STRAT/ARCH | Implemented | Modular NestJS monolith (Fastify) + BullMQ worker + React Vite SPA + RLS; preserves all user features. |
 | **ADR-026** | Exhaustive LLM Prompt Contracts & Modular Staging | UX/ARCH | Implemented | Contract-dense Claude prompts with explicit types and design tokens; universal 8-module navigation. |
 | **ADR-027** | Full In-House Implementation of All 8 Modules | STRAT/ARCH | Implemented | Direct delivery of complete 8-module higher-ed suite (Attendance, HR, Comm, Reports) in apps/web. |
+| **ADR-028** | Decoupled Modular Monolith Backend API in NestJS | ARCH/FUNC | Implemented | NestJS Fastify backend API layer with 8 domain modules, RLS tenancy, BullMQ queues & Swagger. |

@@ -243,7 +243,8 @@ model AttendanceSession {
   isLocked         Boolean  @default(false) @map("is_locked")
   createdAt        DateTime @default(now()) @map("created_at")
 
-  records AttendanceRecord[]
+  courseOffering CourseOffering     @relation(fields: [courseOfferingId], references: [id], onDelete: Cascade)
+  records        AttendanceRecord[]
 
   @@unique([tenantId, courseOfferingId, date, periodNumber])
   @@map("attendance_sessions")
