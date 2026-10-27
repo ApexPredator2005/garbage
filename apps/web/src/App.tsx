@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { RoleType } from './types';
 import { Navbar } from './components/Navbar';
 import { PresignedUploadModal } from './components/PresignedUploadModal';
-import { ClaudeModulesModal } from './components/ClaudeModulesModal';
 import { AdmissionsWorkspace } from './features/admissions/AdmissionsWorkspace';
 import { AttendanceWorkspace } from './features/attendance/AttendanceWorkspace';
 import { AcademicsWorkspace } from './features/academics/AcademicsWorkspace';
@@ -16,7 +15,6 @@ import {
   Calendar,
   Award,
   CreditCard,
-  Sparkles,
   Fingerprint,
   DollarSign,
   MessageSquare,
@@ -39,7 +37,6 @@ export const App: React.FC = () => {
   const [currentRole, setCurrentRole] = useState<RoleType>('PRINCIPAL');
   const [activeTab, setActiveTab] = useState<ModuleTab>('academics');
   const [isUploadOpen, setIsUploadOpen] = useState(false);
-  const [isClaudePromptsOpen, setIsClaudePromptsOpen] = useState(false);
 
   const MODULES_NAV = [
     { id: 'admissions', label: '01. Admissions & SIS', icon: Users },
@@ -87,14 +84,6 @@ export const App: React.FC = () => {
               );
             })}
           </nav>
-
-          <button
-            onClick={() => setIsClaudePromptsOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs font-bold hover:bg-amber-100 transition-all shrink-0 shadow-sm"
-          >
-            <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-            <span>Prompt Contracts Hub</span>
-          </button>
         </div>
 
         {/* Active Workspace View */}
@@ -112,9 +101,6 @@ export const App: React.FC = () => {
 
       {/* S3 Presigned Upload Modal */}
       <PresignedUploadModal isOpen={isUploadOpen} onClose={() => setIsUploadOpen(false)} />
-
-      {/* Claude Modular Prompts Modal */}
-      <ClaudeModulesModal isOpen={isClaudePromptsOpen} onClose={() => setIsClaudePromptsOpen(false)} />
     </div>
   );
 };
