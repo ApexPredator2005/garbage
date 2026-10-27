@@ -1298,12 +1298,12 @@ export const AttendanceWorkspace: React.FC = () => {
             </div>
 
             {/* Letterhead Preview Box */}
-            <div className="bg-[#FAF7F2] p-5 rounded-xl border border-[#E5DFD7] space-y-3 font-serif">
+            <div className="bg-[#FAF7F2] p-5 rounded-xl border border-[#E5DFD7] space-y-3 font-sans font-helvetica">
               <div className="text-center pb-2 border-b border-[#E5DFD7] space-y-0.5">
                 <h4 className="font-bold text-xs uppercase tracking-widest text-[#682038]">
                   MYSCHOOL AUTONOMOUS INSTITUTE OF TECHNOLOGY
                 </h4>
-                <p className="text-[10px] text-[#6E6862] font-sans">
+                <p className="text-[10px] text-[#6E6862]">
                   Office of the Controller of Examinations &amp; Academic Dean
                 </p>
                 <span className="inline-block text-[9px] font-mono px-2 py-0.5 bg-white rounded border border-[#E5DFD7] text-[#8B5E3C]">
@@ -1311,7 +1311,7 @@ export const AttendanceWorkspace: React.FC = () => {
                 </span>
               </div>
 
-              <div className="text-xs space-y-2 text-[#242424] font-sans leading-relaxed">
+              <div className="text-xs space-y-2 text-[#242424] leading-relaxed">
                 <p>
                   <strong>To:</strong> {activePreviewNotice.parentName}
                   <br />
