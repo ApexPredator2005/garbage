@@ -39,14 +39,14 @@ export const App: React.FC = () => {
   const [isUploadOpen, setIsUploadOpen] = useState(false);
 
   const MODULES_NAV = [
-    { id: 'admissions', label: '01. Admissions & SIS', icon: Users },
-    { id: 'attendance', label: '02. Attendance & Condonation', icon: Fingerprint },
-    { id: 'academics', label: '03. Academics & Timetables', icon: Calendar },
-    { id: 'exams', label: '04. Exams & Moderation', icon: Award },
-    { id: 'fees', label: '05. Fees & UTR Ledger', icon: CreditCard },
-    { id: 'payroll', label: '06. HR & Payroll', icon: DollarSign },
-    { id: 'communication', label: '07. Communication & SLA', icon: MessageSquare },
-    { id: 'reports', label: '08. Reports & Regulatory', icon: BarChart3 },
+    { id: 'admissions', label: 'Admissions & SIS', icon: Users },
+    { id: 'attendance', label: 'Attendance & Condonation', icon: Fingerprint },
+    { id: 'academics', label: 'Academics & Timetables', icon: Calendar },
+    { id: 'exams', label: 'Exams & Moderation', icon: Award },
+    { id: 'fees', label: 'Fees & UTR Ledger', icon: CreditCard },
+    { id: 'payroll', label: 'HR & Payroll', icon: DollarSign },
+    { id: 'communication', label: 'Communication & SLA', icon: MessageSquare },
+    { id: 'reports', label: 'Reports & Regulatory', icon: BarChart3 },
   ];
 
   return (

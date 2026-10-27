@@ -196,9 +196,6 @@ export const ReportsWorkspace: React.FC = () => {
       <div className="bg-white rounded-2xl border border-[#E5DFD7] p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#682038]/10 text-[#682038]">
-              Module 08
-            </span>
             <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#FAF7F2] text-[#8B5E3C] border border-[#E5DFD7]">
               Accreditation Analytics & Curated SQL
             </span>

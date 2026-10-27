@@ -208,9 +208,6 @@ export const AdmissionsWorkspace: React.FC = () => {
       <div className="bg-white rounded-2xl p-6 border border-[#E5DFD7] shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <span className="px-2.5 py-0.5 rounded-full bg-[#682038]/10 text-[#682038] text-xs font-bold font-mono">
-              MODULE 01
-            </span>
             <span className="text-xs font-semibold text-[#8B5E3C]">Devloft Student Information System</span>
           </div>
           <h2 className="text-xl font-bold text-[#242424] mt-1">Admissions, Seat Matrix & SIS Registry</h2>
