@@ -363,6 +363,20 @@ This document chronicles the fundamental engineering and product decisions made 
 
 ---
 
+### [ADR-027] Full In-House Implementation of All 8 Campus ERP Modules
+- **Classification:** Strategic & Technical Architecture (STRAT / ARCH)
+- **Status:** Approved & Implemented
+- **Decision Owner:** Stakeholder Directive & Engineering Lead
+- **Context:** The stakeholder decided not to delegate the complementary modules (Module 02: Attendance, Module 06: HR & Payroll, Module 07: Communication & SLA, Module 08: Reports & Regulatory) to external Claude prompts, mandating that Antigravity build out the entire suite directly in-house to guarantee 100% architectural cohesion and immediate usability.
+- **Decision:** Fully construct, test, and mount all 8 college campus modules in `apps/web`:
+  1. **Module 02 (Attendance & Condonation Desk):** Period-wise matrix (P1–P6), 75% attendance threshold dynamically gating exam hall tickets, medical condonation desk with statutory ₹500 fee receipt verification, and append-only raw biometric turnstile audit logs.
+  2. **Module 06 (HR & Payroll Engine):** Faculty service book, sandboxed formula calculation (40% HRA, 25% DA, 12% PF, PT, TDS), 3-stage lifecycle state machine (`DRAFT` $\rightarrow$ `APPROVED` $\rightarrow$ `LOCKED` with balanced GL voucher `JV-2026-PAY-104`), Loss-of-Pay (LOP) deduction calculator, and institutional payslip modal with PDF export.
+  3. **Module 07 (Communication & SLA Helpdesk):** Targeted notice board (All, Faculty, Student, Dept), strict Zero-SMS & Zero-WhatsApp cost-saving policy (WebSocket push + Email only), SLA helpdesk grievance queue with live countdown timers, and 4-step sequential approval stepper.
+  4. **Module 08 (Reports & Regulatory Returns):** PostgreSQL materialized view KPI cards (Enrollment, Pass %, Fee Realization %, PhD Ratio), 1-click compliance export generators (NAAC SSR, NBA Tier-1 OBE, NIRF 2026, AISHE), and an anti-injection parameterized SQL query console.
+- **Rationale:** Provides the employer with an immediately interactive, fully verified 8-module enterprise webapp without requiring any manual external code generation or file transfers.
+
+---
+
 ## 6. Comprehensive Decision Summary Matrix
 
 | ID | Decision Title | Category | Status | Primary Rationale & Impact |
@@ -393,29 +407,4 @@ This document chronicles the fundamental engineering and product decisions made 
 | **ADR-024** | Institutional Design Token System | UX | Implemented | Distinctive Burgundy/Cream/Bronze palette projecting institutional authority. |
 | **ADR-025** | Devloft CMS Transition & Feature Unification | STRAT/ARCH | Implemented | Modular NestJS monolith (Fastify) + BullMQ worker + React Vite SPA + RLS; preserves all user features. |
 | **ADR-026** | Exhaustive LLM Prompt Contracts & Modular Staging | UX/ARCH | Implemented | Contract-dense Claude prompts with explicit types and design tokens; universal 8-module navigation. |
-| :--- | :--- | :--- | :--- | :--- |
-| **ADR-001** | Git-Centric & Live Web Docs | STRAT | Implemented | Immediate 1-click evaluation for employer via GitHub Pages; atomic versioning. |
-| **ADR-002** | Multi-Format Dossier Suite | STRAT | Implemented | 100% presentation fidelity across Web, Printable HTML, Vector PDF, and ZIP. |
-| **ADR-003** | Unified Next.js 15+ Monorepo | ARCH | Superseded | Initial prototype full-stack framework; superseded by ADR-025 (NestJS + Vite). |
-| **ADR-004** | URL-Scoped Tenancy Routing | ARCH | Superseded | Initial path-based tenancy; superseded by ADR-025 (Subdomain + DB RLS). |
-| **ADR-005** | Managed Supabase PostgreSQL 16+ | ARCH | Implemented | ACID compliance; 7-day PITR; zero Linux OS/database administration maintenance. |
-| **ADR-006** | Supavisor Pooling (:6543) | NFR | Implemented | Multiplexes 500+ callers into 15–25 physical sockets; stops 8:30 AM socket crashes. |
-| **ADR-007** | Dual-Port DB Connectivity | ARCH | Implemented | Port 6543 for runtime queries; Direct Port 5432 for automated Prisma migrations. |
-| **ADR-008** | Prisma Singleton Client | ARCH | Implemented | Prevents multiple pool instantiation during serverless / worker reloads. |
-| **ADR-009** | NextAuth v5 Edge JWT Cookies | ARCH | Superseded | Initial web-only auth; superseded by ADR-025 (NestJS JWT + CASL ABAC). |
-| **ADR-010** | Strict TypeScript & Zod Validation | ARCH | Implemented | End-to-end compile-time and runtime validation on all mutations and env vars. |
-| **ADR-011** | Bulk Attendance Array Payload | FUNC/NFR | Implemented | 40-student single array committed in ~10ms; async absence alert dispatch. |
-| **ADR-012** | Two-Step Manual UTR Verification | FUNC | Implemented | Zero automatic balance deductions; bursar bank reconciliation prevents ledger drift. |
-| **ADR-013** | Statutory Student Exit Barrier | FUNC | Implemented | Hard programmatic check requiring 4 verified clearance slips before student purge. |
-| **ADR-014** | Single-Parent Multi-Ward Model | FUNC/UX | Implemented | 1-click header sibling switcher; no duplicate parent accounts across grades. |
-| **ADR-015** | Smart Substitution Assistant | FUNC | Implemented | Timetable collision engine finds free teachers in same wing; 1-click duty assignment. |
-| **ADR-016** | Dual-Signoff Grade Moderation | FUNC | Implemented | Multi-tier signoff (Draft -> Moderation -> Published) prevents erroneous mark release. |
-| **ADR-017** | Lifetime Student Transcripts | FUNC | Implemented | Permanent access to digitally signed PDF transcripts and report cards for alumni. |
-| **ADR-018** | Presigned S3 Direct Uploads | NFR | Implemented | 60s HMAC presigned direct client uploads; **0MB server RAM** and **0% CPU** load. |
-| **ADR-019** | Strict Idempotency Key Engine | NFR | Implemented | Atomic Redis lock (`SET NX EX 60`) prevents duplicate payment entries on mobile. |
-| **ADR-020** | Read-Heavy Upstash Redis Cache | NFR | Implemented | >90% hit ratio for master calendars and subjects; offloads 80% DB load. |
-| **ADR-021** | Inngest Headless Async Worker | NFR | Superseded | Serverless event runner; superseded by ADR-025 (BullMQ + Redis worker process). |
-| **ADR-022** | Mobile-First Responsive Design | UX | Implemented | Fluid auto-fit grids and table scrolling for flawless 390px–500px mobile viewing. |
-| **ADR-023** | Role-Adaptive Clean Dashboards | UX | Implemented | Eliminates cognitive fatigue; role-specific UI for Teachers, Bursars, and Parents. |
-| **ADR-024** | Institutional Design Token System | UX | Implemented | Distinctive Burgundy/Cream/Bronze palette projecting institutional authority. |
-| **ADR-025** | Devloft CMS Transition & Feature Unification | STRAT/ARCH | Implemented | Modular NestJS monolith (Fastify) + BullMQ worker + React Vite SPA + RLS; preserves all user features. |
+| **ADR-027** | Full In-House Implementation of All 8 Modules | STRAT/ARCH | Implemented | Direct delivery of complete 8-module higher-ed suite (Attendance, HR, Comm, Reports) in apps/web. |
