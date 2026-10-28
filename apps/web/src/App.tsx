@@ -1,6 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { RoleType } from './types';
+import { MOCK_TENANTS } from './mockData';
 import { Navbar } from './components/Navbar';
+import { LoginPage } from './components/LoginPage';
+import { Breadcrumbs } from './components/Breadcrumbs';
+import { GlobalSearchModal } from './components/GlobalSearchModal';
+import { NotificationCenterDrawer } from './components/NotificationCenterDrawer';
+import { PublicApplicationModal } from './components/PublicApplicationModal';
+import { PublicVerificationModal } from './components/PublicVerificationModal';
 import { PresignedUploadModal } from './components/PresignedUploadModal';
 import { AdmissionsWorkspace } from './features/admissions/AdmissionsWorkspace';
 import { AttendanceWorkspace } from './features/attendance/AttendanceWorkspace';
@@ -37,6 +44,13 @@ export type ModuleTab =
   | 'communication'
   | 'reports';
 
+export interface LoggedInUser {
+  name: string;
+  email: string;
+  role: RoleType;
+  tenantId: string;
+}
+
 const ROLE_METADATA: Record<
   RoleType,
   {
@@ -59,7 +73,7 @@ const ROLE_METADATA: Record<
     badge: 'Campus Root Authority',
     scope: 'Campus Operational Administration, Department Scopes & Module Configuration',
     allowedModules: ['admissions', 'attendance', 'academics', 'exams', 'fees', 'payroll', 'communication', 'reports'],
-    color: '#682038',
+    color: '#4338CA',
   },
   PRINCIPAL: {
     title: 'Principal / Campus Director',
@@ -138,39 +152,150 @@ const ALL_MODULES_NAV: { id: ModuleTab; label: string; icon: React.FC<{ classNam
 ];
 
 export const App: React.FC = () => {
-  const [currentTenantId, setCurrentTenantId] = useState('t-1');
-  const [currentRole, setCurrentRole] = useState<RoleType>('PRINCIPAL');
+  const [currentUser, setCurrentUser] = useState<LoggedInUser | null>(() => {
+    const saved = localStorage.getItem('devloft_user_session');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch {
+        return null;
+      }
+    }
+    return null;
+  });
+
+  const [currentTenantId, setCurrentTenantId] = useState(currentUser?.tenantId || 't-1');
+  const [currentRole, setCurrentRole] = useState<RoleType>(currentUser?.role || 'PRINCIPAL');
   const [activeTab, setActiveTab] = useState<ModuleTab>('reports');
+
+  // Modal & Drawer States
   const [isUploadOpen, setIsUploadOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(3);
+  const [isPublicApplyOpen, setIsPublicApplyOpen] = useState(false);
+  const [isPublicVerifyOpen, setIsPublicVerifyOpen] = useState(false);
+
+  // Global Keyboard Shortcut for Command Palette (Cmd+K / Ctrl+K)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setIsSearchOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const roleMeta = ROLE_METADATA[currentRole];
+  const currentTenant = MOCK_TENANTS.find((t) => t.id === currentTenantId) || MOCK_TENANTS[0];
 
   // Filter modules strictly based on active user role (CASL / RBAC enforcement)
   const visibleNavModules = ALL_MODULES_NAV.filter((mod) =>
     roleMeta.allowedModules.includes(mod.id)
   );
 
+  const handleLogin = (user: LoggedInUser) => {
+    setCurrentUser(user);
+    setCurrentRole(user.role);
+    setCurrentTenantId(user.tenantId);
+    localStorage.setItem('devloft_user_session', JSON.stringify(user));
+    const meta = ROLE_METADATA[user.role];
+    if (meta.allowedModules.length > 0) {
+      setActiveTab(meta.allowedModules[0]);
+    }
+  };
+
+  const handleLogout = () => {
+    setCurrentUser(null);
+    localStorage.removeItem('devloft_user_session');
+  };
+
   const handleRoleChange = (newRole: RoleType) => {
     setCurrentRole(newRole);
+    if (currentUser) {
+      const updated = { ...currentUser, role: newRole };
+      setCurrentUser(updated);
+      localStorage.setItem('devloft_user_session', JSON.stringify(updated));
+    }
     const meta = ROLE_METADATA[newRole];
     if (meta.allowedModules.length > 0 && !meta.allowedModules.includes(activeTab)) {
       setActiveTab(meta.allowedModules[0]);
     }
   };
 
+  const handleTenantChange = (newTenantId: string) => {
+    setCurrentTenantId(newTenantId);
+    if (currentUser) {
+      const updated = { ...currentUser, tenantId: newTenantId };
+      setCurrentUser(updated);
+      localStorage.setItem('devloft_user_session', JSON.stringify(updated));
+    }
+  };
+
+  // If unauthenticated, render the full institutional login page with tenant switch,
+  // 11 persona quick-logins, credentials form, TOTP modal, and public portal triggers.
+  if (!currentUser) {
+    return (
+      <div className="min-h-screen bg-[#FAF7F2] font-sans">
+        <LoginPage
+          onLogin={handleLogin}
+          onOpenPublicApply={() => setIsPublicApplyOpen(true)}
+          onOpenPublicVerify={() => setIsPublicVerifyOpen(true)}
+          initialTenantId={currentTenantId}
+        />
+
+        {/* Public Admissions Application Modal */}
+        <PublicApplicationModal
+          isOpen={isPublicApplyOpen}
+          onClose={() => setIsPublicApplyOpen(false)}
+        />
+
+        {/* Public Document & Marksheet QR Verification Desk Modal */}
+        <PublicVerificationModal
+          isOpen={isPublicVerifyOpen}
+          onClose={() => setIsPublicVerifyOpen(false)}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#FAF7F2] flex flex-col font-sans">
       {/* Top Navbar with Multi-Tenancy & Role Controls */}
       <Navbar
         currentTenantId={currentTenantId}
-        onTenantChange={setCurrentTenantId}
+        onTenantChange={handleTenantChange}
         currentRole={currentRole}
         onRoleChange={handleRoleChange}
         onOpenUpload={() => setIsUploadOpen(true)}
+        onOpenSearch={() => setIsSearchOpen(true)}
+        onOpenNotifications={() => setIsNotificationsOpen(true)}
+        unreadCount={unreadCount}
+        userName={currentUser.name}
+        userEmail={currentUser.email}
+        onLogout={handleLogout}
+        onOpenPublicApply={() => setIsPublicApplyOpen(true)}
+        onOpenPublicVerify={() => setIsPublicVerifyOpen(true)}
       />
 
       {/* Main Workspace Container */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-5">
+        {/* Breadcrumb Navigation Trail */}
+        <div className="flex items-center justify-between gap-4 flex-wrap">
+          <Breadcrumbs
+            currentTenantName={currentTenant.name}
+            currentRole={currentRole}
+            activeModule={activeTab}
+            onNavigateHome={() => {
+              if (roleMeta.allowedModules.length > 0) {
+                setActiveTab(roleMeta.allowedModules[0]);
+              }
+            }}
+          />
+        </div>
+
         {/* Role Persona & CASL Scope Clearance Bar */}
         <div className="bg-white p-3.5 rounded-2xl border border-[#E5DFD7] shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
           <div className="flex items-center gap-3">
@@ -264,9 +389,38 @@ export const App: React.FC = () => {
         </div>
       </main>
 
-      {/* S3 Presigned Upload Modal */}
+      {/* S3 Presigned Direct Upload Modal */}
       <PresignedUploadModal isOpen={isUploadOpen} onClose={() => setIsUploadOpen(false)} />
+
+      {/* Cmd+K Global Search Command Palette Modal */}
+      <GlobalSearchModal
+        isOpen={isSearchOpen}
+        onClose={() => setIsSearchOpen(false)}
+        onNavigateModule={(mod) => {
+          setActiveTab(mod);
+          setIsSearchOpen(false);
+        }}
+      />
+
+      {/* Slide-over Notification Center Drawer */}
+      <NotificationCenterDrawer
+        isOpen={isNotificationsOpen}
+        onClose={() => setIsNotificationsOpen(false)}
+        unreadCount={unreadCount}
+        onMarkAllRead={() => setUnreadCount(0)}
+      />
+
+      {/* Public Admissions Application Modal */}
+      <PublicApplicationModal
+        isOpen={isPublicApplyOpen}
+        onClose={() => setIsPublicApplyOpen(false)}
+      />
+
+      {/* Public Document & Marksheet QR Verification Desk Modal */}
+      <PublicVerificationModal
+        isOpen={isPublicVerifyOpen}
+        onClose={() => setIsPublicVerifyOpen(false)}
+      />
     </div>
   );
 };
-
