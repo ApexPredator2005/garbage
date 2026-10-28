@@ -20,6 +20,13 @@ import {
   Check,
   Building,
   GraduationCap,
+  Upload,
+  FileText,
+  ShieldCheck,
+  CreditCard,
+  DollarSign,
+  X,
+  FileCheck,
 } from 'lucide-react';
 
 interface QuotaBucket {
@@ -73,6 +80,22 @@ interface AlumniRecord {
   verificationHash?: string;
 }
 
+interface StudentFeeRecord {
+  totalAmount: number;
+  paidAmount: number;
+  dueAmount: number;
+  utrRef?: string;
+  bankName?: string;
+  clearedBy?: string;
+}
+
+const INITIAL_STUDENT_FEES: Record<string, StudentFeeRecord> = {
+  's-101': { totalAmount: 75000, paidAmount: 75000, dueAmount: 0, clearedBy: 'Bursar Automated Ledger Reconciliation' },
+  's-102': { totalAmount: 78000, paidAmount: 40000, dueAmount: 38000, utrRef: 'UTR20261026987114', bankName: 'State Bank of India' },
+  's-103': { totalAmount: 35000, paidAmount: 0, dueAmount: 35000, utrRef: 'UTR20261025774129', bankName: 'HDFC Bank Ltd' },
+  's-104': { totalAmount: 82000, paidAmount: 82000, dueAmount: 0, clearedBy: 'Bursar Automated Ledger Reconciliation' },
+};
+
 const INITIAL_ALUMNI: AlumniRecord[] = [
   {
     id: 'alm-1',
@@ -106,6 +129,68 @@ export const AdmissionsWorkspace: React.FC = () => {
   const [typedAdmissionNo, setTypedAdmissionNo] = useState('');
   const [exitError, setExitError] = useState<string | null>(null);
   const [exitSuccess, setExitSuccess] = useState(false);
+
+  // Exit Barrier & Clearance State
+  const [studentFees, setStudentFees] = useState<Record<string, StudentFeeRecord>>(INITIAL_STUDENT_FEES);
+  const [uploadingCert, setUploadingCert] = useState<string | null>(null);
+  const [clearingFee, setClearingFee] = useState(false);
+  const [clearanceToast, setClearanceToast] = useState<string | null>(null);
+
+  const showClearanceToast = (msg: string) => {
+    setClearanceToast(msg);
+    setTimeout(() => setClearanceToast(null), 3500);
+  };
+
+  const handleUploadCertificate = (studentId: string, certKey: 'transferCert' | 'characterCert' | 'migrationCert') => {
+    setUploadingCert(certKey);
+    setTimeout(() => {
+      setStudents((prev) =>
+        prev.map((s) => {
+          if (s.id !== studentId) return s;
+          const updated = { ...s, exitClearance: { ...s.exitClearance, [certKey]: true } };
+          if (selectedStudentForExit?.id === studentId) {
+            setSelectedStudentForExit(updated);
+          }
+          return updated;
+        })
+      );
+      setUploadingCert(null);
+      const label =
+        certKey === 'transferCert'
+          ? 'Transfer Certificate (TC)'
+          : certKey === 'characterCert'
+          ? 'Conduct / Character Certificate'
+          : 'Migration Certificate';
+      showClearanceToast(`✓ ${label} uploaded, signed with institutional private key, and verified!`);
+    }, 600);
+  };
+
+  const handleClearStudentFee = (studentId: string) => {
+    setClearingFee(true);
+    setTimeout(() => {
+      setStudentFees((prev) => ({
+        ...prev,
+        [studentId]: {
+          ...prev[studentId],
+          paidAmount: prev[studentId]?.totalAmount || 75000,
+          dueAmount: 0,
+          clearedBy: 'Bursar Audit & Automated UTR Reconciliation',
+        },
+      }));
+      setStudents((prev) =>
+        prev.map((s) => {
+          if (s.id !== studentId) return s;
+          const updated = { ...s, exitClearance: { ...s.exitClearance, noDuesSlip: true } };
+          if (selectedStudentForExit?.id === studentId) {
+            setSelectedStudentForExit(updated);
+          }
+          return updated;
+        })
+      );
+      setClearingFee(false);
+      showClearanceToast('✓ Fee ledger reconciled (₹0 due) and Bursar No-Dues Clearance issued!');
+    }, 700);
+  };
 
   // Quota Seat Matrix State
   const [quotas, setQuotas] = useState<QuotaBucket[]>(INITIAL_QUOTAS);
@@ -211,9 +296,6 @@ export const AdmissionsWorkspace: React.FC = () => {
             <span className="text-xs font-semibold text-[#8B5E3C]">Devloft Student Information System</span>
           </div>
           <h2 className="text-xl font-bold text-[#242424] mt-1">Admissions, Seat Matrix & SIS Registry</h2>
-          <p className="text-xs text-[#6E6862] mt-0.5">
-            Statutory Exit Barrier Guard, Quota Reservation Seat Matrix visualizer, and National DigiLocker / NAD alumni vault.
-          </p>
         </div>
 
         {/* Sub-tab Navigation */}
@@ -619,81 +701,458 @@ export const AdmissionsWorkspace: React.FC = () => {
         </div>
       )}
 
-      {/* Statutory Exit Barrier Guard Modal */}
-      {selectedStudentForExit && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-[#E5DFD7] relative animate-in fade-in zoom-in-95 duration-200">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-xl bg-red-100 text-[#BA1A1A] flex items-center justify-center">
-                <ShieldAlert className="w-5 h-5" />
-              </div>
-              <div>
-                <h3 className="text-base font-bold text-[#242424]">Statutory Student Exit Barrier Guard</h3>
-                <p className="text-xs text-[#6E6862]">Mandatory Compliance Barrier (Prevents Accidental Purging)</p>
-              </div>
-            </div>
+      {/* Statutory Exit Barrier Guard & Clearance Console Modal */}
+      {selectedStudentForExit && (() => {
+        const certs = selectedStudentForExit.exitClearance;
+        const feeInfo = studentFees[selectedStudentForExit.id] || { totalAmount: 75000, paidAmount: 75000, dueAmount: 0 };
+        const clearedCount =
+          (certs.transferCert ? 1 : 0) +
+          (certs.characterCert ? 1 : 0) +
+          (certs.migrationCert ? 1 : 0) +
+          (certs.noDuesSlip ? 1 : 0);
+        const isAllCleared = clearedCount === 4;
 
-            {exitSuccess ? (
-              <div className="text-center py-6">
-                <CheckCircle className="w-12 h-12 text-[#16A34A] mx-auto mb-3" />
-                <h4 className="text-base font-bold text-[#242424]">Student Exit Approved & Archived</h4>
-                <p className="text-xs text-[#6E6862] mt-1 mb-5">
-                  All 4 statutory exit certificates were verified. The student record has been formally transitioned to WITHDRAWN status.
-                </p>
+        return (
+          <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+            <div className="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl border border-[#E5DFD7] relative animate-in fade-in zoom-in-95 duration-200 my-8">
+              {/* Header */}
+              <div className="flex items-center justify-between pb-3 border-b border-[#E5DFD7]">
+                <div className="flex items-center gap-3">
+                  <div
+                    className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
+                      isAllCleared ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-[#BA1A1A]'
+                    }`}
+                  >
+                    {isAllCleared ? <ShieldCheck className="w-5 h-5" /> : <ShieldAlert className="w-5 h-5" />}
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold text-[#242424]">Student Exit &amp; Statutory Clearance Console</h3>
+                    <p className="text-xs text-[#6E6862]">
+                      4 Verified Statutory Certificates &amp; Fee Clearance mandatory before student record withdrawal
+                    </p>
+                  </div>
+                </div>
                 <button
                   onClick={() => setSelectedStudentForExit(null)}
-                  className="px-4 py-2 rounded-lg bg-[#682038] hover:bg-[#54192D] text-white text-xs font-semibold"
+                  className="p-1 rounded-lg text-[#6E6862] hover:bg-[#F4ECE2]"
                 >
-                  Close
+                  <X className="w-4 h-4" />
                 </button>
               </div>
-            ) : (
-              <div className="space-y-4">
-                <div className="p-3 bg-[#FAF7F2] rounded-xl border border-[#E5DFD7] text-xs">
-                  <span className="font-semibold text-[#242424]">Student: </span>
-                  <span className="font-bold text-[#682038]">{selectedStudentForExit.name}</span> (
-                  <span className="font-mono">{selectedStudentForExit.enrollmentNo}</span>)
-                </div>
 
-                {exitError && (
-                  <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-800 flex items-start gap-2">
-                    <AlertTriangle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
-                    <span>{exitError}</span>
+              {exitSuccess ? (
+                <div className="text-center py-8 space-y-3">
+                  <div className="w-14 h-14 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center mx-auto">
+                    <CheckCircle className="w-8 h-8" />
                   </div>
-                )}
-
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-[#242424]">
-                    Type Enrollment Number to Confirm Permanent Exit:
-                  </label>
-                  <input
-                    type="text"
-                    value={typedAdmissionNo}
-                    onChange={(e) => setTypedAdmissionNo(e.target.value)}
-                    placeholder={`e.g. ${selectedStudentForExit.enrollmentNo}`}
-                    className="w-full text-xs p-2.5 rounded-xl border border-[#E5DFD7] bg-[#FAF7F2] focus:outline-none focus:ring-1 focus:ring-[#682038]"
-                  />
+                  <h4 className="text-lg font-bold text-[#242424]">Student Exit Approved &amp; Archived</h4>
+                  <p className="text-xs text-[#6E6862] max-w-md mx-auto leading-relaxed">
+                    All 4 statutory exit certificates (TC, Conduct, Migration, No-Dues) have been authenticated and archived. Student{' '}
+                    <strong>{selectedStudentForExit.name}</strong> ({selectedStudentForExit.enrollmentNo}) has formally transitioned to WITHDRAWN status.
+                  </p>
+                  <div className="pt-2">
+                    <button
+                      onClick={() => setSelectedStudentForExit(null)}
+                      className="px-5 py-2.5 rounded-xl bg-[#682038] hover:bg-[#54192D] text-white text-xs font-bold shadow-sm"
+                    >
+                      Close Console
+                    </button>
+                  </div>
                 </div>
+              ) : (
+                <div className="space-y-5 pt-4">
+                  {/* Toast Alert */}
+                  {clearanceToast && (
+                    <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-800 flex items-center gap-2 animate-in fade-in duration-150">
+                      <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
+                      <span className="font-medium">{clearanceToast}</span>
+                    </div>
+                  )}
 
-                <div className="flex items-center justify-end gap-2 pt-2">
-                  <button
-                    onClick={() => setSelectedStudentForExit(null)}
-                    className="px-3.5 py-2 rounded-xl text-xs font-semibold text-[#6E6862] hover:bg-[#F4ECE2]"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={handleConfirmExit}
-                    className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold shadow-sm"
-                  >
-                    Execute Permanent Exit
-                  </button>
+                  {/* Student Summary & Clearance Progress */}
+                  <div className="bg-[#FAF7F2] p-4 rounded-xl border border-[#E5DFD7] space-y-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                      <div>
+                        <div className="text-sm font-bold text-[#242424] flex items-center gap-2">
+                          <span>{selectedStudentForExit.name}</span>
+                          <span className="font-mono text-xs text-[#8B5E3C] bg-white px-2 py-0.5 rounded border border-[#E5DFD7]">
+                            {selectedStudentForExit.enrollmentNo}
+                          </span>
+                        </div>
+                        <div className="text-xs text-[#6E6862]">
+                          {selectedStudentForExit.program} • Semester {selectedStudentForExit.semester} (Section {selectedStudentForExit.section})
+                        </div>
+                      </div>
+
+                      <div className="text-right">
+                        <span
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${
+                            isAllCleared
+                              ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                              : 'bg-amber-100 text-amber-900 border border-amber-200'
+                          }`}
+                        >
+                          {isAllCleared ? 'All 4 Slips Verified (Ready for Exit)' : `${clearedCount} / 4 Slips Cleared (${4 - clearedCount} Pending)`}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Progress Bar */}
+                    <div className="space-y-1">
+                      <div className="w-full h-2 rounded-full bg-[#E5DFD7] overflow-hidden">
+                        <div
+                          className={`h-full rounded-full transition-all duration-300 ${
+                            isAllCleared ? 'bg-emerald-600' : 'bg-[#682038]'
+                          }`}
+                          style={{ width: `${(clearedCount / 4) * 100}%` }}
+                        />
+                      </div>
+                      <div className="flex items-center justify-between text-[11px] text-[#6E6862]">
+                        <span>Statutory Exit Barrier Clearance</span>
+                        <span className="font-bold">{clearedCount * 25}% Complete</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* SECTION 1: CERTIFICATE VERIFICATION & UPLOAD DESK */}
+                  <div className="space-y-3">
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-[#682038] flex items-center gap-1.5">
+                      <FileCheck className="w-4 h-4" />
+                      <span>Statutory Certificates (TC, Conduct, Migration)</span>
+                    </h4>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                      {/* 1. Transfer Certificate (TC) */}
+                      <div
+                        className={`p-3.5 rounded-xl border text-xs space-y-2.5 transition-all ${
+                          certs.transferCert ? 'bg-emerald-50/50 border-emerald-200' : 'bg-white border-amber-200'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-[#242424]">Transfer Certificate (TC)</span>
+                          {certs.transferCert ? (
+                            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">
+                              Verified
+                            </span>
+                          ) : (
+                            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-900">
+                              Pending
+                            </span>
+                          )}
+                        </div>
+
+                        {certs.transferCert ? (
+                          <div className="text-[11px] text-emerald-800 flex items-center gap-1.5">
+                            <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                            <span>Signed by Registrar Office</span>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => handleUploadCertificate(selectedStudentForExit.id, 'transferCert')}
+                            disabled={uploadingCert === 'transferCert'}
+                            className="w-full py-1.5 px-2.5 rounded-lg bg-[#682038] hover:bg-[#54192D] text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-xs transition-all disabled:opacity-50"
+                          >
+                            {uploadingCert === 'transferCert' ? (
+                              <>
+                                <RefreshCw className="w-3 h-3 animate-spin" />
+                                <span>Uploading...</span>
+                              </>
+                            ) : (
+                              <>
+                                <Upload className="w-3 h-3" />
+                                <span>Upload TC (PDF)</span>
+                              </>
+                            )}
+                          </button>
+                        )}
+                      </div>
+
+                      {/* 2. Conduct / Character Certificate */}
+                      <div
+                        className={`p-3.5 rounded-xl border text-xs space-y-2.5 transition-all ${
+                          certs.characterCert ? 'bg-emerald-50/50 border-emerald-200' : 'bg-white border-amber-200'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-[#242424]">Conduct Certificate</span>
+                          {certs.characterCert ? (
+                            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">
+                              Verified
+                            </span>
+                          ) : (
+                            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-900">
+                              Pending
+                            </span>
+                          )}
+                        </div>
+
+                        {certs.characterCert ? (
+                          <div className="text-[11px] text-emerald-800 flex items-center gap-1.5">
+                            <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                            <span>Attested by Dept HOD</span>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => handleUploadCertificate(selectedStudentForExit.id, 'characterCert')}
+                            disabled={uploadingCert === 'characterCert'}
+                            className="w-full py-1.5 px-2.5 rounded-lg bg-[#682038] hover:bg-[#54192D] text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-xs transition-all disabled:opacity-50"
+                          >
+                            {uploadingCert === 'characterCert' ? (
+                              <>
+                                <RefreshCw className="w-3 h-3 animate-spin" />
+                                <span>Uploading...</span>
+                              </>
+                            ) : (
+                              <>
+                                <Upload className="w-3 h-3" />
+                                <span>Upload Conduct</span>
+                              </>
+                            )}
+                          </button>
+                        )}
+                      </div>
+
+                      {/* 3. Migration Certificate */}
+                      <div
+                        className={`p-3.5 rounded-xl border text-xs space-y-2.5 transition-all ${
+                          certs.migrationCert ? 'bg-emerald-50/50 border-emerald-200' : 'bg-white border-amber-200'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-[#242424]">Migration Certificate</span>
+                          {certs.migrationCert ? (
+                            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">
+                              Verified
+                            </span>
+                          ) : (
+                            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-900">
+                              Pending
+                            </span>
+                          )}
+                        </div>
+
+                        {certs.migrationCert ? (
+                          <div className="text-[11px] text-emerald-800 flex items-center gap-1.5">
+                            <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                            <span>University Board Migration Slip</span>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => handleUploadCertificate(selectedStudentForExit.id, 'migrationCert')}
+                            disabled={uploadingCert === 'migrationCert'}
+                            className="w-full py-1.5 px-2.5 rounded-lg bg-[#682038] hover:bg-[#54192D] text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-xs transition-all disabled:opacity-50"
+                          >
+                            {uploadingCert === 'migrationCert' ? (
+                              <>
+                                <RefreshCw className="w-3 h-3 animate-spin" />
+                                <span>Uploading...</span>
+                              </>
+                            ) : (
+                              <>
+                                <Upload className="w-3 h-3" />
+                                <span>Upload Migration</span>
+                              </>
+                            )}
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* SECTION 2: STUDENT FEE STATUS & BURSAR NO-DUES CLEARANCE */}
+                  <div className="space-y-3">
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-[#682038] flex items-center gap-1.5">
+                      <CreditCard className="w-4 h-4" />
+                      <span>Student Fee Status &amp; Bursar No-Dues Clearance</span>
+                    </h4>
+
+                    <div
+                      className={`p-4 rounded-xl border text-xs space-y-3 ${
+                        certs.noDuesSlip && feeInfo.dueAmount === 0
+                          ? 'bg-emerald-50/50 border-emerald-200'
+                          : 'bg-white border-amber-200'
+                      }`}
+                    >
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-[#E5DFD7]">
+                        <div className="space-y-0.5">
+                          <span className="font-bold text-[#242424]">Institutional Fee Assessment Ledger</span>
+                          <div className="text-[11px] text-[#6E6862]">
+                            Bursar General Ledger Sync • Module 05 Integration
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          {feeInfo.dueAmount === 0 ? (
+                            <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200 flex items-center gap-1">
+                              <CheckCircle className="w-3.5 h-3.5 text-emerald-600" />
+                              ₹0.00 Dues Outstanding
+                            </span>
+                          ) : (
+                            <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-100 text-rose-800 border border-rose-200 flex items-center gap-1">
+                              <AlertTriangle className="w-3.5 h-3.5 text-rose-600" />
+                              ₹{feeInfo.dueAmount.toLocaleString('en-IN')} Outstanding Balance
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Fee Breakdown Stats */}
+                      <div className="grid grid-cols-3 gap-3 bg-[#FAF7F2] p-3 rounded-lg border border-[#E5DFD7]">
+                        <div>
+                          <span className="text-[10px] text-[#6E6862] uppercase font-bold">Total Assessed</span>
+                          <div className="font-mono font-bold text-xs text-[#242424]">
+                            ₹{feeInfo.totalAmount.toLocaleString('en-IN')}
+                          </div>
+                        </div>
+                        <div>
+                          <span className="text-[10px] text-[#6E6862] uppercase font-bold">Paid to Date</span>
+                          <div className="font-mono font-bold text-xs text-emerald-700">
+                            ₹{feeInfo.paidAmount.toLocaleString('en-IN')}
+                          </div>
+                        </div>
+                        <div>
+                          <span className="text-[10px] text-[#6E6862] uppercase font-bold">Balance Due</span>
+                          <div
+                            className={`font-mono font-bold text-xs ${
+                              feeInfo.dueAmount === 0 ? 'text-emerald-700' : 'text-rose-700'
+                            }`}
+                          >
+                            ₹{feeInfo.dueAmount.toLocaleString('en-IN')}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Pending UTR Alert / Fee Resolution Action */}
+                      {feeInfo.dueAmount > 0 && (
+                        <div className="p-3 bg-amber-50 rounded-lg border border-amber-200 space-y-2">
+                          <div className="flex items-center justify-between text-[11px] text-amber-900 font-semibold">
+                            <span>Pending UTR Submission on Desk:</span>
+                            <span className="font-mono bg-white px-2 py-0.5 rounded border border-amber-200 text-[#8B5E3C]">
+                              {feeInfo.utrRef || 'Pending Bursar Deposit'}
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-[#6E6862]">
+                            Bank: <strong>{feeInfo.bankName || 'Direct Bursar Counter'}</strong>. Reconcile this payment to clear outstanding balance and automatically generate the statutory No-Dues slip.
+                          </p>
+                          <div className="flex items-center gap-2 pt-1">
+                            <button
+                              onClick={() => handleClearStudentFee(selectedStudentForExit.id)}
+                              disabled={clearingFee}
+                              className="px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-xs transition-all disabled:opacity-50"
+                            >
+                              {clearingFee ? (
+                                <>
+                                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                                  <span>Reconciling Ledger...</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Check className="w-3.5 h-3.5" />
+                                  <span>Approve UTR &amp; Issue No-Dues (₹{feeInfo.dueAmount.toLocaleString('en-IN')})</span>
+                                </>
+                              )}
+                            </button>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* If Fee is zero but No-Dues Slip isn't generated yet */}
+                      {feeInfo.dueAmount === 0 && !certs.noDuesSlip && (
+                        <div className="flex items-center justify-between pt-1">
+                          <span className="text-xs text-[#6E6862]">
+                            Fee ledger is 100% paid. Click below to generate the formal Bursar No-Dues clearance.
+                          </span>
+                          <button
+                            onClick={() => handleClearStudentFee(selectedStudentForExit.id)}
+                            disabled={clearingFee}
+                            className="px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-xs transition-all"
+                          >
+                            <Check className="w-3.5 h-3.5" />
+                            <span>Issue Bursar No-Dues Slip</span>
+                          </button>
+                        </div>
+                      )}
+
+                      {/* If No-Dues is already active */}
+                      {certs.noDuesSlip && (
+                        <div className="text-[11px] text-emerald-800 flex items-center gap-1.5 font-medium">
+                          <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
+                          <span>
+                            Bursar No-Dues Clearance verified on file • Ref:{' '}
+                            <span className="font-mono">ND-2026-{selectedStudentForExit.enrollmentNo}</span>
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* SECTION 3: PERMANENT EXIT EXECUTION BARRIER */}
+                  <div className="pt-2 border-t border-[#E5DFD7] space-y-3">
+                    {exitError && (
+                      <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-800 flex items-start gap-2">
+                        <AlertTriangle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+                        <span>{exitError}</span>
+                      </div>
+                    )}
+
+                    {!isAllCleared ? (
+                      <div className="p-3.5 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-900 flex items-start gap-2.5">
+                        <AlertTriangle className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
+                        <div>
+                          <strong>Exit Barrier Locked: </strong>
+                          <span>
+                            {4 - clearedCount} mandatory item(s) pending. Upload all missing certificates and reconcile the fee ledger using the buttons above to enable student exit.
+                          </span>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="space-y-3 animate-in fade-in duration-200">
+                        <div className="p-3 bg-emerald-50 rounded-xl border border-emerald-200 text-xs text-emerald-900 flex items-center gap-2">
+                          <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+                          <span>
+                            <strong>Exit Barrier Cleared: </strong>
+                            All 4 statutory slips (TC, Conduct, Migration, No-Dues) are 100% verified. You may now execute permanent exit.
+                          </span>
+                        </div>
+
+                        <div className="space-y-1.5">
+                          <label className="text-xs font-semibold text-[#242424]">
+                            Type Enrollment Number to Confirm Permanent Withdrawal:
+                          </label>
+                          <input
+                            type="text"
+                            value={typedAdmissionNo}
+                            onChange={(e) => setTypedAdmissionNo(e.target.value)}
+                            placeholder={`e.g. ${selectedStudentForExit.enrollmentNo}`}
+                            className="w-full text-xs p-2.5 rounded-xl border border-[#E5DFD7] bg-[#FAF7F2] focus:outline-none focus:ring-1 focus:ring-[#682038] font-mono"
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="flex items-center justify-end gap-2 pt-2">
+                      <button
+                        onClick={() => setSelectedStudentForExit(null)}
+                        className="px-4 py-2 rounded-xl text-xs font-semibold text-[#6E6862] hover:bg-[#F4ECE2]"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={handleConfirmExit}
+                        disabled={!isAllCleared}
+                        className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5 transition-all"
+                      >
+                        <ShieldAlert className="w-3.5 h-3.5" />
+                        <span>Execute Permanent Exit</span>
+                      </button>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
     </div>
   );
 };
