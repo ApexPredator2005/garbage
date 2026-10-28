@@ -10,6 +10,8 @@ import { FeesWorkspace } from './features/fees/FeesWorkspace';
 import { HrPayrollWorkspace } from './features/hr/HrPayrollWorkspace';
 import { CommunicationWorkspace } from './features/communication/CommunicationWorkspace';
 import { ReportsWorkspace } from './features/reports/ReportsWorkspace';
+import { StudentPortalWorkspace } from './features/student/StudentPortalWorkspace';
+import { ParentPortalWorkspace } from './features/parent/ParentPortalWorkspace';
 import {
   Users,
   Calendar,
@@ -19,10 +21,13 @@ import {
   DollarSign,
   MessageSquare,
   BarChart3,
-  Layers,
+  Shield,
+  Lock,
+  GraduationCap,
+  Users2,
 } from 'lucide-react';
 
-type ModuleTab =
+export type ModuleTab =
   | 'admissions'
   | 'attendance'
   | 'academics'
@@ -32,22 +37,126 @@ type ModuleTab =
   | 'communication'
   | 'reports';
 
+const ROLE_METADATA: Record<
+  RoleType,
+  {
+    title: string;
+    badge: string;
+    scope: string;
+    allowedModules: ModuleTab[];
+    color: string;
+  }
+> = {
+  SUPER_ADMIN: {
+    title: 'Super Administrator',
+    badge: 'Platform Root Authority',
+    scope: 'Multi-Tenant Cross-Campus Trust Engine & Infrastructure Configuration',
+    allowedModules: ['admissions', 'attendance', 'academics', 'exams', 'fees', 'payroll', 'communication', 'reports'],
+    color: '#682038',
+  },
+  INSTITUTION_ADMIN: {
+    title: 'Institution Administrator',
+    badge: 'Campus Root Authority',
+    scope: 'Campus Operational Administration, Department Scopes & Module Configuration',
+    allowedModules: ['admissions', 'attendance', 'academics', 'exams', 'fees', 'payroll', 'communication', 'reports'],
+    color: '#682038',
+  },
+  PRINCIPAL: {
+    title: 'Principal / Campus Director',
+    badge: 'Executive Oversight',
+    scope: 'Campus Executive Governance, Multi-Tier Approvals, and NAAC/NIRF Regulatory Returns',
+    allowedModules: ['reports', 'admissions', 'attendance', 'academics', 'exams', 'fees', 'communication'],
+    color: '#682038',
+  },
+  REGISTRAR: {
+    title: 'Registrar',
+    badge: 'Admissions & SIS Office',
+    scope: 'Student Enrolment, Statutory Quota Matrices, Transfer & Exit Barriers, Result Publishing',
+    allowedModules: ['admissions', 'academics', 'exams', 'reports'],
+    color: '#1E3A8A',
+  },
+  HOD: {
+    title: 'Department Head (HOD)',
+    badge: 'Academic Wing Authority',
+    scope: 'Departmental Timetables, Smart Period Substitutions, Syllabus Pacing & Exam Moderation',
+    allowedModules: ['academics', 'attendance', 'exams', 'communication'],
+    color: '#0D9488',
+  },
+  FACULTY: {
+    title: 'Faculty / Classroom Instructor',
+    badge: 'Instructional Roster',
+    scope: 'Class Roster Attendance Marking (8:30 AM), Marks Entry for Assigned Courses, Teaching Schedules',
+    allowedModules: ['attendance', 'academics', 'exams', 'communication'],
+    color: '#7C3AED',
+  },
+  EXAM_CONTROLLER: {
+    title: 'Controller of Examinations (COE)',
+    badge: 'Examinations Directorate',
+    scope: 'Exam Schemes, Hall Ticket Eligibility, Dual-Signoff Moderation, and Cryptographic Results',
+    allowedModules: ['exams', 'academics', 'reports'],
+    color: '#B91C1C',
+  },
+  ACCOUNTANT: {
+    title: 'Campus Bursar & Accountant',
+    badge: 'Finance & Accounts Division',
+    scope: 'Two-Step Manual UTR Verification Desk, Fee Demands, Balanced Double-Entry Ledgers, and No-Dues',
+    allowedModules: ['fees', 'reports', 'communication'],
+    color: '#059669',
+  },
+  HR_OFFICER: {
+    title: 'Human Resources Officer',
+    badge: 'HR & Personnel Office',
+    scope: 'Staff Service Books, Recruitment, Policy-Driven Leave, and 3-Stage Monthly Payroll Lifecycle',
+    allowedModules: ['payroll', 'communication', 'reports'],
+    color: '#D97706',
+  },
+  STUDENT: {
+    title: 'Student Self-Service Portal',
+    badge: 'Enrolled Pupil Access',
+    scope: 'Personal Timetable, Subject-Wise Attendance %, Fee Dues & Cryptographic Digital Marksheets',
+    allowedModules: [],
+    color: '#2563EB',
+  },
+  PARENT: {
+    title: 'Multi-Ward Parent & Guardian Hub',
+    badge: 'Guardian Access',
+    scope: 'Single-Parent Multi-Ward Sibling Switcher, Real-Time Turnstile Attendance, UTR Payment Desk',
+    allowedModules: [],
+    color: '#8B5E3C',
+  },
+};
+
+const ALL_MODULES_NAV: { id: ModuleTab; label: string; icon: React.FC<{ className?: string }> }[] = [
+  { id: 'admissions', label: 'Admissions & SIS', icon: Users },
+  { id: 'attendance', label: 'Attendance & Condonation', icon: Fingerprint },
+  { id: 'academics', label: 'Academics & Timetables', icon: Calendar },
+  { id: 'exams', label: 'Exams & Moderation', icon: Award },
+  { id: 'fees', label: 'Fees & UTR Ledger', icon: CreditCard },
+  { id: 'payroll', label: 'HR & Payroll', icon: DollarSign },
+  { id: 'communication', label: 'Communication & SLA', icon: MessageSquare },
+  { id: 'reports', label: 'Reports & Regulatory', icon: BarChart3 },
+];
+
 export const App: React.FC = () => {
   const [currentTenantId, setCurrentTenantId] = useState('t-1');
   const [currentRole, setCurrentRole] = useState<RoleType>('PRINCIPAL');
-  const [activeTab, setActiveTab] = useState<ModuleTab>('academics');
+  const [activeTab, setActiveTab] = useState<ModuleTab>('reports');
   const [isUploadOpen, setIsUploadOpen] = useState(false);
 
-  const MODULES_NAV = [
-    { id: 'admissions', label: 'Admissions & SIS', icon: Users },
-    { id: 'attendance', label: 'Attendance & Condonation', icon: Fingerprint },
-    { id: 'academics', label: 'Academics & Timetables', icon: Calendar },
-    { id: 'exams', label: 'Exams & Moderation', icon: Award },
-    { id: 'fees', label: 'Fees & UTR Ledger', icon: CreditCard },
-    { id: 'payroll', label: 'HR & Payroll', icon: DollarSign },
-    { id: 'communication', label: 'Communication & SLA', icon: MessageSquare },
-    { id: 'reports', label: 'Reports & Regulatory', icon: BarChart3 },
-  ];
+  const roleMeta = ROLE_METADATA[currentRole];
+
+  // Filter modules strictly based on active user role (CASL / RBAC enforcement)
+  const visibleNavModules = ALL_MODULES_NAV.filter((mod) =>
+    roleMeta.allowedModules.includes(mod.id)
+  );
+
+  const handleRoleChange = (newRole: RoleType) => {
+    setCurrentRole(newRole);
+    const meta = ROLE_METADATA[newRole];
+    if (meta.allowedModules.length > 0 && !meta.allowedModules.includes(activeTab)) {
+      setActiveTab(meta.allowedModules[0]);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#FAF7F2] flex flex-col font-sans">
@@ -56,46 +165,102 @@ export const App: React.FC = () => {
         currentTenantId={currentTenantId}
         onTenantChange={setCurrentTenantId}
         currentRole={currentRole}
-        onRoleChange={setCurrentRole}
+        onRoleChange={handleRoleChange}
         onOpenUpload={() => setIsUploadOpen(true)}
       />
 
       {/* Main Workspace Container */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-        {/* Navigation Tabs Bar */}
-        <div className="flex items-center justify-between border-b border-[#E5DFD7] pb-3 overflow-x-auto gap-4">
-          <nav className="flex items-center gap-1.5 flex-wrap">
-            {MODULES_NAV.map((mod) => {
-              const Icon = mod.icon;
-              const isActive = activeTab === mod.id;
-              return (
-                <button
-                  key={mod.id}
-                  onClick={() => setActiveTab(mod.id as ModuleTab)}
-                  className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all ${
-                    isActive
-                      ? 'bg-[#682038] text-white shadow-sm'
-                      : 'bg-white text-[#6E6862] hover:bg-[#F4ECE2] border border-[#E5DFD7]'
-                  }`}
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-5">
+        {/* Role Persona & CASL Scope Clearance Bar */}
+        <div className="bg-white p-3.5 rounded-2xl border border-[#E5DFD7] shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+          <div className="flex items-center gap-3">
+            <div
+              className="w-9 h-9 rounded-xl flex items-center justify-center text-white shrink-0 font-bold shadow-xs"
+              style={{ backgroundColor: roleMeta.color }}
+            >
+              {currentRole === 'STUDENT' ? (
+                <GraduationCap className="w-5 h-5" />
+              ) : currentRole === 'PARENT' ? (
+                <Users2 className="w-5 h-5" />
+              ) : (
+                <Shield className="w-5 h-5" />
+              )}
+            </div>
+            <div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="font-bold text-sm text-[#242424]">{roleMeta.title}</span>
+                <span
+                  className="px-2.5 py-0.5 rounded-full text-[10px] font-bold border"
+                  style={{
+                    color: roleMeta.color,
+                    borderColor: `${roleMeta.color}40`,
+                    backgroundColor: `${roleMeta.color}15`,
+                  }}
                 >
-                  <Icon className="w-3.5 h-3.5" />
-                  <span>{mod.label}</span>
-                </button>
-              );
-            })}
-          </nav>
+                  {roleMeta.badge}
+                </span>
+              </div>
+              <p className="text-xs text-[#6E6862] line-clamp-1">{roleMeta.scope}</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 text-xs text-[#6E6862] shrink-0 bg-[#FAF7F2] px-3 py-1.5 rounded-xl border border-[#E5DFD7]">
+            <Lock className="w-3.5 h-3.5 text-[#8B5E3C]" />
+            <span>
+              CASL Role Permission:{' '}
+              <strong className="text-[#242424]">
+                {currentRole === 'STUDENT'
+                  ? 'Student Portal Mode'
+                  : currentRole === 'PARENT'
+                  ? 'Parent Hub Mode'
+                  : `${roleMeta.allowedModules.length} Modules Permitted`}
+              </strong>
+            </span>
+          </div>
         </div>
 
-        {/* Active Workspace View */}
+        {/* Role-Filtered Navigation Tabs Bar (Shown for staff, hidden for student/parent with dedicated portals) */}
+        {currentRole !== 'STUDENT' && currentRole !== 'PARENT' && (
+          <div className="flex items-center justify-between border-b border-[#E5DFD7] pb-3 overflow-x-auto gap-4">
+            <nav className="flex items-center gap-1.5 flex-wrap">
+              {visibleNavModules.map((mod) => {
+                const Icon = mod.icon;
+                const isActive = activeTab === mod.id;
+                return (
+                  <button
+                    key={mod.id}
+                    onClick={() => setActiveTab(mod.id)}
+                    className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all ${
+                      isActive
+                        ? 'bg-[#682038] text-white shadow-xs'
+                        : 'bg-white text-[#6E6862] hover:bg-[#F4ECE2] border border-[#E5DFD7]'
+                    }`}
+                  >
+                    <Icon className="w-3.5 h-3.5" />
+                    <span>{mod.label}</span>
+                  </button>
+                );
+              })}
+            </nav>
+          </div>
+        )}
+
+        {/* Active Role-Specific Workspace View */}
         <div className="transition-all duration-200">
-          {activeTab === 'admissions' && <AdmissionsWorkspace />}
-          {activeTab === 'attendance' && <AttendanceWorkspace />}
-          {activeTab === 'academics' && <AcademicsWorkspace />}
-          {activeTab === 'exams' && <ExamsWorkspace />}
-          {activeTab === 'fees' && <FeesWorkspace />}
-          {activeTab === 'payroll' && <HrPayrollWorkspace />}
-          {activeTab === 'communication' && <CommunicationWorkspace />}
-          {activeTab === 'reports' && <ReportsWorkspace />}
+          {currentRole === 'STUDENT' && <StudentPortalWorkspace />}
+          {currentRole === 'PARENT' && <ParentPortalWorkspace />}
+          {currentRole !== 'STUDENT' && currentRole !== 'PARENT' && (
+            <>
+              {activeTab === 'admissions' && <AdmissionsWorkspace />}
+              {activeTab === 'attendance' && <AttendanceWorkspace />}
+              {activeTab === 'academics' && <AcademicsWorkspace />}
+              {activeTab === 'exams' && <ExamsWorkspace />}
+              {activeTab === 'fees' && <FeesWorkspace />}
+              {activeTab === 'payroll' && <HrPayrollWorkspace />}
+              {activeTab === 'communication' && <CommunicationWorkspace />}
+              {activeTab === 'reports' && <ReportsWorkspace />}
+            </>
+          )}
         </div>
       </main>
 
@@ -104,3 +269,4 @@ export const App: React.FC = () => {
     </div>
   );
 };
+

@@ -18,6 +18,16 @@ export interface TenantInfo {
   subdomain: string;
 }
 
+export interface UploadedCertDoc {
+  fileName: string;
+  fileSize: string;
+  fileType: string;
+  uploadedAt: string;
+  previewUrl?: string;
+  verificationHash: string;
+  authority: string;
+}
+
 export interface StudentRecord {
   id: string;
   enrollmentNo: string;
@@ -32,6 +42,11 @@ export interface StudentRecord {
     characterCert: boolean;
     migrationCert: boolean;
     noDuesSlip: boolean;
+    uploadedDocs?: {
+      transferCert?: UploadedCertDoc;
+      characterCert?: UploadedCertDoc;
+      migrationCert?: UploadedCertDoc;
+    };
   };
 }
 
