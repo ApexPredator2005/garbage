@@ -6,7 +6,6 @@ import {
   Users2,
   Shield,
   Bell,
-  Cloud,
   Search,
   LogOut,
   FileCheck,
@@ -110,15 +109,6 @@ export const Navbar: React.FC<NavbarProps> = ({
             <Search className="w-4 h-4" />
           </button>
 
-          {/* S3 Presigned Upload Quick-Action */}
-          <button
-            onClick={onOpenUpload}
-            className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-[#FAF7F2] hover:bg-[#F4ECE2] text-[#682038] border border-[#E5DFD7] text-xs font-semibold transition-colors"
-            title="Direct Browser S3 Upload (0MB Server RAM)"
-          >
-            <Cloud className="w-3.5 h-3.5 text-[#16A34A]" />
-            <span>S3 Presign</span>
-          </button>
 
           {/* Role Switcher (11 Roles) */}
           <div className="flex items-center bg-[#F4ECE2] rounded-xl px-2.5 py-1.5 border border-[#E5DFD7]">
