@@ -170,7 +170,12 @@ export const LoginPage: React.FC<LoginPageProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF7F2] text-[#242424] antialiased flex flex-col justify-between selection:bg-[#682038] selection:text-white relative font-sans">
+    <div className="min-h-screen bg-[#FAF7F2] text-[#242424] antialiased flex flex-col justify-between selection:bg-[#682038] selection:text-white relative font-sans overflow-hidden">
+      {/* Atmospheric Glowing Ambient Aura Blobs (Creating the slightly blurry transparent frosted depth) */}
+      <div className="absolute top-12 left-1/4 -translate-x-1/2 w-[520px] h-[520px] rounded-full bg-gradient-to-tr from-[#F5C443]/25 to-[#E5B537]/15 blur-[120px] pointer-events-none -z-0" />
+      <div className="absolute bottom-12 right-1/4 translate-x-1/3 w-[580px] h-[580px] rounded-full bg-gradient-to-bl from-[#682038]/20 to-[#8B5E3C]/15 blur-[140px] pointer-events-none -z-0" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[680px] h-[440px] rounded-full bg-[#E7DCCB]/35 blur-[130px] pointer-events-none -z-0" />
+
       {/* Subtle Top Atmospheric Brand Ribbon */}
       <header className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between text-xs text-[#6E6862] z-10">
         <div className="flex items-center gap-3">
@@ -194,14 +199,14 @@ export const LoginPage: React.FC<LoginPageProps> = ({
         </div>
       </header>
 
-      {/* Main Canvas / Central Floating Card */}
+      {/* Main Canvas / Central Floating Translucent Card */}
       <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-center flex-1 z-10">
-        <div className="w-full max-w-6xl mx-auto rounded-[36px] border border-[#E7DCCB] bg-white/95 backdrop-blur-xl shadow-2xl shadow-stone-900/10 overflow-hidden relative">
-          {/* Top Right Floating Close Button */}
+        <div className="w-full max-w-6xl mx-auto rounded-[36px] border border-white/60 bg-white/65 backdrop-blur-2xl shadow-[0_24px_70px_-15px_rgba(40,25,20,0.12)] overflow-hidden relative ring-1 ring-[#682038]/5">
+          {/* Top Right Floating Frosted Close Button */}
           <button
             type="button"
             aria-label="Close portal window"
-            className="absolute top-5 right-5 z-30 w-10 h-10 rounded-full bg-[#FAF7F2]/90 hover:bg-white border border-[#E7DCCB] backdrop-blur-md flex items-center justify-center text-[#6E6862] hover:text-[#682038] transition-all duration-200 active:scale-95 shadow-xs cursor-pointer"
+            className="absolute top-5 right-5 z-30 w-10 h-10 rounded-full bg-white/40 hover:bg-white/80 border border-white/60 backdrop-blur-xl flex items-center justify-center text-[#242424] hover:text-[#682038] transition-all duration-200 active:scale-95 shadow-md cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -209,18 +214,18 @@ export const LoginPage: React.FC<LoginPageProps> = ({
           {/* 2-Column Split Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-12 min-h-[640px]">
             {/* LEFT COLUMN: Form & Institutional Authentication (6 Cols) */}
-            <div className="lg:col-span-6 p-6 sm:p-10 md:p-12 flex flex-col justify-between space-y-6">
+            <div className="lg:col-span-6 p-6 sm:p-10 md:p-12 flex flex-col justify-between space-y-6 bg-white/40 backdrop-blur-xl border-r border-[#E7DCCB]/40">
               <div>
                 {/* Top Badges Cluster */}
                 <div className="flex flex-wrap items-center gap-2.5 mb-6">
                   {/* Oval Pill Badge: Devloft Campus */}
-                  <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#682038] text-white text-[11px] font-bold shadow-xs tracking-wide">
+                  <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#682038]/90 backdrop-blur-md text-white text-[11px] font-bold shadow-xs tracking-wide border border-white/20">
                     <Sparkles className="w-3.5 h-3.5 text-[#F5C443]" />
                     <span>Devloft Campus</span>
                   </span>
 
                   {/* Subdomain Pill with Server Indicator */}
-                  <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#FAF7F2] border border-[#E7DCCB] text-[#242424] text-[11px] font-bold">
+                  <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/60 backdrop-blur-md border border-white/80 text-[#242424] text-[11px] font-bold shadow-2xs">
                     <span className="w-2 h-2 rounded-full bg-emerald-500" />
                     <select
                       value={selectedTenant}
@@ -246,14 +251,14 @@ export const LoginPage: React.FC<LoginPageProps> = ({
                 </div>
 
                 {/* SEGMENTED DUAL ROLE TOGGLE (STRICTLY STUDENT OR STAFF ONLY) */}
-                <div className="relative bg-[#F4ECE2] p-1 rounded-full flex items-center mb-6 max-w-xs border border-[#E5DFD7]">
+                <div className="relative bg-black/[0.04] backdrop-blur-md p-1 rounded-full flex items-center mb-6 max-w-xs border border-white/60 shadow-inner">
                   <button
                     type="button"
                     onClick={() => setPortalType('student')}
                     className={`relative z-10 w-1/2 py-2 text-center text-xs font-bold transition-all rounded-full flex items-center justify-center gap-1.5 ${
                       portalType === 'student'
-                        ? 'bg-[#682038] text-white shadow-xs'
-                        : 'text-[#6E6862] hover:text-[#242424]'
+                        ? 'bg-[#682038] text-white shadow-md'
+                        : 'text-[#6E6862] hover:text-[#242424] hover:bg-white/40'
                     }`}
                   >
                     <GraduationCap className="w-4 h-4 text-[#F5C443]" />
@@ -264,8 +269,8 @@ export const LoginPage: React.FC<LoginPageProps> = ({
                     onClick={() => setPortalType('staff')}
                     className={`relative z-10 w-1/2 py-2 text-center text-xs font-bold transition-all rounded-full flex items-center justify-center gap-1.5 ${
                       portalType === 'staff'
-                        ? 'bg-[#682038] text-white shadow-xs'
-                        : 'text-[#6E6862] hover:text-[#242424]'
+                        ? 'bg-[#682038] text-white shadow-md'
+                        : 'text-[#6E6862] hover:text-[#242424] hover:bg-white/40'
                     }`}
                   >
                     <Shield className="w-4 h-4 text-[#F5C443]" />
@@ -296,7 +301,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
                             ? 'e.g. rohan.verma@student.jssate.edu'
                             : 'e.g. principal@jssate.edu'
                         }
-                        className="w-full pl-11 pr-4 py-3 rounded-full bg-[#FAF7F2] border border-[#E7DCCB] text-[#242424] text-xs font-medium placeholder-[#8B857E] focus:outline-none focus:border-[#682038] focus:ring-2 focus:ring-[#F5C443]/40 transition-all shadow-2xs"
+                        className="w-full pl-11 pr-4 py-3 rounded-full bg-white/60 backdrop-blur-md border border-white/80 text-[#242424] text-xs font-medium placeholder-[#8B857E] focus:outline-none focus:bg-white/90 focus:border-[#682038] focus:ring-2 focus:ring-[#F5C443]/40 transition-all shadow-2xs"
                       />
                     </div>
                   </div>
@@ -312,7 +317,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
                         <select
                           value={selectedStaffRole}
                           onChange={(e) => handleStaffRoleSelect(e.target.value as RoleType)}
-                          className="w-full pl-11 pr-10 py-3 rounded-full bg-[#FAF7F2] border border-[#E7DCCB] text-[#682038] text-xs font-bold focus:outline-none focus:border-[#682038] focus:ring-2 focus:ring-[#F5C443]/40 appearance-none transition-all shadow-2xs cursor-pointer"
+                          className="w-full pl-11 pr-10 py-3 rounded-full bg-white/60 backdrop-blur-md border border-white/80 text-[#682038] text-xs font-bold focus:outline-none focus:bg-white/90 focus:border-[#682038] focus:ring-2 focus:ring-[#F5C443]/40 appearance-none transition-all shadow-2xs cursor-pointer"
                         >
                           {STAFF_ROLES.map((r) => (
                             <option key={r.id} value={r.id}>
@@ -341,7 +346,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
                             : setStaffPassword(e.target.value)
                         }
                         placeholder="••••••••••••"
-                        className="w-full pl-11 pr-12 py-3 rounded-full bg-[#FAF7F2] border border-[#E7DCCB] text-[#242424] text-xs font-medium placeholder-[#8B857E] focus:outline-none focus:border-[#682038] focus:ring-2 focus:ring-[#F5C443]/40 transition-all shadow-2xs"
+                        className="w-full pl-11 pr-12 py-3 rounded-full bg-white/60 backdrop-blur-md border border-white/80 text-[#242424] text-xs font-medium placeholder-[#8B857E] focus:outline-none focus:bg-white/90 focus:border-[#682038] focus:ring-2 focus:ring-[#F5C443]/40 transition-all shadow-2xs"
                       />
                       <button
                         type="button"
@@ -360,14 +365,14 @@ export const LoginPage: React.FC<LoginPageProps> = ({
                       <input
                         type="checkbox"
                         defaultChecked
-                        className="w-4 h-4 rounded-[6px] border border-[#E5DFD7] text-[#682038] focus:ring-[#F5C443] transition-colors cursor-pointer"
+                        className="w-4 h-4 rounded-[6px] border border-white/80 bg-white/60 text-[#682038] focus:ring-[#F5C443] transition-colors cursor-pointer"
                       />
                       <span>Remember identifier</span>
                     </label>
                     <button
                       type="button"
                       onClick={() => setShowForgotModal(true)}
-                      className="text-xs text-[#682038] hover:underline font-semibold"
+                      className="text-xs text-[#682038] hover:underline font-semibold cursor-pointer"
                     >
                       Forgot password?
                     </button>
@@ -392,11 +397,11 @@ export const LoginPage: React.FC<LoginPageProps> = ({
                 </form>
 
                 {/* Secondary Actions Row: Public Gateways (Matching Apple / Google pills in reference) */}
-                <div className="mt-5 pt-4 border-t border-[#E7DCCB] grid grid-cols-2 gap-3">
+                <div className="mt-5 pt-4 border-t border-[#E7DCCB]/60 grid grid-cols-2 gap-3">
                   <button
                     type="button"
                     onClick={onOpenPublicApply}
-                    className="w-full py-2.5 px-4 rounded-full border border-[#E7DCCB] hover:border-[#682038]/40 bg-[#FAF7F2] hover:bg-[#F4ECE2] text-[#682038] font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-2xs"
+                    className="w-full py-2.5 px-4 rounded-full border border-white/70 hover:border-[#682038]/40 bg-white/50 hover:bg-white/80 backdrop-blur-md text-[#682038] font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-2xs cursor-pointer"
                   >
                     <FileCheck className="w-3.5 h-3.5 text-[#682038]" />
                     <span className="truncate">Admissions Apply</span>
@@ -404,7 +409,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
                   <button
                     type="button"
                     onClick={onOpenPublicVerify}
-                    className="w-full py-2.5 px-4 rounded-full border border-[#E7DCCB] hover:border-[#682038]/40 bg-[#FAF7F2] hover:bg-[#F4ECE2] text-[#242424] font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-2xs"
+                    className="w-full py-2.5 px-4 rounded-full border border-white/70 hover:border-[#682038]/40 bg-white/50 hover:bg-white/80 backdrop-blur-md text-[#242424] font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-2xs cursor-pointer"
                   >
                     <Search className="w-3.5 h-3.5 text-[#16A34A]" />
                     <span className="truncate">Verify QR / Cert</span>
@@ -426,10 +431,10 @@ export const LoginPage: React.FC<LoginPageProps> = ({
               </div>
             </div>
 
-            {/* RIGHT COLUMN: Campus Visual & Floating Archival Glass Widgets (6 Cols) */}
-            <div className="hidden lg:flex lg:col-span-6 p-4 md:p-6 bg-[#FAF7F2] items-center relative min-h-[500px]">
+            {/* RIGHT COLUMN: Campus Visual & Floating Archival Frosted Glass Widgets (6 Cols) */}
+            <div className="hidden lg:flex lg:col-span-6 p-4 md:p-6 bg-transparent items-center relative min-h-[500px]">
               {/* Hero Frame with Image */}
-              <div className="relative w-full h-full min-h-[540px] rounded-[28px] overflow-hidden shadow-inner border border-[#E7DCCB] group">
+              <div className="relative w-full h-full min-h-[540px] rounded-[28px] overflow-hidden shadow-inner border border-white/40 group">
                 {/* High Aesthetic Campus Students Image from Stitch */}
                 <img
                   alt="JSSATE scholars collaborating in university library atrium"
@@ -441,7 +446,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
 
                 {/* Floating Widget 1: Top Floating Golden Task Pill */}
                 <div className="absolute top-5 left-5 z-20">
-                  <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-2xl bg-[#F5C443] text-[#242424] shadow-lg shadow-black/20 border border-[#E5B537]">
+                  <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-2xl bg-[#F5C443]/90 hover:bg-[#F5C443] backdrop-blur-xl text-[#242424] shadow-lg shadow-black/20 border border-white/40">
                     <span className="w-2.5 h-2.5 rounded-full bg-[#242424] animate-pulse" />
                     <div>
                       <div className="text-xs font-bold leading-tight">Task Review With Team</div>
@@ -451,7 +456,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
                 </div>
 
                 {/* Floating Widget 2: Overlapping Circular Avatar Bubbles on Top Right */}
-                <div className="absolute top-5 right-5 z-20 flex -space-x-2 bg-black/40 p-1.5 rounded-full backdrop-blur-md border border-white/20">
+                <div className="absolute top-5 right-5 z-20 flex -space-x-2 bg-black/35 backdrop-blur-xl p-1.5 rounded-full border border-white/25 shadow-lg">
                   <div className="w-8 h-8 rounded-full border-2 border-white bg-[#682038] text-white flex items-center justify-center text-[10px] font-bold">
                     KA
                   </div>
@@ -468,30 +473,30 @@ export const LoginPage: React.FC<LoginPageProps> = ({
 
                 {/* Floating Widget 3: Frosted Glass Weekly Calendar Strip (Center/Upper Overlay) */}
                 <div className="absolute top-24 left-5 right-5 z-20 hidden sm:block">
-                  <div className="bg-white/85 backdrop-blur-md rounded-2xl p-3.5 border border-white/70 shadow-xl shadow-stone-900/10">
-                    <div className="flex items-center justify-between mb-2 px-1">
-                      <div className="flex items-center gap-1.5 text-xs text-[#242424] font-bold">
-                        <Calendar className="w-3.5 h-3.5 text-[#682038]" />
+                  <div className="bg-white/20 backdrop-blur-2xl rounded-2xl p-4 border border-white/40 shadow-2xl text-white">
+                    <div className="flex items-center justify-between mb-2.5 px-1">
+                      <div className="flex items-center gap-2 text-xs font-bold text-white drop-shadow-xs">
+                        <Calendar className="w-3.5 h-3.5 text-[#F5C443]" />
                         <span>Academic Cycle: Fall 2026</span>
                       </div>
-                      <span className="text-[11px] font-mono text-[#8B5E3C] font-semibold">Term Week 8</span>
+                      <span className="text-[11px] font-mono text-[#F5C443] font-bold drop-shadow-xs">Term Week 8</span>
                     </div>
-                    <div className="grid grid-cols-7 gap-1 text-center select-none">
+                    <div className="grid grid-cols-7 gap-1.5 text-center select-none">
                       {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((d, i) => {
                         const dayNum = 22 + i;
                         const isWed = d === 'Wed';
                         return (
                           <div
                             key={d}
-                            className={`py-1.5 rounded-xl transition-all ${
+                            className={`py-2 rounded-xl transition-all ${
                               isWed
-                                ? 'bg-[#682038] text-white shadow-md ring-2 ring-[#F5C443]'
-                                : 'bg-[#FAF7F2] text-[#242424] border border-[#E7DCCB]/60'
+                                ? 'bg-[#682038]/90 text-white shadow-lg ring-2 ring-[#F5C443] backdrop-blur-md'
+                                : 'bg-white/15 hover:bg-white/25 text-white backdrop-blur-md border border-white/25 shadow-xs'
                             }`}
                           >
                             <p
-                              className={`text-[9px] uppercase font-bold ${
-                                isWed ? 'text-[#F5C443]' : 'text-[#8B5E3C]'
+                              className={`text-[9px] uppercase font-bold tracking-wider ${
+                                isWed ? 'text-[#F5C443]' : 'text-white/80'
                               }`}
                             >
                               {d}
@@ -504,44 +509,44 @@ export const LoginPage: React.FC<LoginPageProps> = ({
                   </div>
                 </div>
 
-                {/* Floating Widget 4: White Card at Bottom: Daily Lecture Roster */}
+                {/* Floating Widget 4: Translucent Frosted Card at Bottom: Daily Lecture Roster */}
                 <div className="absolute bottom-5 left-5 right-5 z-20">
-                  <div className="bg-white/95 backdrop-blur-xl rounded-[22px] p-4 border border-[#E7DCCB] shadow-2xl">
+                  <div className="bg-white/75 backdrop-blur-2xl rounded-[24px] p-4 border border-white/60 shadow-2xl">
                     <div className="flex items-center justify-between gap-2 mb-2">
                       <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-full bg-[#FAF7F2] border border-[#E7DCCB] flex items-center justify-center text-[#682038]">
+                        <div className="w-9 h-9 rounded-full bg-white/70 backdrop-blur-md border border-white/60 flex items-center justify-center text-[#682038] shadow-xs">
                           <Building className="w-4 h-4" />
                         </div>
                         <div>
                           <h4 className="text-xs font-bold text-[#242424] leading-tight">Daily Lecture Roster</h4>
-                          <p className="text-[10px] text-[#6E6862]">12:00pm - 01:00pm • Lecture Hall LH-302</p>
+                          <p className="text-[10px] text-[#6E6862] font-medium">12:00pm - 01:00pm • Lecture Hall LH-302</p>
                         </div>
                       </div>
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-[10px] font-bold">
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/15 backdrop-blur-md border border-emerald-500/30 text-emerald-900 text-[10px] font-bold">
                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-ping" />
                         <span>In Progress</span>
                       </span>
                     </div>
 
-                    <div className="flex items-center justify-between pt-2 border-t border-[#E7DCCB]/60 text-[11px] text-[#6E6862]">
+                    <div className="flex items-center justify-between pt-2.5 border-t border-black/[0.06] text-[11px] text-[#6E6862]">
                       <div className="flex items-center gap-2">
-                        <span>Faculty Roster:</span>
+                        <span className="font-medium text-[#242424]">Faculty Roster:</span>
                         <div className="flex -space-x-1.5">
-                          <span className="w-5 h-5 rounded-full bg-[#682038] text-white text-[8px] font-bold flex items-center justify-center border border-white">
+                          <span className="w-5 h-5 rounded-full bg-[#682038] text-white text-[8px] font-bold flex items-center justify-center border-2 border-white shadow-xs">
                             RV
                           </span>
-                          <span className="w-5 h-5 rounded-full bg-[#8B5E3C] text-white text-[8px] font-bold flex items-center justify-center border border-white">
+                          <span className="w-5 h-5 rounded-full bg-[#8B5E3C] text-white text-[8px] font-bold flex items-center justify-center border-2 border-white shadow-xs">
                             AS
                           </span>
-                          <span className="w-5 h-5 rounded-full bg-[#2563EB] text-white text-[8px] font-bold flex items-center justify-center border border-white">
+                          <span className="w-5 h-5 rounded-full bg-[#2563EB] text-white text-[8px] font-bold flex items-center justify-center border-2 border-white shadow-xs">
                             DP
                           </span>
-                          <span className="w-5 h-5 rounded-full bg-[#F5C443] text-[#242424] text-[8px] font-bold flex items-center justify-center border border-white">
+                          <span className="w-5 h-5 rounded-full bg-[#F5C443] text-[#242424] text-[8px] font-bold flex items-center justify-center border-2 border-white shadow-xs">
                             +4
                           </span>
                         </div>
                       </div>
-                      <span className="font-semibold text-[#682038]">CS401: Algorithms</span>
+                      <span className="font-bold text-[#682038]">CS401: Algorithms</span>
                     </div>
                   </div>
                 </div>
@@ -565,10 +570,10 @@ export const LoginPage: React.FC<LoginPageProps> = ({
         </div>
       </footer>
 
-      {/* 2FA TOTP Verification Modal */}
+      {/* 2FA TOTP Verification Modal (Frosted Glass Translucent Window) */}
       {showTotpModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl border border-[#E5DFD7] p-7 max-w-md w-full shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 z-50 bg-black/45 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-white/85 backdrop-blur-2xl rounded-3xl border border-white/80 p-7 max-w-md w-full shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-2xl bg-[#682038]/10 text-[#682038] flex items-center justify-center shrink-0">
                 <Shield className="w-5 h-5" />
@@ -586,7 +591,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
             </p>
 
             {totpError && (
-              <div className="p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-700 flex items-center gap-2">
+              <div className="p-2.5 rounded-xl bg-rose-50/80 backdrop-blur-xs border border-rose-200 text-xs text-rose-700 flex items-center gap-2">
                 <AlertTriangle className="w-4 h-4 shrink-0" />
                 <span>{totpError}</span>
               </div>
@@ -601,7 +606,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
                   value={totpCode}
                   onChange={(e) => setTotpCode(e.target.value.replace(/\D/g, ''))}
                   placeholder="• • • • • •"
-                  className="w-full text-center tracking-[0.5em] font-mono text-xl py-3 rounded-full border border-[#DDD5C7] bg-[#FAF7F2] font-bold text-[#242424] focus:outline-none focus:ring-2 focus:ring-[#F5C443]"
+                  className="w-full text-center tracking-[0.5em] font-mono text-xl py-3 rounded-full border border-white/80 bg-white/60 backdrop-blur-md font-bold text-[#242424] focus:outline-none focus:bg-white/90 focus:ring-2 focus:ring-[#F5C443]"
                 />
               </div>
 
@@ -609,7 +614,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
                 <button
                   type="button"
                   onClick={() => setShowTotpModal(false)}
-                  className="px-5 py-2.5 rounded-full text-xs font-semibold text-[#6E6862] hover:bg-[#F4ECE2] cursor-pointer"
+                  className="px-5 py-2.5 rounded-full text-xs font-semibold text-[#6E6862] hover:bg-black/5 cursor-pointer"
                 >
                   Cancel
                 </button>
@@ -626,10 +631,10 @@ export const LoginPage: React.FC<LoginPageProps> = ({
         </div>
       )}
 
-      {/* Forgot Password Modal */}
+      {/* Forgot Password Modal (Frosted Glass Translucent Window) */}
       {showForgotModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl border border-[#E5DFD7] p-7 max-w-md w-full shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 z-50 bg-black/45 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-white/85 backdrop-blur-2xl rounded-3xl border border-white/80 p-7 max-w-md w-full shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-2xl bg-[#682038]/10 text-[#682038] flex items-center justify-center shrink-0">
                 <Mail className="w-5 h-5" />
@@ -641,7 +646,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
             </div>
 
             {resetSuccessMessage ? (
-              <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 flex items-center gap-2">
+              <div className="p-3 rounded-xl bg-emerald-50/80 backdrop-blur-xs border border-emerald-200 text-xs text-emerald-800 flex items-center gap-2">
                 <CheckCircle className="w-4 h-4 shrink-0 text-emerald-600" />
                 <span>{resetSuccessMessage}</span>
               </div>
@@ -655,7 +660,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
                     value={resetEmail}
                     onChange={(e) => setResetEmail(e.target.value)}
                     placeholder="e.g. employee@jssate.edu"
-                    className="w-full text-xs px-4 py-3 rounded-full border border-[#DDD5C7] bg-[#FAF7F2] focus:outline-none focus:ring-2 focus:ring-[#F5C443]"
+                    className="w-full text-xs px-4 py-3 rounded-full border border-white/80 bg-white/60 backdrop-blur-md focus:outline-none focus:bg-white/90 focus:ring-2 focus:ring-[#F5C443]"
                   />
                 </div>
 
@@ -663,7 +668,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
                   <button
                     type="button"
                     onClick={() => setShowForgotModal(false)}
-                    className="px-5 py-2.5 rounded-full text-xs font-semibold text-[#6E6862] hover:bg-[#F4ECE2] cursor-pointer"
+                    className="px-5 py-2.5 rounded-full text-xs font-semibold text-[#6E6862] hover:bg-black/5 cursor-pointer"
                   >
                     Cancel
                   </button>
