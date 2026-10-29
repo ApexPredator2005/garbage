@@ -25,6 +25,8 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
     exams: 'Examinations & Grade Moderation',
     fees: 'Fees & Bursar UTR Verification',
     payroll: 'HR & 3-Stage Payroll Engine',
+    placement: 'Training & Placement Cell (T&P)',
+    library: 'Library & Information Center (OPAC)',
     communication: 'Communication & SLA Helpdesk',
     reports: 'Reports & Accreditation KPIs',
   };

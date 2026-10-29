@@ -19,6 +19,8 @@ import { CommunicationWorkspace } from './features/communication/CommunicationWo
 import { ReportsWorkspace } from './features/reports/ReportsWorkspace';
 import { StudentPortalWorkspace } from './features/student/StudentPortalWorkspace';
 import { ParentPortalWorkspace } from './features/parent/ParentPortalWorkspace';
+import { PlacementWorkspace } from './features/placement/PlacementWorkspace';
+import { LibraryWorkspace } from './features/library/LibraryWorkspace';
 import {
   Users,
   Calendar,
@@ -32,6 +34,8 @@ import {
   Lock,
   GraduationCap,
   Users2,
+  Briefcase,
+  BookOpen,
 } from 'lucide-react';
 
 export type ModuleTab =
@@ -41,6 +45,8 @@ export type ModuleTab =
   | 'exams'
   | 'fees'
   | 'payroll'
+  | 'placement'
+  | 'library'
   | 'communication'
   | 'reports';
 
@@ -65,42 +71,42 @@ const ROLE_METADATA: Record<
     title: 'Super Administrator',
     badge: 'Platform Root Authority',
     scope: 'Multi-Tenant Cross-Campus Trust Engine & Infrastructure Configuration',
-    allowedModules: ['admissions', 'attendance', 'academics', 'exams', 'fees', 'payroll', 'communication', 'reports'],
+    allowedModules: ['admissions', 'attendance', 'academics', 'exams', 'fees', 'payroll', 'placement', 'library', 'communication', 'reports'],
     color: '#682038',
   },
   INSTITUTION_ADMIN: {
     title: 'Institution Administrator',
     badge: 'Campus Root Authority',
     scope: 'Campus Operational Administration, Department Scopes & Module Configuration',
-    allowedModules: ['admissions', 'attendance', 'academics', 'exams', 'fees', 'payroll', 'communication', 'reports'],
+    allowedModules: ['admissions', 'attendance', 'academics', 'exams', 'fees', 'payroll', 'placement', 'library', 'communication', 'reports'],
     color: '#4338CA',
   },
   PRINCIPAL: {
     title: 'Principal / Campus Director',
     badge: 'Executive Oversight',
     scope: 'Campus Executive Governance, Multi-Tier Approvals, and NAAC/NIRF Regulatory Returns',
-    allowedModules: ['reports', 'admissions', 'attendance', 'academics', 'exams', 'fees', 'communication'],
+    allowedModules: ['reports', 'admissions', 'attendance', 'academics', 'exams', 'fees', 'placement', 'library', 'communication'],
     color: '#682038',
   },
   REGISTRAR: {
     title: 'Registrar',
     badge: 'Admissions & SIS Office',
     scope: 'Student Enrolment, Statutory Quota Matrices, Transfer & Exit Barriers, Result Publishing',
-    allowedModules: ['admissions', 'academics', 'exams', 'reports'],
+    allowedModules: ['admissions', 'academics', 'exams', 'placement', 'library', 'reports'],
     color: '#1E3A8A',
   },
   HOD: {
     title: 'Department Head (HOD)',
     badge: 'Academic Wing Authority',
     scope: 'Departmental Timetables, Smart Period Substitutions, Syllabus Pacing & Exam Moderation',
-    allowedModules: ['academics', 'attendance', 'exams', 'communication'],
+    allowedModules: ['academics', 'attendance', 'exams', 'placement', 'library', 'communication'],
     color: '#0D9488',
   },
   FACULTY: {
     title: 'Faculty / Classroom Instructor',
     badge: 'Instructional Roster',
     scope: 'Class Roster Attendance Marking (8:30 AM), Marks Entry for Assigned Courses, Teaching Schedules',
-    allowedModules: ['attendance', 'academics', 'exams', 'communication'],
+    allowedModules: ['attendance', 'academics', 'exams', 'placement', 'library', 'communication'],
     color: '#7C3AED',
   },
   EXAM_CONTROLLER: {
@@ -147,6 +153,8 @@ const ALL_MODULES_NAV: { id: ModuleTab; label: string; icon: React.FC<{ classNam
   { id: 'exams', label: 'Exams & Moderation', icon: Award },
   { id: 'fees', label: 'Fees & UTR Ledger', icon: CreditCard },
   { id: 'payroll', label: 'HR & Payroll', icon: DollarSign },
+  { id: 'placement', label: 'Placements & T&P', icon: Briefcase },
+  { id: 'library', label: 'Library & OPAC', icon: BookOpen },
   { id: 'communication', label: 'Communication & SLA', icon: MessageSquare },
   { id: 'reports', label: 'Reports & Regulatory', icon: BarChart3 },
 ];
@@ -382,6 +390,8 @@ export const App: React.FC = () => {
               {activeTab === 'exams' && <ExamsWorkspace />}
               {activeTab === 'fees' && <FeesWorkspace />}
               {activeTab === 'payroll' && <HrPayrollWorkspace />}
+              {activeTab === 'placement' && <PlacementWorkspace />}
+              {activeTab === 'library' && <LibraryWorkspace />}
               {activeTab === 'communication' && <CommunicationWorkspace />}
               {activeTab === 'reports' && <ReportsWorkspace />}
             </>
