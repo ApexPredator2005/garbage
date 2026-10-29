@@ -15,7 +15,9 @@ import {
   AlertTriangle,
   X,
   Calendar,
-  Users,
+  Sparkles,
+  ArrowRight,
+  Check,
 } from 'lucide-react';
 
 interface LoginPageProps {
@@ -31,7 +33,7 @@ const STAFF_ROLES: { id: RoleType; label: string; name: string; email: string }[
   { id: 'ACCOUNTANT', label: 'Bursar & Accounts Officer', name: 'Vinod Nair', email: 'bursar.accounts@jssate.edu' },
   { id: 'HR_OFFICER', label: 'HR & Personnel Officer', name: 'Pooja Bhatt', email: 'hr.personnel@jssate.edu' },
   { id: 'EXAM_CONTROLLER', label: 'Controller of Examinations (COE)', name: 'Dr. S. K. Sundaram', email: 'coe.exams@jssate.edu' },
-  { id: 'REGISTRAR', label: 'Institutional Registrar', name: 'K. R. Venkatraman', email: 'registrar@jssate.edu' },
+  { id: 'REGISTRAR', label: 'Dean & Academic Registrar', name: 'K. R. Venkatraman', email: 'registrar@jssate.edu' },
   { id: 'HOD', label: 'Department Head (HOD)', name: 'Dr. Anand Joshi', email: 'hod.cse@jssate.edu' },
   { id: 'INSTITUTION_ADMIN', label: 'Institution Administrator', name: 'Arvind Nambiar', email: 'admin.ops@jssate.edu' },
   { id: 'SUPER_ADMIN', label: 'Central Platform Administrator', name: 'Platform Administrator', email: 'platform.root@devloft.io' },
@@ -43,7 +45,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
   onOpenPublicVerify,
   initialTenantId = 't-1',
 }) => {
-  // Only two primary login options: Student or Staff
+  // STRICTLY ONLY TWO LOGIN OPTIONS: Student or Staff
   const [portalType, setPortalType] = useState<'student' | 'staff'>('student');
   const [selectedTenant, setSelectedTenant] = useState(initialTenantId);
 
@@ -70,7 +72,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
     tenantId: string;
   } | null>(null);
 
-  // Forgot Password Modal State
+  // Password Reset Modal State
   const [showForgotModal, setShowForgotModal] = useState(false);
   const [resetEmail, setResetEmail] = useState('');
   const [resetSuccessMessage, setResetSuccessMessage] = useState<string | null>(null);
@@ -168,299 +170,400 @@ export const LoginPage: React.FC<LoginPageProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-[#EDE7DD] flex items-center justify-center p-3 sm:p-6 lg:p-10 font-sans selection:bg-[#F5C443] selection:text-[#242424]">
-      {/* Outer Floating Rounded Container with soft shadow and bezel */}
-      <div className="max-w-5xl w-full bg-[#FAF7F0] rounded-[36px] border border-[#DDD5C7] shadow-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-12 min-h-[660px]">
-        {/* LEFT COLUMN: AUTHENTICATION FORM (Only Student or Staff) */}
-        <div className="lg:col-span-6 p-8 sm:p-10 xl:p-12 flex flex-col justify-between space-y-6">
-          {/* Top Row: Brand & Campus Subdomain Pill */}
-          <div className="flex items-center justify-between gap-2 flex-wrap">
-            <div className="px-4 py-1.5 rounded-full border border-[#D5CDC0] bg-white/80 text-xs font-bold text-[#4A4237] tracking-tight shadow-2xs">
-              Devloft Campus
-            </div>
-
-            <div className="flex items-center gap-1.5 bg-[#F2EDE3] px-3 py-1.5 rounded-full border border-[#DDD5C7] text-xs">
-              <Building className="w-3.5 h-3.5 text-[#682038]" />
-              <select
-                value={selectedTenant}
-                onChange={(e) => setSelectedTenant(e.target.value)}
-                className="bg-transparent text-[11px] font-bold text-[#242424] focus:outline-none cursor-pointer pr-1"
-                aria-label="Select Campus Subdomain"
-              >
-                <option value="t-1">jssate.campus.edu</option>
-                <option value="t-2">jsscacs.campus.edu</option>
-                <option value="t-3">dit.campus.edu</option>
-              </select>
-            </div>
+    <div className="min-h-screen bg-[#FAF7F2] text-[#242424] antialiased flex flex-col justify-between selection:bg-[#682038] selection:text-white relative font-sans">
+      {/* Subtle Top Atmospheric Brand Ribbon */}
+      <header className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between text-xs text-[#6E6862] z-10">
+        <div className="flex items-center gap-3">
+          <div className="w-7 h-7 rounded-full bg-[#682038] flex items-center justify-center text-white text-[11px] font-bold shadow-xs">
+            JS
           </div>
-
-          {/* Form Header */}
-          <div className="space-y-1.5">
-            <h1 className="text-3xl font-extrabold text-[#242424] tracking-tight">Sign in</h1>
-            <p className="text-xs text-[#7A7267]">
-              Welcome to <strong className="text-[#682038]">{currentTenant.name}</strong>
-            </p>
-          </div>
-
-          {/* DUAL OPTIONS TOGGLE: STUDENT OR STAFF ONLY */}
-          <div className="bg-[#EBE5DA] p-1.5 rounded-full flex gap-1 border border-[#DDD5C7]">
-            <button
-              type="button"
-              onClick={() => setPortalType('student')}
-              className={`flex-1 py-2.5 rounded-full text-xs font-bold transition-all flex items-center justify-center gap-2 ${
-                portalType === 'student'
-                  ? 'bg-white text-[#242424] shadow-sm font-extrabold'
-                  : 'text-[#6E6862] hover:text-[#242424]'
-              }`}
-            >
-              <GraduationCap className="w-4 h-4 text-[#2563EB]" />
-              <span>Student</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setPortalType('staff')}
-              className={`flex-1 py-2.5 rounded-full text-xs font-bold transition-all flex items-center justify-center gap-2 ${
-                portalType === 'staff'
-                  ? 'bg-[#682038] text-white shadow-sm font-extrabold'
-                  : 'text-[#6E6862] hover:text-[#242424]'
-              }`}
-            >
-              <Shield className="w-4 h-4 text-[#F5C443]" />
-              <span>Staff</span>
-            </button>
-          </div>
-
-          {/* CREDENTIALS FORM */}
-          <form onSubmit={handleFormSubmit} className="space-y-4">
-            {/* If Staff: Select Staff Role Context */}
-            {portalType === 'staff' && (
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-[#4A4237] ml-2">Staff Designation</label>
-                <div className="relative">
-                  <select
-                    value={selectedStaffRole}
-                    onChange={(e) => handleStaffRoleSelect(e.target.value as RoleType)}
-                    className="w-full px-5 py-3.5 rounded-full bg-[#F4EFE6] border border-[#DDD5C7] text-xs font-bold text-[#682038] focus:outline-none focus:ring-2 focus:ring-[#F5C443] cursor-pointer appearance-none"
-                  >
-                    {STAFF_ROLES.map((r) => (
-                      <option key={r.id} value={r.id}>
-                        {r.label} ({r.name})
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-            )}
-
-            {/* Email / ID Input */}
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-[#4A4237] ml-2">
-                {portalType === 'student' ? 'Student Email / Roll Number' : 'Institutional Email'}
-              </label>
-              <div className="relative">
-                <input
-                  type="text"
-                  required
-                  value={portalType === 'student' ? studentIdInput : staffEmailInput}
-                  onChange={(e) =>
-                    portalType === 'student'
-                      ? setStudentIdInput(e.target.value)
-                      : setStaffEmailInput(e.target.value)
-                  }
-                  placeholder={
-                    portalType === 'student'
-                      ? 'e.g. rohan.verma@student.jssate.edu'
-                      : 'e.g. principal@jssate.edu'
-                  }
-                  className="w-full px-5 py-3.5 rounded-full bg-[#F4EFE6] border border-[#DDD5C7] text-xs text-[#242424] font-medium placeholder-[#A39B8F] focus:outline-none focus:ring-2 focus:ring-[#F5C443]"
-                />
-              </div>
-            </div>
-
-            {/* Password Input */}
-            <div className="space-y-1">
-              <div className="flex items-center justify-between px-2">
-                <label className="text-xs font-bold text-[#4A4237]">Password</label>
-                <button
-                  type="button"
-                  onClick={() => setShowForgotModal(true)}
-                  className="text-[11px] text-[#7A7267] hover:text-[#682038] hover:underline font-semibold"
-                >
-                  Forgot password?
-                </button>
-              </div>
-              <div className="relative">
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  required
-                  value={portalType === 'student' ? studentPassword : staffPassword}
-                  onChange={(e) =>
-                    portalType === 'student'
-                      ? setStudentPassword(e.target.value)
-                      : setStaffPassword(e.target.value)
-                  }
-                  placeholder="••••••••••••"
-                  className="w-full px-5 py-3.5 pr-12 rounded-full bg-[#F4EFE6] border border-[#DDD5C7] text-xs text-[#242424] font-medium placeholder-[#A39B8F] focus:outline-none focus:ring-2 focus:ring-[#F5C443]"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-3.5 text-[#8A8175] hover:text-[#242424]"
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
-                >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
-              </div>
-            </div>
-
-            {/* Submit Pill Button (matching gold pill button in reference image) */}
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full py-3.5 rounded-full bg-[#F5C443] hover:bg-[#E5B537] active:scale-[0.99] text-[#242424] font-bold text-xs shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer mt-2"
-            >
-              <span>{isSubmitting ? 'Authenticating...' : 'Submit'}</span>
-            </button>
-          </form>
-
-          {/* Secondary Pill Buttons: Public Gateways (matching Apple / Google pill buttons in reference image) */}
-          <div className="pt-2 border-t border-[#DDD5C7] space-y-2">
-            <div className="text-[10px] font-bold text-[#8A8175] text-center uppercase tracking-wider">
-              Public Institutional Gateways
-            </div>
-            <div className="grid grid-cols-2 gap-2.5">
-              <button
-                type="button"
-                onClick={onOpenPublicApply}
-                className="flex items-center justify-center gap-2 py-3 px-3 rounded-full border border-[#DDD5C7] bg-[#F7F3EB] hover:bg-[#EFE9DF] text-[11px] font-bold text-[#4A4237] transition-all"
-              >
-                <FileCheck className="w-3.5 h-3.5 text-[#682038]" />
-                <span className="truncate">Admissions Apply</span>
-              </button>
-              <button
-                type="button"
-                onClick={onOpenPublicVerify}
-                className="flex items-center justify-center gap-2 py-3 px-3 rounded-full border border-[#DDD5C7] bg-[#F7F3EB] hover:bg-[#EFE9DF] text-[11px] font-bold text-[#4A4237] transition-all"
-              >
-                <Search className="w-3.5 h-3.5 text-[#16A34A]" />
-                <span className="truncate">Verify QR / Cert</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Footer note */}
-          <div className="flex items-center justify-between text-[11px] text-[#8A8175] pt-1">
-            <span>Zero-SMS Cost Policy: Active</span>
-            <span className="hover:underline cursor-pointer">Terms &amp; Security</span>
-          </div>
+          <span className="text-sm font-bold tracking-tight text-[#682038]">
+            JSSATE Academic Portal
+          </span>
+          <span className="hidden md:inline-block w-1 h-1 rounded-full bg-[#E5DFD7]" />
+          <span className="hidden md:inline-block text-[11px] font-mono tracking-wider text-[#8B5E3C] uppercase">
+            Collegiate ERP v4.8
+          </span>
         </div>
 
-        {/* RIGHT COLUMN: HERO VISUAL PANEL WITH FLOATING WIDGETS (matching reference image) */}
-        <div className="hidden lg:flex lg:col-span-6 m-3.5 rounded-[28px] overflow-hidden relative flex-col justify-between p-7 bg-slate-900 shadow-inner">
-          {/* Background Photography (collaborative campus / study atmosphere) */}
-          <img
-            src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1200&q=80"
-            alt="Campus students collaborating"
-            className="absolute inset-0 w-full h-full object-cover object-center filter brightness-[0.88]"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
-
-          {/* Floating Element 1: Top Yellow Pill & Close Button */}
-          <div className="relative z-10 flex items-start justify-between">
-            <div className="bg-[#F5C443] text-[#242424] px-4 py-2 rounded-2xl shadow-lg flex items-center justify-between gap-3 text-xs font-bold">
-              <div>
-                <div className="leading-tight">Task Review With Team</div>
-                <div className="text-[10px] font-normal text-[#4A3D18]">09:30am - 10:00am</div>
-              </div>
-              <span className="w-2 h-2 rounded-full bg-[#242424] shrink-0" />
-            </div>
-
-            <div className="w-9 h-9 rounded-full bg-white/80 hover:bg-white text-[#242424] flex items-center justify-center shadow-md cursor-pointer transition-colors backdrop-blur-xs">
-              <X className="w-4 h-4" />
-            </div>
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-1.5 text-xs text-[#242424]">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="font-medium">SSL Encrypted Session</span>
           </div>
+        </div>
+      </header>
 
-          {/* Overlapping Floating Student Avatar Bubbles (matching reference image) */}
-          <div className="absolute right-8 top-1/3 z-10 flex flex-col items-center gap-1.5">
-            <div className="w-12 h-12 rounded-full border-2 border-white overflow-hidden shadow-lg -mb-2">
-              <img
-                src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80"
-                alt="Pupil"
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <div className="flex gap-1">
-              <div className="w-10 h-10 rounded-full border-2 border-white overflow-hidden shadow-lg">
-                <img
-                  src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=150&q=80"
-                  alt="Pupil"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div className="w-9 h-9 rounded-full border-2 border-white overflow-hidden shadow-lg">
-                <img
-                  src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=150&q=80"
-                  alt="Pupil"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            </div>
-          </div>
+      {/* Main Canvas / Central Floating Card */}
+      <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-center flex-1 z-10">
+        <div className="w-full max-w-6xl mx-auto rounded-[36px] border border-[#E7DCCB] bg-white/95 backdrop-blur-xl shadow-2xl shadow-stone-900/10 overflow-hidden relative">
+          {/* Top Right Floating Close Button */}
+          <button
+            type="button"
+            aria-label="Close portal window"
+            className="absolute top-5 right-5 z-30 w-10 h-10 rounded-full bg-[#FAF7F2]/90 hover:bg-white border border-[#E7DCCB] backdrop-blur-md flex items-center justify-center text-[#6E6862] hover:text-[#682038] transition-all duration-200 active:scale-95 shadow-xs cursor-pointer"
+          >
+            <X className="w-4 h-4" />
+          </button>
 
-          {/* Floating Element 2 & 3: Calendar Strip & Roster Card at Bottom */}
-          <div className="relative z-10 space-y-3">
-            {/* Frosted Glass Weekly Calendar Strip */}
-            <div className="bg-white/20 backdrop-blur-md border border-white/30 rounded-2xl p-3.5 text-white shadow-xl max-w-sm">
-              <div className="grid grid-cols-7 text-center text-[10px] uppercase font-bold text-white/80 mb-1">
-                <span>Sun</span>
-                <span>Mon</span>
-                <span>Tue</span>
-                <span className="text-[#F5C443]">Wed</span>
-                <span>Thu</span>
-                <span>Fri</span>
-                <span>Sat</span>
-              </div>
-              <div className="grid grid-cols-7 text-center text-sm font-extrabold text-white">
-                <span>22</span>
-                <span>23</span>
-                <span>24</span>
-                <span className="text-[#F5C443] relative">
-                  25
-                  <span className="w-1 h-1 rounded-full bg-[#F5C443] absolute -bottom-1 left-1/2 -translate-x-1/2" />
-                </span>
-                <span>26</span>
-                <span>27</span>
-                <span>28</span>
-              </div>
-            </div>
-
-            {/* Bottom White Floating Card: Daily Meeting / Class Roster with Avatar Stack */}
-            <div className="bg-white rounded-2xl p-4 shadow-xl max-w-xs flex items-center justify-between">
+          {/* 2-Column Split Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 min-h-[640px]">
+            {/* LEFT COLUMN: Form & Institutional Authentication (6 Cols) */}
+            <div className="lg:col-span-6 p-6 sm:p-10 md:p-12 flex flex-col justify-between space-y-6">
               <div>
-                <div className="text-xs font-bold text-[#242424] flex items-center gap-1.5">
-                  <span>Daily Lecture Roster</span>
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#F5C443]" />
+                {/* Top Badges Cluster */}
+                <div className="flex flex-wrap items-center gap-2.5 mb-6">
+                  {/* Oval Pill Badge: Devloft Campus */}
+                  <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#682038] text-white text-[11px] font-bold shadow-xs tracking-wide">
+                    <Sparkles className="w-3.5 h-3.5 text-[#F5C443]" />
+                    <span>Devloft Campus</span>
+                  </span>
+
+                  {/* Subdomain Pill with Server Indicator */}
+                  <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#FAF7F2] border border-[#E7DCCB] text-[#242424] text-[11px] font-bold">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                    <select
+                      value={selectedTenant}
+                      onChange={(e) => setSelectedTenant(e.target.value)}
+                      className="bg-transparent text-[11px] font-bold text-[#682038] focus:outline-none cursor-pointer pr-1"
+                      aria-label="Campus Subdomain"
+                    >
+                      <option value="t-1">jssate.campus.edu</option>
+                      <option value="t-2">jsscacs.campus.edu</option>
+                      <option value="t-3">dit.campus.edu</option>
+                    </select>
+                  </div>
                 </div>
-                <div className="text-[10px] text-[#7A7267] font-medium">12:00pm - 01:00pm • LH-302</div>
-                <div className="flex -space-x-1.5 mt-2">
-                  <div className="w-5 h-5 rounded-full bg-[#682038] text-white text-[8px] font-bold flex items-center justify-center border border-white">
-                    RV
+
+                {/* Typography & Welcome Header */}
+                <div className="mb-6">
+                  <h1 className="text-4xl font-extrabold tracking-tight text-[#242424] leading-tight mb-1.5">
+                    Sign in
+                  </h1>
+                  <p className="text-xs text-[#6E6862]">
+                    Welcome to <strong className="text-[#682038]">{currentTenant.name}</strong>
+                  </p>
+                </div>
+
+                {/* SEGMENTED DUAL ROLE TOGGLE (STRICTLY STUDENT OR STAFF ONLY) */}
+                <div className="relative bg-[#F4ECE2] p-1 rounded-full flex items-center mb-6 max-w-xs border border-[#E5DFD7]">
+                  <button
+                    type="button"
+                    onClick={() => setPortalType('student')}
+                    className={`relative z-10 w-1/2 py-2 text-center text-xs font-bold transition-all rounded-full flex items-center justify-center gap-1.5 ${
+                      portalType === 'student'
+                        ? 'bg-[#682038] text-white shadow-xs'
+                        : 'text-[#6E6862] hover:text-[#242424]'
+                    }`}
+                  >
+                    <GraduationCap className="w-4 h-4 text-[#F5C443]" />
+                    <span>Student</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPortalType('staff')}
+                    className={`relative z-10 w-1/2 py-2 text-center text-xs font-bold transition-all rounded-full flex items-center justify-center gap-1.5 ${
+                      portalType === 'staff'
+                        ? 'bg-[#682038] text-white shadow-xs'
+                        : 'text-[#6E6862] hover:text-[#242424]'
+                    }`}
+                  >
+                    <Shield className="w-4 h-4 text-[#F5C443]" />
+                    <span>Staff</span>
+                  </button>
+                </div>
+
+                {/* Authentication Form */}
+                <form onSubmit={handleFormSubmit} className="space-y-4">
+                  {/* Dynamic Identity Field (Student vs Staff) */}
+                  <div className="space-y-1">
+                    <label className="block text-xs font-bold text-[#242424] ml-2">
+                      {portalType === 'student' ? 'Student Email / Roll Number' : 'Staff ID / Official Institutional Email'}
+                    </label>
+                    <div className="relative flex items-center">
+                      <Mail className="w-4 h-4 absolute left-4 text-[#8B5E3C] pointer-events-none" />
+                      <input
+                        type="text"
+                        required
+                        value={portalType === 'student' ? studentIdInput : staffEmailInput}
+                        onChange={(e) =>
+                          portalType === 'student'
+                            ? setStudentIdInput(e.target.value)
+                            : setStaffEmailInput(e.target.value)
+                        }
+                        placeholder={
+                          portalType === 'student'
+                            ? 'e.g. rohan.verma@student.jssate.edu'
+                            : 'e.g. principal@jssate.edu'
+                        }
+                        className="w-full pl-11 pr-4 py-3 rounded-full bg-[#FAF7F2] border border-[#E7DCCB] text-[#242424] text-xs font-medium placeholder-[#8B857E] focus:outline-none focus:border-[#682038] focus:ring-2 focus:ring-[#F5C443]/40 transition-all shadow-2xs"
+                      />
+                    </div>
                   </div>
-                  <div className="w-5 h-5 rounded-full bg-[#2563EB] text-white text-[8px] font-bold flex items-center justify-center border border-white">
-                    AS
+
+                  {/* Staff Designation Selector (Reveals dynamically when Staff is active) */}
+                  {portalType === 'staff' && (
+                    <div className="space-y-1 animate-in fade-in duration-200">
+                      <label className="block text-xs font-bold text-[#242424] ml-2">
+                        Executive Designation
+                      </label>
+                      <div className="relative flex items-center">
+                        <Building className="w-4 h-4 absolute left-4 text-[#8B5E3C] pointer-events-none" />
+                        <select
+                          value={selectedStaffRole}
+                          onChange={(e) => handleStaffRoleSelect(e.target.value as RoleType)}
+                          className="w-full pl-11 pr-10 py-3 rounded-full bg-[#FAF7F2] border border-[#E7DCCB] text-[#682038] text-xs font-bold focus:outline-none focus:border-[#682038] focus:ring-2 focus:ring-[#F5C443]/40 appearance-none transition-all shadow-2xs cursor-pointer"
+                        >
+                          {STAFF_ROLES.map((r) => (
+                            <option key={r.id} value={r.id}>
+                              {r.label} ({r.name})
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Password Input with Trailing Reveal Toggle */}
+                  <div className="space-y-1">
+                    <label className="block text-xs font-bold text-[#242424] ml-2">
+                      Password
+                    </label>
+                    <div className="relative flex items-center">
+                      <Lock className="w-4 h-4 absolute left-4 text-[#8B5E3C] pointer-events-none" />
+                      <input
+                        type={showPassword ? 'text' : 'password'}
+                        required
+                        value={portalType === 'student' ? studentPassword : staffPassword}
+                        onChange={(e) =>
+                          portalType === 'student'
+                            ? setStudentPassword(e.target.value)
+                            : setStaffPassword(e.target.value)
+                        }
+                        placeholder="••••••••••••"
+                        className="w-full pl-11 pr-12 py-3 rounded-full bg-[#FAF7F2] border border-[#E7DCCB] text-[#242424] text-xs font-medium placeholder-[#8B857E] focus:outline-none focus:border-[#682038] focus:ring-2 focus:ring-[#F5C443]/40 transition-all shadow-2xs"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-4 text-[#8B857E] hover:text-[#242424] focus:outline-none p-1 transition-colors"
+                        aria-label={showPassword ? 'Hide password' : 'Show password'}
+                      >
+                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
                   </div>
-                  <div className="w-5 h-5 rounded-full bg-[#16A34A] text-white text-[8px] font-bold flex items-center justify-center border border-white">
-                    DP
+
+                  {/* Remember Me & Forgot Password Row */}
+                  <div className="flex items-center justify-between px-2 pt-1">
+                    <label className="flex items-center gap-2 cursor-pointer select-none text-xs text-[#6E6862]">
+                      <input
+                        type="checkbox"
+                        defaultChecked
+                        className="w-4 h-4 rounded-[6px] border border-[#E5DFD7] text-[#682038] focus:ring-[#F5C443] transition-colors cursor-pointer"
+                      />
+                      <span>Remember identifier</span>
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => setShowForgotModal(true)}
+                      className="text-xs text-[#682038] hover:underline font-semibold"
+                    >
+                      Forgot password?
+                    </button>
                   </div>
-                  <div className="w-5 h-5 rounded-full bg-[#F5C443] text-[#242424] text-[8px] font-bold flex items-center justify-center border border-white">
+
+                  {/* Primary Submit Button: Rich Amber Pill (Matching reference image) */}
+                  <div className="pt-2">
+                    <button
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="w-full py-3.5 px-6 rounded-full bg-[#F5C443] hover:bg-[#E5B537] active:scale-[0.99] text-[#242424] font-bold text-xs shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                      <span>
+                        {isSubmitting
+                          ? 'Verifying Credentials...'
+                          : portalType === 'student'
+                          ? 'Enter Portal →'
+                          : 'Authenticate Staff Portal →'}
+                      </span>
+                    </button>
+                  </div>
+                </form>
+
+                {/* Secondary Actions Row: Public Gateways (Matching Apple / Google pills in reference) */}
+                <div className="mt-5 pt-4 border-t border-[#E7DCCB] grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={onOpenPublicApply}
+                    className="w-full py-2.5 px-4 rounded-full border border-[#E7DCCB] hover:border-[#682038]/40 bg-[#FAF7F2] hover:bg-[#F4ECE2] text-[#682038] font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-2xs"
+                  >
+                    <FileCheck className="w-3.5 h-3.5 text-[#682038]" />
+                    <span className="truncate">Admissions Apply</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={onOpenPublicVerify}
+                    className="w-full py-2.5 px-4 rounded-full border border-[#E7DCCB] hover:border-[#682038]/40 bg-[#FAF7F2] hover:bg-[#F4ECE2] text-[#242424] font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-2xs"
+                  >
+                    <Search className="w-3.5 h-3.5 text-[#16A34A]" />
+                    <span className="truncate">Verify QR / Cert</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Academic Footer Authentication Guarantee */}
+              <div className="pt-4 border-t border-[#E7DCCB]/60 flex flex-wrap items-center justify-between text-[11px] text-[#7E7972] gap-2">
+                <div className="flex items-center gap-1.5">
+                  <Shield className="w-3.5 h-3.5 text-[#682038]" />
+                  <span>ISO 27001 Institutional Vault</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="hover:text-[#682038] cursor-pointer">Zero-SMS Policy</span>
+                  <span>•</span>
+                  <span className="hover:text-[#682038] cursor-pointer">Privacy &amp; Governance</span>
+                </div>
+              </div>
+            </div>
+
+            {/* RIGHT COLUMN: Campus Visual & Floating Archival Glass Widgets (6 Cols) */}
+            <div className="hidden lg:flex lg:col-span-6 p-4 md:p-6 bg-[#FAF7F2] items-center relative min-h-[500px]">
+              {/* Hero Frame with Image */}
+              <div className="relative w-full h-full min-h-[540px] rounded-[28px] overflow-hidden shadow-inner border border-[#E7DCCB] group">
+                {/* High Aesthetic Campus Students Image from Stitch */}
+                <img
+                  alt="JSSATE scholars collaborating in university library atrium"
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuCtp9hLhChZ__gRAqdGfZcVrdjRQRj8tgpKNdGLa40mQbpUe5BUuo8b0T8XBS9UPwdBRgIH3ZVZizqA3Nsm7hmtoybHzxypWK8iMWUTg6BBySCfUhPUNoNohN7sTxL8RBrHCe-4TeISpNYumcwE46MyWMixOC4jf8oJImIJE2fXttFMubKXtDpKOgPrSQNgFkYin1w_uV5q5jlD7PluCg_V1HMl00kvoM5fULYP4LlbPPFdT7aT8yxqATjj-0GIIgOfVS_CjLqbyYio"
+                  className="w-full h-full object-cover object-center filter saturate-[1.05] brightness-[0.96] transition-transform duration-700 ease-out group-hover:scale-[1.02]"
+                />
+                {/* Warm Vignette Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-black/10 pointer-events-none" />
+
+                {/* Floating Widget 1: Top Floating Golden Task Pill */}
+                <div className="absolute top-5 left-5 z-20">
+                  <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-2xl bg-[#F5C443] text-[#242424] shadow-lg shadow-black/20 border border-[#E5B537]">
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#242424] animate-pulse" />
+                    <div>
+                      <div className="text-xs font-bold leading-tight">Task Review With Team</div>
+                      <div className="text-[10px] font-medium text-[#4A3D18]">09:30am - 10:00am</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Floating Widget 2: Overlapping Circular Avatar Bubbles on Top Right */}
+                <div className="absolute top-5 right-5 z-20 flex -space-x-2 bg-black/40 p-1.5 rounded-full backdrop-blur-md border border-white/20">
+                  <div className="w-8 h-8 rounded-full border-2 border-white bg-[#682038] text-white flex items-center justify-center text-[10px] font-bold">
+                    KA
+                  </div>
+                  <div className="w-8 h-8 rounded-full border-2 border-white bg-[#8B5E3C] text-white flex items-center justify-center text-[10px] font-bold">
+                    MC
+                  </div>
+                  <div className="w-8 h-8 rounded-full border-2 border-white bg-[#2563EB] text-white flex items-center justify-center text-[10px] font-bold">
+                    DR
+                  </div>
+                  <div className="w-8 h-8 rounded-full border-2 border-white bg-[#F5C443] text-[#242424] flex items-center justify-center text-[10px] font-extrabold shadow-xs">
                     +4
                   </div>
                 </div>
+
+                {/* Floating Widget 3: Frosted Glass Weekly Calendar Strip (Center/Upper Overlay) */}
+                <div className="absolute top-24 left-5 right-5 z-20 hidden sm:block">
+                  <div className="bg-white/85 backdrop-blur-md rounded-2xl p-3.5 border border-white/70 shadow-xl shadow-stone-900/10">
+                    <div className="flex items-center justify-between mb-2 px-1">
+                      <div className="flex items-center gap-1.5 text-xs text-[#242424] font-bold">
+                        <Calendar className="w-3.5 h-3.5 text-[#682038]" />
+                        <span>Academic Cycle: Fall 2026</span>
+                      </div>
+                      <span className="text-[11px] font-mono text-[#8B5E3C] font-semibold">Term Week 8</span>
+                    </div>
+                    <div className="grid grid-cols-7 gap-1 text-center select-none">
+                      {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((d, i) => {
+                        const dayNum = 22 + i;
+                        const isWed = d === 'Wed';
+                        return (
+                          <div
+                            key={d}
+                            className={`py-1.5 rounded-xl transition-all ${
+                              isWed
+                                ? 'bg-[#682038] text-white shadow-md ring-2 ring-[#F5C443]'
+                                : 'bg-[#FAF7F2] text-[#242424] border border-[#E7DCCB]/60'
+                            }`}
+                          >
+                            <p
+                              className={`text-[9px] uppercase font-bold ${
+                                isWed ? 'text-[#F5C443]' : 'text-[#8B5E3C]'
+                              }`}
+                            >
+                              {d}
+                            </p>
+                            <p className="text-xs font-extrabold">{dayNum}</p>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Floating Widget 4: White Card at Bottom: Daily Lecture Roster */}
+                <div className="absolute bottom-5 left-5 right-5 z-20">
+                  <div className="bg-white/95 backdrop-blur-xl rounded-[22px] p-4 border border-[#E7DCCB] shadow-2xl">
+                    <div className="flex items-center justify-between gap-2 mb-2">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-full bg-[#FAF7F2] border border-[#E7DCCB] flex items-center justify-center text-[#682038]">
+                          <Building className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <h4 className="text-xs font-bold text-[#242424] leading-tight">Daily Lecture Roster</h4>
+                          <p className="text-[10px] text-[#6E6862]">12:00pm - 01:00pm • Lecture Hall LH-302</p>
+                        </div>
+                      </div>
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-[10px] font-bold">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-ping" />
+                        <span>In Progress</span>
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between pt-2 border-t border-[#E7DCCB]/60 text-[11px] text-[#6E6862]">
+                      <div className="flex items-center gap-2">
+                        <span>Faculty Roster:</span>
+                        <div className="flex -space-x-1.5">
+                          <span className="w-5 h-5 rounded-full bg-[#682038] text-white text-[8px] font-bold flex items-center justify-center border border-white">
+                            RV
+                          </span>
+                          <span className="w-5 h-5 rounded-full bg-[#8B5E3C] text-white text-[8px] font-bold flex items-center justify-center border border-white">
+                            AS
+                          </span>
+                          <span className="w-5 h-5 rounded-full bg-[#2563EB] text-white text-[8px] font-bold flex items-center justify-center border border-white">
+                            DP
+                          </span>
+                          <span className="w-5 h-5 rounded-full bg-[#F5C443] text-[#242424] text-[8px] font-bold flex items-center justify-center border border-white">
+                            +4
+                          </span>
+                        </div>
+                      </div>
+                      <span className="font-semibold text-[#682038]">CS401: Algorithms</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      </main>
+
+      {/* Grounding Editorial Footer */}
+      <footer className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 border-t border-[#E5DFD7]/80 flex flex-col sm:flex-row justify-between items-center gap-2 text-xs text-[#6E6862]">
+        <div className="flex items-center gap-2">
+          <span className="font-bold text-[#682038]">JSS Academy of Technical Education</span>
+          <span>•</span>
+          <span>© 2026 All rights reserved. Collegiate ERP System.</span>
+        </div>
+        <div className="flex flex-wrap items-center gap-4 text-[11px]">
+          <span className="hover:text-[#682038] cursor-pointer">Privacy Policy</span>
+          <span className="hover:text-[#682038] cursor-pointer">Security Architecture</span>
+          <span className="hover:text-[#682038] cursor-pointer text-[#682038] font-bold">Academic Accreditations</span>
+        </div>
+      </footer>
 
       {/* 2FA TOTP Verification Modal */}
       {showTotpModal && (
@@ -498,7 +601,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
                   value={totpCode}
                   onChange={(e) => setTotpCode(e.target.value.replace(/\D/g, ''))}
                   placeholder="• • • • • •"
-                  className="w-full text-center tracking-[0.5em] font-mono text-xl py-3 rounded-full border border-[#DDD5C7] bg-[#F5F2EC] font-bold text-[#242424] focus:outline-none focus:ring-2 focus:ring-[#F5C443]"
+                  className="w-full text-center tracking-[0.5em] font-mono text-xl py-3 rounded-full border border-[#DDD5C7] bg-[#FAF7F2] font-bold text-[#242424] focus:outline-none focus:ring-2 focus:ring-[#F5C443]"
                 />
               </div>
 
@@ -506,13 +609,13 @@ export const LoginPage: React.FC<LoginPageProps> = ({
                 <button
                   type="button"
                   onClick={() => setShowTotpModal(false)}
-                  className="px-5 py-2.5 rounded-full text-xs font-semibold text-[#6E6862] hover:bg-[#F4ECE2]"
+                  className="px-5 py-2.5 rounded-full text-xs font-semibold text-[#6E6862] hover:bg-[#F4ECE2] cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 rounded-full bg-[#F5C443] hover:bg-[#E5B537] text-[#242424] text-xs font-bold shadow-xs flex items-center gap-1.5"
+                  className="px-5 py-2.5 rounded-full bg-[#F5C443] hover:bg-[#E5B537] text-[#242424] text-xs font-bold shadow-xs flex items-center gap-1.5 cursor-pointer"
                 >
                   <KeyRound className="w-3.5 h-3.5" />
                   <span>Verify &amp; Enter Workspace</span>
@@ -552,7 +655,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
                     value={resetEmail}
                     onChange={(e) => setResetEmail(e.target.value)}
                     placeholder="e.g. employee@jssate.edu"
-                    className="w-full text-xs px-4 py-3 rounded-full border border-[#DDD5C7] bg-[#F5F2EC] focus:outline-none focus:ring-2 focus:ring-[#F5C443]"
+                    className="w-full text-xs px-4 py-3 rounded-full border border-[#DDD5C7] bg-[#FAF7F2] focus:outline-none focus:ring-2 focus:ring-[#F5C443]"
                   />
                 </div>
 
@@ -560,13 +663,13 @@ export const LoginPage: React.FC<LoginPageProps> = ({
                   <button
                     type="button"
                     onClick={() => setShowForgotModal(false)}
-                    className="px-5 py-2.5 rounded-full text-xs font-semibold text-[#6E6862] hover:bg-[#F4ECE2]"
+                    className="px-5 py-2.5 rounded-full text-xs font-semibold text-[#6E6862] hover:bg-[#F4ECE2] cursor-pointer"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="px-5 py-2.5 rounded-full bg-[#F5C443] hover:bg-[#E5B537] text-[#242424] text-xs font-bold shadow-xs"
+                    className="px-5 py-2.5 rounded-full bg-[#F5C443] hover:bg-[#E5B537] text-[#242424] text-xs font-bold shadow-xs cursor-pointer"
                   >
                     Send Reset Link
                   </button>
