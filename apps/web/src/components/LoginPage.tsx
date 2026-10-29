@@ -1,18 +1,21 @@
 import React, { useState } from 'react';
 import { RoleType } from '../types';
 import {
+  GraduationCap,
   Shield,
   Lock,
   Mail,
   Building,
   KeyRound,
   FileCheck,
+  Search,
   Eye,
   EyeOff,
-  ExternalLink,
-  Search,
   CheckCircle,
   AlertTriangle,
+  X,
+  Calendar,
+  Users,
 } from 'lucide-react';
 
 interface LoginPageProps {
@@ -22,33 +25,17 @@ interface LoginPageProps {
   initialTenantId?: string;
 }
 
-const ROLE_DISPLAY_NAMES: Record<RoleType, string> = {
-  PRINCIPAL: 'Dr. K. S. Sharma',
-  STUDENT: 'Rohan Verma',
-  PARENT: 'Suresh Sharma',
-  FACULTY: 'Dr. Ramesh Kulkarni',
-  ACCOUNTANT: 'Vinod Nair',
-  HR_OFFICER: 'Pooja Bhatt',
-  EXAM_CONTROLLER: 'Dr. S. K. Sundaram',
-  REGISTRAR: 'K. R. Venkatraman',
-  HOD: 'Dr. Anand Joshi',
-  INSTITUTION_ADMIN: 'Arvind Nambiar',
-  SUPER_ADMIN: 'Platform Administrator',
-};
-
-const ROLE_DEFAULT_EMAILS: Record<RoleType, string> = {
-  PRINCIPAL: 'principal@jssate.edu',
-  STUDENT: 'rohan.verma@student.jssate.edu',
-  PARENT: 'suresh.sharma@family.org',
-  FACULTY: 'ramesh.kulkarni@jssate.edu',
-  ACCOUNTANT: 'bursar.accounts@jssate.edu',
-  HR_OFFICER: 'hr.personnel@jssate.edu',
-  EXAM_CONTROLLER: 'coe.exams@jssate.edu',
-  REGISTRAR: 'registrar@jssate.edu',
-  HOD: 'hod.cse@jssate.edu',
-  INSTITUTION_ADMIN: 'admin.ops@jssate.edu',
-  SUPER_ADMIN: 'platform.root@devloft.io',
-};
+const STAFF_ROLES: { id: RoleType; label: string; name: string; email: string }[] = [
+  { id: 'PRINCIPAL', label: 'Principal / Campus Director', name: 'Dr. K. S. Sharma', email: 'principal@jssate.edu' },
+  { id: 'FACULTY', label: 'Faculty / Classroom Instructor', name: 'Dr. Ramesh Kulkarni', email: 'ramesh.kulkarni@jssate.edu' },
+  { id: 'ACCOUNTANT', label: 'Bursar & Accounts Officer', name: 'Vinod Nair', email: 'bursar.accounts@jssate.edu' },
+  { id: 'HR_OFFICER', label: 'HR & Personnel Officer', name: 'Pooja Bhatt', email: 'hr.personnel@jssate.edu' },
+  { id: 'EXAM_CONTROLLER', label: 'Controller of Examinations (COE)', name: 'Dr. S. K. Sundaram', email: 'coe.exams@jssate.edu' },
+  { id: 'REGISTRAR', label: 'Institutional Registrar', name: 'K. R. Venkatraman', email: 'registrar@jssate.edu' },
+  { id: 'HOD', label: 'Department Head (HOD)', name: 'Dr. Anand Joshi', email: 'hod.cse@jssate.edu' },
+  { id: 'INSTITUTION_ADMIN', label: 'Institution Administrator', name: 'Arvind Nambiar', email: 'admin.ops@jssate.edu' },
+  { id: 'SUPER_ADMIN', label: 'Central Platform Administrator', name: 'Platform Administrator', email: 'platform.root@devloft.io' },
+];
 
 export const LoginPage: React.FC<LoginPageProps> = ({
   onLogin,
@@ -56,17 +43,23 @@ export const LoginPage: React.FC<LoginPageProps> = ({
   onOpenPublicVerify,
   initialTenantId = 't-1',
 }) => {
+  // Only two primary login options: Student or Staff
+  const [portalType, setPortalType] = useState<'student' | 'staff'>('student');
   const [selectedTenant, setSelectedTenant] = useState(initialTenantId);
 
-  // Form State
-  const [selectedFormRole, setSelectedFormRole] = useState<RoleType>('PRINCIPAL');
-  const [emailInput, setEmailInput] = useState(ROLE_DEFAULT_EMAILS['PRINCIPAL']);
-  const [passwordInput, setPasswordInput] = useState('••••••••••••');
+  // Student Form State
+  const [studentIdInput, setStudentIdInput] = useState('rohan.verma@student.jssate.edu');
+  const [studentPassword, setStudentPassword] = useState('••••••••••••');
+
+  // Staff Form State
+  const [selectedStaffRole, setSelectedStaffRole] = useState<RoleType>('PRINCIPAL');
+  const [staffEmailInput, setStaffEmailInput] = useState('principal@jssate.edu');
+  const [staffPassword, setStaffPassword] = useState('••••••••••••');
+
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // 2FA TOTP Modal State
+  // 2FA TOTP Modal State (for privileged staff)
   const [showTotpModal, setShowTotpModal] = useState(false);
   const [totpCode, setTotpCode] = useState('');
   const [totpError, setTotpError] = useState<string | null>(null);
@@ -77,7 +70,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
     tenantId: string;
   } | null>(null);
 
-  // Password Reset Modal State
+  // Forgot Password Modal State
   const [showForgotModal, setShowForgotModal] = useState(false);
   const [resetEmail, setResetEmail] = useState('');
   const [resetSuccessMessage, setResetSuccessMessage] = useState<string | null>(null);
@@ -90,9 +83,12 @@ export const LoginPage: React.FC<LoginPageProps> = ({
 
   const currentTenant = tenantDomains[selectedTenant] || tenantDomains['t-1'];
 
-  const handleRoleChange = (newRole: RoleType) => {
-    setSelectedFormRole(newRole);
-    setEmailInput(ROLE_DEFAULT_EMAILS[newRole] || '');
+  const handleStaffRoleSelect = (role: RoleType) => {
+    setSelectedStaffRole(role);
+    const matched = STAFF_ROLES.find((r) => r.id === role);
+    if (matched) {
+      setStaffEmailInput(matched.email);
+    }
   };
 
   const handleFormSubmit = (e: React.FormEvent) => {
@@ -101,35 +97,48 @@ export const LoginPage: React.FC<LoginPageProps> = ({
 
     setTimeout(() => {
       setIsSubmitting(false);
-      const name = ROLE_DISPLAY_NAMES[selectedFormRole] || 'Authorized User';
 
-      // Privileged roles require 2FA TOTP verification as per Page 9 of specification
-      const requires2FA = [
-        'PRINCIPAL',
-        'SUPER_ADMIN',
-        'INSTITUTION_ADMIN',
-        'ACCOUNTANT',
-        'HR_OFFICER',
-        'EXAM_CONTROLLER',
-      ].includes(selectedFormRole);
-
-      if (requires2FA) {
-        setPendingUser({
-          name,
-          email: emailInput,
-          role: selectedFormRole,
-          tenantId: selectedTenant,
-        });
-        setTotpCode('');
-        setTotpError(null);
-        setShowTotpModal(true);
-      } else {
+      if (portalType === 'student') {
+        // Direct student login
         onLogin({
-          name,
-          email: emailInput,
-          role: selectedFormRole,
+          name: 'Rohan Verma',
+          email: studentIdInput,
+          role: 'STUDENT',
           tenantId: selectedTenant,
         });
+      } else {
+        // Staff login
+        const matched = STAFF_ROLES.find((r) => r.id === selectedStaffRole);
+        const name = matched ? matched.name : 'Institutional Officer';
+
+        // Privileged roles require 2FA TOTP verification per specification
+        const requires2FA = [
+          'PRINCIPAL',
+          'SUPER_ADMIN',
+          'INSTITUTION_ADMIN',
+          'ACCOUNTANT',
+          'HR_OFFICER',
+          'EXAM_CONTROLLER',
+        ].includes(selectedStaffRole);
+
+        if (requires2FA) {
+          setPendingUser({
+            name,
+            email: staffEmailInput,
+            role: selectedStaffRole,
+            tenantId: selectedTenant,
+          });
+          setTotpCode('');
+          setTotpError(null);
+          setShowTotpModal(true);
+        } else {
+          onLogin({
+            name,
+            email: staffEmailInput,
+            role: selectedStaffRole,
+            tenantId: selectedTenant,
+          });
+        }
       }
     }, 400);
   };
@@ -159,182 +168,306 @@ export const LoginPage: React.FC<LoginPageProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF7F2] flex flex-col justify-between font-sans">
-      {/* Top Header with Institutional Brand & Tenant Subdomain Selector */}
-      <header className="border-b border-[#E5DFD7] bg-white px-6 py-4 shadow-2xs">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-[#682038] text-white flex items-center justify-center font-bold text-base shadow-xs">
-              D
+    <div className="min-h-screen bg-[#EDE7DD] flex items-center justify-center p-3 sm:p-6 lg:p-10 font-sans selection:bg-[#F5C443] selection:text-[#242424]">
+      {/* Outer Floating Rounded Container with soft shadow and bezel */}
+      <div className="max-w-5xl w-full bg-[#FAF7F0] rounded-[36px] border border-[#DDD5C7] shadow-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-12 min-h-[660px]">
+        {/* LEFT COLUMN: AUTHENTICATION FORM (Only Student or Staff) */}
+        <div className="lg:col-span-6 p-8 sm:p-10 xl:p-12 flex flex-col justify-between space-y-6">
+          {/* Top Row: Brand & Campus Subdomain Pill */}
+          <div className="flex items-center justify-between gap-2 flex-wrap">
+            <div className="px-4 py-1.5 rounded-full border border-[#D5CDC0] bg-white/80 text-xs font-bold text-[#4A4237] tracking-tight shadow-2xs">
+              Devloft Campus
             </div>
-            <div>
-              <div className="text-sm font-extrabold text-[#682038] tracking-tight leading-tight">
-                DEVLOFT CAMPUS MANAGEMENT SYSTEM
-              </div>
-              <div className="text-[11px] text-[#6E6862] flex items-center gap-2">
-                <span>PostgreSQL RLS</span>
-                <span>•</span>
-                <span>Secure Multi-Tenant Educational ERP • Edition 2026</span>
-              </div>
+
+            <div className="flex items-center gap-1.5 bg-[#F2EDE3] px-3 py-1.5 rounded-full border border-[#DDD5C7] text-xs">
+              <Building className="w-3.5 h-3.5 text-[#682038]" />
+              <select
+                value={selectedTenant}
+                onChange={(e) => setSelectedTenant(e.target.value)}
+                className="bg-transparent text-[11px] font-bold text-[#242424] focus:outline-none cursor-pointer pr-1"
+                aria-label="Select Campus Subdomain"
+              >
+                <option value="t-1">jssate.campus.edu</option>
+                <option value="t-2">jsscacs.campus.edu</option>
+                <option value="t-3">dit.campus.edu</option>
+              </select>
             </div>
           </div>
 
-          {/* Subdomain Switcher */}
-          <div className="flex items-center gap-2 bg-[#FAF7F2] p-1.5 rounded-xl border border-[#E5DFD7]">
-            <Building className="w-4 h-4 text-[#682038] ml-2" />
-            <span className="text-xs font-bold text-[#6E6862]">College Subdomain:</span>
-            <select
-              value={selectedTenant}
-              onChange={(e) => setSelectedTenant(e.target.value)}
-              className="bg-white border border-[#E5DFD7] rounded-lg px-2.5 py-1 text-xs font-bold text-[#242424] focus:outline-none cursor-pointer"
-            >
-              <option value="t-1">jssate.campus.edu (JSSATE Main Campus)</option>
-              <option value="t-2">jsscacs.campus.edu (JSSCACS Degree Wing)</option>
-              <option value="t-3">dit.campus.edu (Devloft Institute)</option>
-            </select>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Authentication Area */}
-      <main className="flex-1 flex flex-col justify-center max-w-xl w-full mx-auto px-4 py-8">
-        <div className="bg-white rounded-2xl border border-[#E5DFD7] p-8 shadow-sm space-y-6">
-          <div className="text-center space-y-2">
-            <div className="w-12 h-12 rounded-2xl bg-[#682038]/10 text-[#682038] flex items-center justify-center mx-auto mb-1">
-              <Lock className="w-6 h-6" />
-            </div>
-            <h1 className="text-2xl font-extrabold text-[#242424] tracking-tight">
-              Institutional Identity &amp; Access Gateway
-            </h1>
-            <p className="text-xs text-[#6E6862]">
-              Accessing <strong className="text-[#682038]">{currentTenant.name}</strong> under PostgreSQL Row-Level Security (<code className="font-mono text-[11px]">{currentTenant.domain}</code>).
+          {/* Form Header */}
+          <div className="space-y-1.5">
+            <h1 className="text-3xl font-extrabold text-[#242424] tracking-tight">Sign in</h1>
+            <p className="text-xs text-[#7A7267]">
+              Welcome to <strong className="text-[#682038]">{currentTenant.name}</strong>
             </p>
           </div>
 
-          {/* Institutional Credentials Form */}
-          <form onSubmit={handleFormSubmit} className="space-y-4">
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-[#242424]">Role Context</label>
-              <select
-                value={selectedFormRole}
-                onChange={(e) => handleRoleChange(e.target.value as RoleType)}
-                className="w-full text-xs p-2.5 rounded-xl border border-[#E5DFD7] bg-[#FAF7F2] font-semibold text-[#682038] focus:outline-none focus:ring-1 focus:ring-[#682038]"
-              >
-                <option value="PRINCIPAL">Principal / Director (Executive Oversight)</option>
-                <option value="STUDENT">Student (Self-Service Portal)</option>
-                <option value="PARENT">Parent / Guardian (Multi-Ward Hub)</option>
-                <option value="FACULTY">Faculty (Classroom &amp; Roster)</option>
-                <option value="ACCOUNTANT">Accountant / Bursar (Fees &amp; Ledgers)</option>
-                <option value="HR_OFFICER">HR Officer (Personnel &amp; Payroll)</option>
-                <option value="EXAM_CONTROLLER">Controller of Examinations (COE)</option>
-                <option value="REGISTRAR">Registrar (Admissions &amp; SIS)</option>
-                <option value="HOD">Department Head (HOD)</option>
-                <option value="INSTITUTION_ADMIN">Institution Administrator (Campus IT &amp; Ops)</option>
-                <option value="SUPER_ADMIN">Super Admin (Central Platform Root)</option>
-              </select>
-            </div>
+          {/* DUAL OPTIONS TOGGLE: STUDENT OR STAFF ONLY */}
+          <div className="bg-[#EBE5DA] p-1.5 rounded-full flex gap-1 border border-[#DDD5C7]">
+            <button
+              type="button"
+              onClick={() => setPortalType('student')}
+              className={`flex-1 py-2.5 rounded-full text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+                portalType === 'student'
+                  ? 'bg-white text-[#242424] shadow-sm font-extrabold'
+                  : 'text-[#6E6862] hover:text-[#242424]'
+              }`}
+            >
+              <GraduationCap className="w-4 h-4 text-[#2563EB]" />
+              <span>Student</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setPortalType('staff')}
+              className={`flex-1 py-2.5 rounded-full text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+                portalType === 'staff'
+                  ? 'bg-[#682038] text-white shadow-sm font-extrabold'
+                  : 'text-[#6E6862] hover:text-[#242424]'
+              }`}
+            >
+              <Shield className="w-4 h-4 text-[#F5C443]" />
+              <span>Staff</span>
+            </button>
+          </div>
 
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-[#242424]">Institutional Email / Username</label>
+          {/* CREDENTIALS FORM */}
+          <form onSubmit={handleFormSubmit} className="space-y-4">
+            {/* If Staff: Select Staff Role Context */}
+            {portalType === 'staff' && (
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-[#4A4237] ml-2">Staff Designation</label>
+                <div className="relative">
+                  <select
+                    value={selectedStaffRole}
+                    onChange={(e) => handleStaffRoleSelect(e.target.value as RoleType)}
+                    className="w-full px-5 py-3.5 rounded-full bg-[#F4EFE6] border border-[#DDD5C7] text-xs font-bold text-[#682038] focus:outline-none focus:ring-2 focus:ring-[#F5C443] cursor-pointer appearance-none"
+                  >
+                    {STAFF_ROLES.map((r) => (
+                      <option key={r.id} value={r.id}>
+                        {r.label} ({r.name})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            )}
+
+            {/* Email / ID Input */}
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-[#4A4237] ml-2">
+                {portalType === 'student' ? 'Student Email / Roll Number' : 'Institutional Email'}
+              </label>
               <div className="relative">
-                <Mail className="w-4 h-4 text-[#8B5E3C] absolute left-3 top-3" />
                 <input
                   type="text"
                   required
-                  value={emailInput}
-                  onChange={(e) => setEmailInput(e.target.value)}
-                  placeholder="e.g. principal@jssate.edu"
-                  className="w-full text-xs pl-9 pr-3 py-2.5 rounded-xl border border-[#E5DFD7] bg-[#FAF7F2] focus:outline-none focus:ring-1 focus:ring-[#682038]"
+                  value={portalType === 'student' ? studentIdInput : staffEmailInput}
+                  onChange={(e) =>
+                    portalType === 'student'
+                      ? setStudentIdInput(e.target.value)
+                      : setStaffEmailInput(e.target.value)
+                  }
+                  placeholder={
+                    portalType === 'student'
+                      ? 'e.g. rohan.verma@student.jssate.edu'
+                      : 'e.g. principal@jssate.edu'
+                  }
+                  className="w-full px-5 py-3.5 rounded-full bg-[#F4EFE6] border border-[#DDD5C7] text-xs text-[#242424] font-medium placeholder-[#A39B8F] focus:outline-none focus:ring-2 focus:ring-[#F5C443]"
                 />
               </div>
             </div>
 
-            <div className="space-y-1.5">
-              <div className="flex items-center justify-between">
-                <label className="text-xs font-bold text-[#242424]">Argon2 Password</label>
+            {/* Password Input */}
+            <div className="space-y-1">
+              <div className="flex items-center justify-between px-2">
+                <label className="text-xs font-bold text-[#4A4237]">Password</label>
                 <button
                   type="button"
                   onClick={() => setShowForgotModal(true)}
-                  className="text-[11px] text-[#682038] hover:underline font-semibold"
+                  className="text-[11px] text-[#7A7267] hover:text-[#682038] hover:underline font-semibold"
                 >
                   Forgot password?
                 </button>
               </div>
               <div className="relative">
-                <Lock className="w-4 h-4 text-[#8B5E3C] absolute left-3 top-3" />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   required
-                  value={passwordInput}
-                  onChange={(e) => setPasswordInput(e.target.value)}
-                  className="w-full text-xs pl-9 pr-10 py-2.5 rounded-xl border border-[#E5DFD7] bg-[#FAF7F2] focus:outline-none focus:ring-1 focus:ring-[#682038]"
+                  value={portalType === 'student' ? studentPassword : staffPassword}
+                  onChange={(e) =>
+                    portalType === 'student'
+                      ? setStudentPassword(e.target.value)
+                      : setStaffPassword(e.target.value)
+                  }
+                  placeholder="••••••••••••"
+                  className="w-full px-5 py-3.5 pr-12 rounded-full bg-[#F4EFE6] border border-[#DDD5C7] text-xs text-[#242424] font-medium placeholder-[#A39B8F] focus:outline-none focus:ring-2 focus:ring-[#F5C443]"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-3 text-[#6E6862] hover:text-[#242424]"
+                  className="absolute right-4 top-3.5 text-[#8A8175] hover:text-[#242424]"
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
             </div>
 
-            <div className="flex items-center justify-between text-xs">
-              <label className="flex items-center gap-2 cursor-pointer text-[#6E6862]">
-                <input
-                  type="checkbox"
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                  className="rounded border-[#E5DFD7] text-[#682038] focus:ring-[#682038]"
-                />
-                <span>Remember this device (HttpOnly Cookie)</span>
-              </label>
-              <span className="text-[11px] text-emerald-700 font-medium">SSL Encrypted</span>
-            </div>
-
+            {/* Submit Pill Button (matching gold pill button in reference image) */}
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full py-2.5 rounded-xl bg-[#682038] hover:bg-[#54192D] text-white text-xs font-bold shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full py-3.5 rounded-full bg-[#F5C443] hover:bg-[#E5B537] active:scale-[0.99] text-[#242424] font-bold text-xs shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer mt-2"
             >
-              <KeyRound className="w-4 h-4" />
-              <span>{isSubmitting ? 'Authenticating...' : 'Sign In to Campus Workspace'}</span>
+              <span>{isSubmitting ? 'Authenticating...' : 'Submit'}</span>
             </button>
           </form>
 
-          {/* Public Gateways (Spec Page 4: No Login Required) */}
-          <div className="pt-4 border-t border-[#E5DFD7] space-y-2.5">
-            <div className="text-[11px] font-bold text-[#6E6862] uppercase tracking-wider text-center">
-              Public Gateways (No Login Required)
+          {/* Secondary Pill Buttons: Public Gateways (matching Apple / Google pill buttons in reference image) */}
+          <div className="pt-2 border-t border-[#DDD5C7] space-y-2">
+            <div className="text-[10px] font-bold text-[#8A8175] text-center uppercase tracking-wider">
+              Public Institutional Gateways
             </div>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-2.5">
               <button
                 type="button"
                 onClick={onOpenPublicApply}
-                className="flex items-center justify-center gap-1.5 p-2 rounded-xl bg-[#FAF7F2] hover:bg-[#F4ECE2] border border-[#E5DFD7] text-xs font-bold text-[#682038] transition-colors"
+                className="flex items-center justify-center gap-2 py-3 px-3 rounded-full border border-[#DDD5C7] bg-[#F7F3EB] hover:bg-[#EFE9DF] text-[11px] font-bold text-[#4A4237] transition-all"
               >
                 <FileCheck className="w-3.5 h-3.5 text-[#682038]" />
-                <span>Online Admission Form</span>
+                <span className="truncate">Admissions Apply</span>
               </button>
               <button
                 type="button"
                 onClick={onOpenPublicVerify}
-                className="flex items-center justify-center gap-1.5 p-2 rounded-xl bg-[#FAF7F2] hover:bg-[#F4ECE2] border border-[#E5DFD7] text-xs font-bold text-[#682038] transition-colors"
+                className="flex items-center justify-center gap-2 py-3 px-3 rounded-full border border-[#DDD5C7] bg-[#F7F3EB] hover:bg-[#EFE9DF] text-[11px] font-bold text-[#4A4237] transition-all"
               >
                 <Search className="w-3.5 h-3.5 text-[#16A34A]" />
-                <span>Verify Certificate / QR</span>
+                <span className="truncate">Verify QR / Cert</span>
               </button>
             </div>
           </div>
+
+          {/* Footer note */}
+          <div className="flex items-center justify-between text-[11px] text-[#8A8175] pt-1">
+            <span>Zero-SMS Cost Policy: Active</span>
+            <span className="hover:underline cursor-pointer">Terms &amp; Security</span>
+          </div>
         </div>
-      </main>
+
+        {/* RIGHT COLUMN: HERO VISUAL PANEL WITH FLOATING WIDGETS (matching reference image) */}
+        <div className="hidden lg:flex lg:col-span-6 m-3.5 rounded-[28px] overflow-hidden relative flex-col justify-between p-7 bg-slate-900 shadow-inner">
+          {/* Background Photography (collaborative campus / study atmosphere) */}
+          <img
+            src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1200&q=80"
+            alt="Campus students collaborating"
+            className="absolute inset-0 w-full h-full object-cover object-center filter brightness-[0.88]"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
+
+          {/* Floating Element 1: Top Yellow Pill & Close Button */}
+          <div className="relative z-10 flex items-start justify-between">
+            <div className="bg-[#F5C443] text-[#242424] px-4 py-2 rounded-2xl shadow-lg flex items-center justify-between gap-3 text-xs font-bold">
+              <div>
+                <div className="leading-tight">Task Review With Team</div>
+                <div className="text-[10px] font-normal text-[#4A3D18]">09:30am - 10:00am</div>
+              </div>
+              <span className="w-2 h-2 rounded-full bg-[#242424] shrink-0" />
+            </div>
+
+            <div className="w-9 h-9 rounded-full bg-white/80 hover:bg-white text-[#242424] flex items-center justify-center shadow-md cursor-pointer transition-colors backdrop-blur-xs">
+              <X className="w-4 h-4" />
+            </div>
+          </div>
+
+          {/* Overlapping Floating Student Avatar Bubbles (matching reference image) */}
+          <div className="absolute right-8 top-1/3 z-10 flex flex-col items-center gap-1.5">
+            <div className="w-12 h-12 rounded-full border-2 border-white overflow-hidden shadow-lg -mb-2">
+              <img
+                src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80"
+                alt="Pupil"
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div className="flex gap-1">
+              <div className="w-10 h-10 rounded-full border-2 border-white overflow-hidden shadow-lg">
+                <img
+                  src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=150&q=80"
+                  alt="Pupil"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="w-9 h-9 rounded-full border-2 border-white overflow-hidden shadow-lg">
+                <img
+                  src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=150&q=80"
+                  alt="Pupil"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Floating Element 2 & 3: Calendar Strip & Roster Card at Bottom */}
+          <div className="relative z-10 space-y-3">
+            {/* Frosted Glass Weekly Calendar Strip */}
+            <div className="bg-white/20 backdrop-blur-md border border-white/30 rounded-2xl p-3.5 text-white shadow-xl max-w-sm">
+              <div className="grid grid-cols-7 text-center text-[10px] uppercase font-bold text-white/80 mb-1">
+                <span>Sun</span>
+                <span>Mon</span>
+                <span>Tue</span>
+                <span className="text-[#F5C443]">Wed</span>
+                <span>Thu</span>
+                <span>Fri</span>
+                <span>Sat</span>
+              </div>
+              <div className="grid grid-cols-7 text-center text-sm font-extrabold text-white">
+                <span>22</span>
+                <span>23</span>
+                <span>24</span>
+                <span className="text-[#F5C443] relative">
+                  25
+                  <span className="w-1 h-1 rounded-full bg-[#F5C443] absolute -bottom-1 left-1/2 -translate-x-1/2" />
+                </span>
+                <span>26</span>
+                <span>27</span>
+                <span>28</span>
+              </div>
+            </div>
+
+            {/* Bottom White Floating Card: Daily Meeting / Class Roster with Avatar Stack */}
+            <div className="bg-white rounded-2xl p-4 shadow-xl max-w-xs flex items-center justify-between">
+              <div>
+                <div className="text-xs font-bold text-[#242424] flex items-center gap-1.5">
+                  <span>Daily Lecture Roster</span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#F5C443]" />
+                </div>
+                <div className="text-[10px] text-[#7A7267] font-medium">12:00pm - 01:00pm • LH-302</div>
+                <div className="flex -space-x-1.5 mt-2">
+                  <div className="w-5 h-5 rounded-full bg-[#682038] text-white text-[8px] font-bold flex items-center justify-center border border-white">
+                    RV
+                  </div>
+                  <div className="w-5 h-5 rounded-full bg-[#2563EB] text-white text-[8px] font-bold flex items-center justify-center border border-white">
+                    AS
+                  </div>
+                  <div className="w-5 h-5 rounded-full bg-[#16A34A] text-white text-[8px] font-bold flex items-center justify-center border border-white">
+                    DP
+                  </div>
+                  <div className="w-5 h-5 rounded-full bg-[#F5C443] text-[#242424] text-[8px] font-bold flex items-center justify-center border border-white">
+                    +4
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* 2FA TOTP Verification Modal */}
       {showTotpModal && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl border border-[#E5DFD7] p-6 max-w-md w-full shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
+          <div className="bg-white rounded-3xl border border-[#E5DFD7] p-7 max-w-md w-full shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-[#682038]/10 text-[#682038] flex items-center justify-center shrink-0">
+              <div className="w-10 h-10 rounded-2xl bg-[#682038]/10 text-[#682038] flex items-center justify-center shrink-0">
                 <Shield className="w-5 h-5" />
               </div>
               <div>
@@ -365,7 +498,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
                   value={totpCode}
                   onChange={(e) => setTotpCode(e.target.value.replace(/\D/g, ''))}
                   placeholder="• • • • • •"
-                  className="w-full text-center tracking-[0.5em] font-mono text-xl py-3 rounded-xl border border-[#E5DFD7] bg-[#FAF7F2] font-bold text-[#242424] focus:outline-none focus:ring-2 focus:ring-[#682038]"
+                  className="w-full text-center tracking-[0.5em] font-mono text-xl py-3 rounded-full border border-[#DDD5C7] bg-[#F5F2EC] font-bold text-[#242424] focus:outline-none focus:ring-2 focus:ring-[#F5C443]"
                 />
               </div>
 
@@ -373,13 +506,13 @@ export const LoginPage: React.FC<LoginPageProps> = ({
                 <button
                   type="button"
                   onClick={() => setShowTotpModal(false)}
-                  className="px-4 py-2 rounded-xl text-xs font-semibold text-[#6E6862] hover:bg-[#F4ECE2]"
+                  className="px-5 py-2.5 rounded-full text-xs font-semibold text-[#6E6862] hover:bg-[#F4ECE2]"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-xl bg-[#682038] hover:bg-[#54192D] text-white text-xs font-bold shadow-xs flex items-center gap-1.5"
+                  className="px-5 py-2.5 rounded-full bg-[#F5C443] hover:bg-[#E5B537] text-[#242424] text-xs font-bold shadow-xs flex items-center gap-1.5"
                 >
                   <KeyRound className="w-3.5 h-3.5" />
                   <span>Verify &amp; Enter Workspace</span>
@@ -393,9 +526,9 @@ export const LoginPage: React.FC<LoginPageProps> = ({
       {/* Forgot Password Modal */}
       {showForgotModal && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl border border-[#E5DFD7] p-6 max-w-md w-full shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
+          <div className="bg-white rounded-3xl border border-[#E5DFD7] p-7 max-w-md w-full shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-[#682038]/10 text-[#682038] flex items-center justify-center shrink-0">
+              <div className="w-10 h-10 rounded-2xl bg-[#682038]/10 text-[#682038] flex items-center justify-center shrink-0">
                 <Mail className="w-5 h-5" />
               </div>
               <div>
@@ -419,7 +552,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
                     value={resetEmail}
                     onChange={(e) => setResetEmail(e.target.value)}
                     placeholder="e.g. employee@jssate.edu"
-                    className="w-full text-xs p-2.5 rounded-xl border border-[#E5DFD7] bg-[#FAF7F2] focus:outline-none focus:ring-1 focus:ring-[#682038]"
+                    className="w-full text-xs px-4 py-3 rounded-full border border-[#DDD5C7] bg-[#F5F2EC] focus:outline-none focus:ring-2 focus:ring-[#F5C443]"
                   />
                 </div>
 
@@ -427,13 +560,13 @@ export const LoginPage: React.FC<LoginPageProps> = ({
                   <button
                     type="button"
                     onClick={() => setShowForgotModal(false)}
-                    className="px-4 py-2 rounded-xl text-xs font-semibold text-[#6E6862] hover:bg-[#F4ECE2]"
+                    className="px-5 py-2.5 rounded-full text-xs font-semibold text-[#6E6862] hover:bg-[#F4ECE2]"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="px-4 py-2 rounded-xl bg-[#682038] hover:bg-[#54192D] text-white text-xs font-bold shadow-xs"
+                    className="px-5 py-2.5 rounded-full bg-[#F5C443] hover:bg-[#E5B537] text-[#242424] text-xs font-bold shadow-xs"
                   >
                     Send Reset Link
                   </button>
@@ -443,18 +576,6 @@ export const LoginPage: React.FC<LoginPageProps> = ({
           </div>
         </div>
       )}
-
-      {/* Institutional Legal & Security Footer */}
-      <footer className="border-t border-[#E5DFD7] bg-white px-6 py-4 text-xs text-[#6E6862]">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
-          <div>© 2026 Devloft Technologies • JSS School Campus Management System • Version 1.0 (Locked)</div>
-          <div className="flex items-center gap-4 text-[11px]">
-            <span className="text-[#682038] font-semibold">Zero-SMS Policy: Push &amp; SMTP Only</span>
-            <span>•</span>
-            <span className="text-emerald-700 font-medium">PostgreSQL 16+ RLS: Active</span>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 };
