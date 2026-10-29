@@ -413,6 +413,65 @@ This document chronicles the fundamental engineering and product decisions made 
 
 ---
 
+### [ADR-030] Production Dual-Toggle Authentication & Privileged 2FA TOTP Security Enclave
+- **Classification:** Security & Access Control (SEC / ARCH)
+- **Status:** Approved & Implemented
+- **Decision Owner:** Stakeholder & Engineering Collaboration
+- **Context:** Educational ERP platforms serve dual operational contexts: developer/demo evaluations requiring rapid role traversal without credential friction, and live institutional deployments where administrative and financial accounts must be safeguarded against unauthorized access, credential stuffing, and session hijacking.
+- **Decision:** Implemented a production dual-mode authentication gateway (`apps/web/src/components/LoginPage.tsx`):
+  1. **Sandbox / Quick Role Switcher:** Provides 1-click credential-free instant login for evaluator role traversal across all 11 system personas.
+  2. **Institutional Secure Portal:** Requires verified institutional username/password credentials mapped directly to the active staff and student directories.
+  3. **Privileged 2FA TOTP Security Enclave (`TotpVerificationModal.tsx`):** For privileged administrative roles (`SUPER_ADMIN`, `CAMPUS_DIRECTOR`, `BURSAR`, `REGISTRAR`), enforces a mandatory secondary 6-digit Time-Based One-Time Password (TOTP) challenge before issuing elevated session tokens.
+- **Rationale:** Balances rapid developer evaluation agility with enterprise-grade multi-factor security for sensitive fiscal and student data operations.
+
+---
+
+### [ADR-031] Staff Credential Provisioning Desk & Executive Role Succession Handover Workflow
+- **Classification:** Functional & Governance (FUNC / GOV)
+- **Status:** Approved & Implemented
+- **Decision Owner:** Stakeholder Directive & Engineering Lead
+- **Context:** Educational institutions undergo frequent faculty onboarding and periodic leadership turnover. Standard ERP systems suffer from two major operational failures: (1) manual credential distribution creating delays and lost passwords, and (2) single-incumbent executive positions (e.g., Principal, Bursar, Registrar, Placement Officer, Chief Librarian) accidentally having multiple active holders or orphaned approval workflows when one individual leaves and another assumes the post.
+- **Decision:** Implemented an automated staff provisioning and role succession system (`apps/web/src/services/staffDirectory.ts` and `apps/web/src/features/hr/HrPayrollWorkspace.tsx`):
+  1. **Onboarding Desk & Welcome Slip Generator:** Automates `@campus.edu` email provisioning, generates secure temporary credentials, maps baseline RBAC privileges, and produces printable PDF-ready institutional credential memos.
+  2. **Executive Role Succession Handover Engine:** Strictly enforces single-incumbency for leadership roles. When an executive position is reassigned, the system detects the incumbent, records transition grounds (Superannuation, Resignation, Board Reassignment), transitions the predecessor to emeritus/deputation status, invalidates old privileged sessions, transfers all pending signature and approval queues to the successor, and generates a tamper-evident, non-repudiable audit handover log with dual digital sign-offs.
+  3. **Dynamic Auth Directory Binding:** Automatically connects newly provisioned and successor accounts into the active login directory for immediate authentication.
+- **Rationale:** Guarantees statutory governance continuity, eliminates orphaned approval queues, prevents duplicate executive seats, and maintains an immutable audit trail for university inspection committees.
+
+---
+
+### [ADR-032] Institutional White-Labeling & UI Brand Hygiene
+- **Classification:** UI/UX & Brand Governance (UX / GOV)
+- **Status:** Approved & Implemented
+- **Decision Owner:** Stakeholder Directive
+- **Context:** Deploying institutional ERP software with third-party software vendor branding across operational screens weakens institution credibility, confuses faculty and students, and creates vendor lock-in perception. Furthermore, developer-centric diagnostic tools (such as the "S3 Presign" testing button on the global header) cluttered the primary user experience.
+- **Decision:** Enacted strict institutional white-labeling and UI hygiene:
+  1. **Operational Workspace Sanitization:** Removed all non-login occurrences of "Devloft", standardizing on institutional naming (`CAMPUS ERP`, `Central Campus Directorate`, `Academy College of Engineering & Technology`).
+  2. **Restricted Vendor Branding Enclave:** Vendor branding is strictly and exclusively confined to the gateway entry badge (`Devloft CMS`) on `LoginPage.tsx`, accompanied by standardized consumer-facing onboarding copy (`"Don't Have any account? Sign up"`).
+  3. **Header Clutter Elimination:** Permanently removed developer test actions (`S3 Presign` button) from the global navigation bar (`apps/web/src/components/Navbar.tsx`) in favor of automated in-band presigned upload handshakes.
+- **Rationale:** Elevates institutional branding authority, provides white-label readiness for university licensing, and ensures a clean, distraction-free operational interface for staff and students.
+
+---
+
+### [ADR-033] Higher-Education Operational Workspaces Expansion: Training & Placement Cell (T&P) and Library LMS / OPAC
+- **Classification:** Functional Domain & Accreditation (FUNC / ACCRED)
+- **Status:** Approved & Implemented
+- **Decision Owner:** Stakeholder Directive & Engineering Lead
+- **Context:** Complete university ERP coverage requires native support for two mission-critical institutional operations: (1) Campus Placement tracking essential for NIRF Parameter 3 (Graduation Outcomes) and NBA criteria, and (2) Library resource management with Dewey Decimal cataloging, RFID circulation, and digital repository link-outs required by NAAC Criterion IV.
+- **Decision:** Designed, developed, and mounted two dedicated enterprise workspaces:
+  1. **Training & Placement Cell (`PlacementWorkspace.tsx`):**
+     - Drives catalog tracking active recruiters, eligibility criteria, CTC packages, and interview schedules.
+     - Interactive 6-stage candidate selection pipeline stepper (Applied $\rightarrow$ Aptitude $\rightarrow$ Tech Interview $\rightarrow$ HR $\rightarrow$ Offered $\rightarrow$ Accepted).
+     - Internship, PPO registry, and automated NIRF Parameter 3 placement statistic computation (median package, placement %, tier-1 recruitment ratios).
+  2. **Library & Information Center (`LibraryWorkspace.tsx`):**
+     - Dewey Decimal Classification (DDC) & MARC-21 compliant OPAC catalog search with shelf location mapping.
+     - RFID circulation desk with one-click issue/return scanning and automated ₹5/day overdue fine calculation.
+     - Integrated digital e-resource links to subscribed databases (IEEE Xplore, ScienceDirect, SpringerLink).
+     - Real-time biometric turnstile reading room footfall telemetry.
+     Wired into root navigation, breadcrumbs, and permission matrices.
+- **Rationale:** Completes end-to-end college ERP operational scope, directly feeding accreditation compliance datasets for NIRF and NAAC reviews.
+
+---
+
 ## 6. Comprehensive Decision Summary Matrix
 
 | ID | Decision Title | Category | Status | Primary Rationale & Impact |
@@ -446,3 +505,7 @@ This document chronicles the fundamental engineering and product decisions made 
 | **ADR-027** | Full In-House Implementation of All 8 Modules | STRAT/ARCH | Implemented | Direct delivery of complete 8-module higher-ed suite (Attendance, HR, Comm, Reports) in apps/web. |
 | **ADR-028** | Decoupled Modular Monolith Backend API in NestJS | ARCH/FUNC | Implemented | NestJS Fastify backend API layer with 8 domain modules, RLS tenancy, BullMQ queues & Swagger. |
 | **ADR-029** | Quota Matrix, DigiLocker & 78% Warning Radar | FUNC/STAT | Implemented | Statutory reservation seat matrix, NAD degree push & early parent attendance buffer guard. |
+| **ADR-030** | Production Dual-Toggle Auth & 2FA TOTP Enclave | SEC/ARCH | Implemented | 1-click evaluator sandbox toggle + mandatory 6-digit TOTP challenge for privileged admin roles. |
+| **ADR-031** | Staff Credential Provisioning & Role Succession | FUNC/GOV | Implemented | Auto @campus.edu onboarding slips + single-incumbent executive handover workflow with audit log. |
+| **ADR-032** | Institutional White-Labeling & UI Brand Hygiene | UX/GOV | Implemented | Standardized on CAMPUS ERP; vendor brand confined to login badge; purged diagnostic header buttons. |
+| **ADR-033** | Higher-Ed Expansion: Placement (T&P) & Library OPAC | FUNC/ACCRED | Implemented | 6-stage placement recruitment pipeline + DDC/MARC-21 OPAC catalog with RFID circulation desk. |
