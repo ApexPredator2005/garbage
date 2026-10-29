@@ -170,405 +170,357 @@ export const LoginPage: React.FC<LoginPageProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF7F2] text-[#242424] antialiased flex flex-col justify-between selection:bg-[#682038] selection:text-white relative font-sans overflow-hidden">
-      {/* Atmospheric Glowing Ambient Aura Blobs (Creating the slightly blurry transparent frosted depth) */}
-      <div className="absolute top-12 left-1/4 -translate-x-1/2 w-[520px] h-[520px] rounded-full bg-gradient-to-tr from-[#F5C443]/25 to-[#E5B537]/15 blur-[120px] pointer-events-none -z-0" />
-      <div className="absolute bottom-12 right-1/4 translate-x-1/3 w-[580px] h-[580px] rounded-full bg-gradient-to-bl from-[#682038]/20 to-[#8B5E3C]/15 blur-[140px] pointer-events-none -z-0" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[680px] h-[440px] rounded-full bg-[#E7DCCB]/35 blur-[130px] pointer-events-none -z-0" />
+    <div className="min-h-screen bg-gradient-to-br from-[#DFE3E6] via-[#EAE6DF] to-[#FBE7A8] p-3 sm:p-6 lg:p-10 flex items-center justify-center font-sans relative overflow-hidden selection:bg-[#682038] selection:text-white">
+      {/* Atmospheric Soft Light Aura behind Card */}
+      <div className="absolute top-1/4 left-1/3 w-[500px] h-[500px] rounded-full bg-white/40 blur-[130px] pointer-events-none -z-0" />
+      <div className="absolute bottom-10 right-10 w-[550px] h-[550px] rounded-full bg-[#F5C443]/25 blur-[140px] pointer-events-none -z-0" />
 
-      {/* Subtle Top Atmospheric Brand Ribbon */}
-      <header className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between text-xs text-[#6E6862] z-10">
-        <div className="flex items-center gap-3">
-          <div className="w-7 h-7 rounded-full bg-[#682038] flex items-center justify-center text-white text-[11px] font-bold shadow-xs">
-            JS
-          </div>
-          <span className="text-sm font-bold tracking-tight text-[#682038]">
-            JSSATE Academic Portal
-          </span>
-          <span className="hidden md:inline-block w-1 h-1 rounded-full bg-[#E5DFD7]" />
-          <span className="hidden md:inline-block text-[11px] font-mono tracking-wider text-[#8B5E3C] uppercase">
-            Collegiate ERP v4.8
-          </span>
-        </div>
+      {/* Main Floating Card Container (Directly modeled on the reference image) */}
+      <div className="w-full max-w-6xl bg-[#FAF8F5]/92 backdrop-blur-2xl rounded-[40px] border border-white/80 shadow-[0_30px_70px_-15px_rgba(30,20,10,0.15)] p-5 sm:p-8 lg:p-10 relative overflow-hidden z-10">
+        {/* Top Right Floating Close Button (Matching circle close button in reference) */}
+        <button
+          type="button"
+          aria-label="Close portal window"
+          className="absolute top-6 right-6 z-30 w-10 h-10 rounded-full bg-white/85 hover:bg-white border border-[#E2DDD5] backdrop-blur-md flex items-center justify-center text-[#242424] hover:text-[#682038] transition-all duration-200 active:scale-95 shadow-sm cursor-pointer"
+        >
+          <X className="w-4 h-4 stroke-[1.5]" />
+        </button>
 
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-1.5 text-xs text-[#242424]">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="font-medium">SSL Encrypted Session</span>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Canvas / Central Floating Translucent Card */}
-      <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-center flex-1 z-10">
-        <div className="w-full max-w-6xl mx-auto rounded-[36px] border border-white/60 bg-white/65 backdrop-blur-2xl shadow-[0_24px_70px_-15px_rgba(40,25,20,0.12)] overflow-hidden relative ring-1 ring-[#682038]/5">
-          {/* Top Right Floating Frosted Close Button */}
-          <button
-            type="button"
-            aria-label="Close portal window"
-            className="absolute top-5 right-5 z-30 w-10 h-10 rounded-full bg-white/40 hover:bg-white/80 border border-white/60 backdrop-blur-xl flex items-center justify-center text-[#242424] hover:text-[#682038] transition-all duration-200 active:scale-95 shadow-md cursor-pointer"
-          >
-            <X className="w-4 h-4" />
-          </button>
-
-          {/* 2-Column Split Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 min-h-[640px]">
-            {/* LEFT COLUMN: Form & Institutional Authentication (6 Cols) */}
-            <div className="lg:col-span-6 p-6 sm:p-10 md:p-12 flex flex-col justify-between space-y-6 bg-white/40 backdrop-blur-xl border-r border-[#E7DCCB]/40">
-              <div>
-                {/* Top Badges Cluster */}
-                <div className="flex flex-wrap items-center gap-2.5 mb-6">
-                  {/* Oval Pill Badge: Devloft Campus */}
-                  <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#682038]/90 backdrop-blur-md text-white text-[11px] font-bold shadow-xs tracking-wide border border-white/20">
-                    <Sparkles className="w-3.5 h-3.5 text-[#F5C443]" />
-                    <span>Devloft Campus</span>
-                  </span>
-
-                  {/* Subdomain Pill with Server Indicator */}
-                  <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/60 backdrop-blur-md border border-white/80 text-[#242424] text-[11px] font-bold shadow-2xs">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                    <select
-                      value={selectedTenant}
-                      onChange={(e) => setSelectedTenant(e.target.value)}
-                      className="bg-transparent text-[11px] font-bold text-[#682038] focus:outline-none cursor-pointer pr-1"
-                      aria-label="Campus Subdomain"
-                    >
-                      <option value="t-1">jssate.campus.edu</option>
-                      <option value="t-2">jsscacs.campus.edu</option>
-                      <option value="t-3">dit.campus.edu</option>
-                    </select>
-                  </div>
-                </div>
-
-                {/* Typography & Welcome Header */}
-                <div className="mb-6">
-                  <h1 className="text-4xl font-extrabold tracking-tight text-[#242424] leading-tight mb-1.5">
-                    Sign in
-                  </h1>
-                  <p className="text-xs text-[#6E6862]">
-                    Welcome to <strong className="text-[#682038]">{currentTenant.name}</strong>
-                  </p>
-                </div>
-
-                {/* SEGMENTED DUAL ROLE TOGGLE (STRICTLY STUDENT OR STAFF ONLY) */}
-                <div className="relative bg-black/[0.04] backdrop-blur-md p-1 rounded-full flex items-center mb-6 max-w-xs border border-white/60 shadow-inner">
-                  <button
-                    type="button"
-                    onClick={() => setPortalType('student')}
-                    className={`relative z-10 w-1/2 py-2 text-center text-xs font-bold transition-all rounded-full flex items-center justify-center gap-1.5 ${
-                      portalType === 'student'
-                        ? 'bg-[#682038] text-white shadow-md'
-                        : 'text-[#6E6862] hover:text-[#242424] hover:bg-white/40'
-                    }`}
-                  >
-                    <GraduationCap className="w-4 h-4 text-[#F5C443]" />
-                    <span>Student</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setPortalType('staff')}
-                    className={`relative z-10 w-1/2 py-2 text-center text-xs font-bold transition-all rounded-full flex items-center justify-center gap-1.5 ${
-                      portalType === 'staff'
-                        ? 'bg-[#682038] text-white shadow-md'
-                        : 'text-[#6E6862] hover:text-[#242424] hover:bg-white/40'
-                    }`}
-                  >
-                    <Shield className="w-4 h-4 text-[#F5C443]" />
-                    <span>Staff</span>
-                  </button>
-                </div>
-
-                {/* Authentication Form */}
-                <form onSubmit={handleFormSubmit} className="space-y-4">
-                  {/* Dynamic Identity Field (Student vs Staff) */}
-                  <div className="space-y-1">
-                    <label className="block text-xs font-bold text-[#242424] ml-2">
-                      {portalType === 'student' ? 'Student Email / Roll Number' : 'Staff ID / Official Institutional Email'}
-                    </label>
-                    <div className="relative flex items-center">
-                      <Mail className="w-4 h-4 absolute left-4 text-[#8B5E3C] pointer-events-none" />
-                      <input
-                        type="text"
-                        required
-                        value={portalType === 'student' ? studentIdInput : staffEmailInput}
-                        onChange={(e) =>
-                          portalType === 'student'
-                            ? setStudentIdInput(e.target.value)
-                            : setStaffEmailInput(e.target.value)
-                        }
-                        placeholder={
-                          portalType === 'student'
-                            ? 'e.g. rohan.verma@student.jssate.edu'
-                            : 'e.g. principal@jssate.edu'
-                        }
-                        className="w-full pl-11 pr-4 py-3 rounded-full bg-white/60 backdrop-blur-md border border-white/80 text-[#242424] text-xs font-medium placeholder-[#8B857E] focus:outline-none focus:bg-white/90 focus:border-[#682038] focus:ring-2 focus:ring-[#F5C443]/40 transition-all shadow-2xs"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Staff Designation Selector (Reveals dynamically when Staff is active) */}
-                  {portalType === 'staff' && (
-                    <div className="space-y-1 animate-in fade-in duration-200">
-                      <label className="block text-xs font-bold text-[#242424] ml-2">
-                        Executive Designation
-                      </label>
-                      <div className="relative flex items-center">
-                        <Building className="w-4 h-4 absolute left-4 text-[#8B5E3C] pointer-events-none" />
-                        <select
-                          value={selectedStaffRole}
-                          onChange={(e) => handleStaffRoleSelect(e.target.value as RoleType)}
-                          className="w-full pl-11 pr-10 py-3 rounded-full bg-white/60 backdrop-blur-md border border-white/80 text-[#682038] text-xs font-bold focus:outline-none focus:bg-white/90 focus:border-[#682038] focus:ring-2 focus:ring-[#F5C443]/40 appearance-none transition-all shadow-2xs cursor-pointer"
-                        >
-                          {STAFF_ROLES.map((r) => (
-                            <option key={r.id} value={r.id}>
-                              {r.label} ({r.name})
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Password Input with Trailing Reveal Toggle */}
-                  <div className="space-y-1">
-                    <label className="block text-xs font-bold text-[#242424] ml-2">
-                      Password
-                    </label>
-                    <div className="relative flex items-center">
-                      <Lock className="w-4 h-4 absolute left-4 text-[#8B5E3C] pointer-events-none" />
-                      <input
-                        type={showPassword ? 'text' : 'password'}
-                        required
-                        value={portalType === 'student' ? studentPassword : staffPassword}
-                        onChange={(e) =>
-                          portalType === 'student'
-                            ? setStudentPassword(e.target.value)
-                            : setStaffPassword(e.target.value)
-                        }
-                        placeholder="••••••••••••"
-                        className="w-full pl-11 pr-12 py-3 rounded-full bg-white/60 backdrop-blur-md border border-white/80 text-[#242424] text-xs font-medium placeholder-[#8B857E] focus:outline-none focus:bg-white/90 focus:border-[#682038] focus:ring-2 focus:ring-[#F5C443]/40 transition-all shadow-2xs"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-4 text-[#8B857E] hover:text-[#242424] focus:outline-none p-1 transition-colors"
-                        aria-label={showPassword ? 'Hide password' : 'Show password'}
-                      >
-                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Remember Me & Forgot Password Row */}
-                  <div className="flex items-center justify-between px-2 pt-1">
-                    <label className="flex items-center gap-2 cursor-pointer select-none text-xs text-[#6E6862]">
-                      <input
-                        type="checkbox"
-                        defaultChecked
-                        className="w-4 h-4 rounded-[6px] border border-white/80 bg-white/60 text-[#682038] focus:ring-[#F5C443] transition-colors cursor-pointer"
-                      />
-                      <span>Remember identifier</span>
-                    </label>
-                    <button
-                      type="button"
-                      onClick={() => setShowForgotModal(true)}
-                      className="text-xs text-[#682038] hover:underline font-semibold cursor-pointer"
-                    >
-                      Forgot password?
-                    </button>
-                  </div>
-
-                  {/* Primary Submit Button: Rich Amber Pill (Matching reference image) */}
-                  <div className="pt-2">
-                    <button
-                      type="submit"
-                      disabled={isSubmitting}
-                      className="w-full py-3.5 px-6 rounded-full bg-[#F5C443] hover:bg-[#E5B537] active:scale-[0.99] text-[#242424] font-bold text-xs shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
-                    >
-                      <span>
-                        {isSubmitting
-                          ? 'Verifying Credentials...'
-                          : portalType === 'student'
-                          ? 'Enter Portal →'
-                          : 'Authenticate Staff Portal →'}
-                      </span>
-                    </button>
-                  </div>
-                </form>
-
-                {/* Secondary Actions Row: Public Gateways (Matching Apple / Google pills in reference) */}
-                <div className="mt-5 pt-4 border-t border-[#E7DCCB]/60 grid grid-cols-2 gap-3">
-                  <button
-                    type="button"
-                    onClick={onOpenPublicApply}
-                    className="w-full py-2.5 px-4 rounded-full border border-white/70 hover:border-[#682038]/40 bg-white/50 hover:bg-white/80 backdrop-blur-md text-[#682038] font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-2xs cursor-pointer"
-                  >
-                    <FileCheck className="w-3.5 h-3.5 text-[#682038]" />
-                    <span className="truncate">Admissions Apply</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={onOpenPublicVerify}
-                    className="w-full py-2.5 px-4 rounded-full border border-white/70 hover:border-[#682038]/40 bg-white/50 hover:bg-white/80 backdrop-blur-md text-[#242424] font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-2xs cursor-pointer"
-                  >
-                    <Search className="w-3.5 h-3.5 text-[#16A34A]" />
-                    <span className="truncate">Verify QR / Cert</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Academic Footer Authentication Guarantee */}
-              <div className="pt-4 border-t border-[#E7DCCB]/60 flex flex-wrap items-center justify-between text-[11px] text-[#7E7972] gap-2">
-                <div className="flex items-center gap-1.5">
-                  <Shield className="w-3.5 h-3.5 text-[#682038]" />
-                  <span>ISO 27001 Institutional Vault</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className="hover:text-[#682038] cursor-pointer">Zero-SMS Policy</span>
-                  <span>•</span>
-                  <span className="hover:text-[#682038] cursor-pointer">Privacy &amp; Governance</span>
-                </div>
+        {/* 2-Column Split Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+          {/* LEFT COLUMN: Authentication Form (6 Columns) */}
+          <div className="lg:col-span-6 flex flex-col justify-between min-h-[580px] pr-0 lg:pr-4">
+            {/* Top Brand Pill (Matching the Crextio pill badge) */}
+            <div className="flex items-center justify-between">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#D5CDC0] bg-white/90 text-xs text-[#242424] shadow-2xs">
+                <span className="w-2 h-2 rounded-full bg-[#682038]" />
+                <span className="font-bold text-[#682038]">Devloft Campus</span>
+                <span className="text-[#8B8276]">•</span>
+                <select
+                  value={selectedTenant}
+                  onChange={(e) => setSelectedTenant(e.target.value)}
+                  className="bg-transparent text-[11px] font-semibold text-[#242424] focus:outline-none cursor-pointer pr-1"
+                  aria-label="Campus Subdomain"
+                >
+                  <option value="t-1">jssate.campus.edu</option>
+                  <option value="t-2">jsscacs.campus.edu</option>
+                  <option value="t-3">dit.campus.edu</option>
+                </select>
               </div>
             </div>
 
-            {/* RIGHT COLUMN: Campus Visual & Floating Archival Frosted Glass Widgets (6 Cols) */}
-            <div className="hidden lg:flex lg:col-span-6 p-4 md:p-6 bg-transparent items-center relative min-h-[500px]">
-              {/* Hero Frame with Image */}
-              <div className="relative w-full h-full min-h-[540px] rounded-[28px] overflow-hidden shadow-inner border border-white/40 group">
-                {/* High Aesthetic Campus Students Image from Stitch */}
-                <img
-                  alt="JSSATE scholars collaborating in university library atrium"
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuCtp9hLhChZ__gRAqdGfZcVrdjRQRj8tgpKNdGLa40mQbpUe5BUuo8b0T8XBS9UPwdBRgIH3ZVZizqA3Nsm7hmtoybHzxypWK8iMWUTg6BBySCfUhPUNoNohN7sTxL8RBrHCe-4TeISpNYumcwE46MyWMixOC4jf8oJImIJE2fXttFMubKXtDpKOgPrSQNgFkYin1w_uV5q5jlD7PluCg_V1HMl00kvoM5fULYP4LlbPPFdT7aT8yxqATjj-0GIIgOfVS_CjLqbyYio"
-                  className="w-full h-full object-cover object-center filter saturate-[1.05] brightness-[0.96] transition-transform duration-700 ease-out group-hover:scale-[1.02]"
+            {/* Centered Typography: Title & Subtitle */}
+            <div className="text-center my-4">
+              <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#242424] mb-1 font-sans">
+                Sign in to portal
+              </h1>
+              <p className="text-xs text-[#7A7267]">
+                Welcome to <strong className="text-[#682038]">{currentTenant.name}</strong>
+              </p>
+            </div>
+
+            {/* DUAL ROLE TOGGLE (STRICTLY STUDENT OR STAFF ONLY) */}
+            <div className="bg-[#EFEAE1] p-1 rounded-full flex max-w-xs mx-auto mb-4 border border-[#DDD5C7] w-full">
+              <button
+                type="button"
+                onClick={() => setPortalType('student')}
+                className={`flex-1 py-2 rounded-full text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                  portalType === 'student'
+                    ? 'bg-white text-[#242424] shadow-sm font-extrabold'
+                    : 'text-[#7A7267] hover:text-[#242424]'
+                }`}
+              >
+                <GraduationCap className="w-3.5 h-3.5 text-[#682038]" />
+                <span>Student</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setPortalType('staff')}
+                className={`flex-1 py-2 rounded-full text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                  portalType === 'staff'
+                    ? 'bg-[#682038] text-white shadow-sm font-extrabold'
+                    : 'text-[#7A7267] hover:text-[#242424]'
+                }`}
+              >
+                <Shield className="w-3.5 h-3.5 text-[#F5C443]" />
+                <span>Staff</span>
+              </button>
+            </div>
+
+            {/* Form Fields: Smooth Pill Contours & Inset Labels */}
+            <form onSubmit={handleFormSubmit} className="space-y-3.5 max-w-md mx-auto w-full">
+              {/* Dynamic Identity Input (Student vs Staff) */}
+              <div className="space-y-1">
+                <label className="block text-xs font-medium text-[#7A7267] ml-4">
+                  {portalType === 'student' ? 'Student Email / Roll number' : 'Official Institutional Email'}
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={portalType === 'student' ? studentIdInput : staffEmailInput}
+                  onChange={(e) =>
+                    portalType === 'student'
+                      ? setStudentIdInput(e.target.value)
+                      : setStaffEmailInput(e.target.value)
+                  }
+                  placeholder={
+                    portalType === 'student'
+                      ? 'rohan.verma@student.jssate.edu'
+                      : 'principal@jssate.edu'
+                  }
+                  className="w-full px-5 py-3.5 rounded-full bg-white border border-[#E5DFD7] text-xs font-medium text-[#242424] placeholder-[#A39B8F] focus:outline-none focus:border-[#682038] focus:ring-2 focus:ring-[#F5C443]/40 shadow-2xs transition-all"
                 />
-                {/* Warm Vignette Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-black/10 pointer-events-none" />
+              </div>
 
-                {/* Floating Widget 1: Top Floating Golden Task Pill */}
-                <div className="absolute top-5 left-5 z-20">
-                  <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-2xl bg-[#F5C443]/90 hover:bg-[#F5C443] backdrop-blur-xl text-[#242424] shadow-lg shadow-black/20 border border-white/40">
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#242424] animate-pulse" />
-                    <div>
-                      <div className="text-xs font-bold leading-tight">Task Review With Team</div>
-                      <div className="text-[10px] font-medium text-[#4A3D18]">09:30am - 10:00am</div>
-                    </div>
+              {/* Staff Designation Select (Reveals dynamically when Staff is active) */}
+              {portalType === 'staff' && (
+                <div className="space-y-1 animate-in fade-in duration-200">
+                  <label className="block text-xs font-medium text-[#7A7267] ml-4">
+                    Executive Designation
+                  </label>
+                  <select
+                    value={selectedStaffRole}
+                    onChange={(e) => handleStaffRoleSelect(e.target.value as RoleType)}
+                    className="w-full px-5 py-3.5 rounded-full bg-white border border-[#E5DFD7] text-xs font-bold text-[#682038] focus:outline-none focus:border-[#682038] focus:ring-2 focus:ring-[#F5C443]/40 appearance-none shadow-2xs transition-all cursor-pointer"
+                  >
+                    {STAFF_ROLES.map((r) => (
+                      <option key={r.id} value={r.id}>
+                        {r.label} ({r.name})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {/* Password Input with Trailing Eye Reveal */}
+              <div className="space-y-1">
+                <div className="flex items-center justify-between px-4">
+                  <label className="text-xs font-medium text-[#7A7267]">Password</label>
+                  <button
+                    type="button"
+                    onClick={() => setShowForgotModal(true)}
+                    className="text-[11px] text-[#7A7267] hover:text-[#682038] hover:underline cursor-pointer"
+                  >
+                    Forgot password?
+                  </button>
+                </div>
+                <div className="relative">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    required
+                    value={portalType === 'student' ? studentPassword : staffPassword}
+                    onChange={(e) =>
+                      portalType === 'student'
+                        ? setStudentPassword(e.target.value)
+                        : setStaffPassword(e.target.value)
+                    }
+                    placeholder="••••••••••••••••••••"
+                    className="w-full px-5 py-3.5 pr-12 rounded-full bg-white border border-[#E5DFD7] text-xs font-medium text-[#242424] placeholder-[#A39B8F] focus:outline-none focus:border-[#682038] focus:ring-2 focus:ring-[#F5C443]/40 shadow-2xs transition-all"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-3.5 text-[#8A8175] hover:text-[#242424] cursor-pointer"
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+
+              {/* Primary Submit Button: Rich Amber Pill (Exact match to "Submit" in reference) */}
+              <div className="pt-1">
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full py-3.5 rounded-full bg-[#F5C443] hover:bg-[#E5B537] active:scale-[0.99] text-[#242424] font-bold text-xs shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <span>
+                    {isSubmitting
+                      ? 'Verifying Credentials...'
+                      : portalType === 'student'
+                      ? 'Submit'
+                      : 'Submit'}
+                  </span>
+                </button>
+              </div>
+
+              {/* Secondary Actions: Dual Rounded Pills (Matching Apple & Google in reference) */}
+              <div className="grid grid-cols-2 gap-3 pt-1">
+                <button
+                  type="button"
+                  onClick={onOpenPublicApply}
+                  className="w-full py-2.5 px-4 rounded-full border border-[#DDD5C7] bg-white hover:bg-[#FAF7F2] text-[#242424] font-semibold text-xs flex items-center justify-center gap-2 transition-all shadow-2xs cursor-pointer"
+                >
+                  <FileCheck className="w-3.5 h-3.5 text-[#682038]" />
+                  <span className="truncate">Admissions Apply</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={onOpenPublicVerify}
+                  className="w-full py-2.5 px-4 rounded-full border border-[#DDD5C7] bg-white hover:bg-[#FAF7F2] text-[#242424] font-semibold text-xs flex items-center justify-center gap-2 transition-all shadow-2xs cursor-pointer"
+                >
+                  <Search className="w-3.5 h-3.5 text-[#16A34A]" />
+                  <span className="truncate">Verify QR / Cert</span>
+                </button>
+              </div>
+            </form>
+
+            {/* Bottom Links (Matching "Have any account? Sing in" & "Terms & Conditions" in reference) */}
+            <div className="flex items-center justify-between text-xs text-[#7A7267] pt-4 px-2">
+              <button
+                type="button"
+                onClick={() => setShowForgotModal(true)}
+                className="hover:text-[#242424] cursor-pointer"
+              >
+                Have any account? <span className="underline font-semibold text-[#242424]">Sign in</span>
+              </button>
+              <span className="hover:text-[#242424] cursor-pointer">Terms &amp; Conditions</span>
+            </div>
+          </div>
+
+          {/* RIGHT COLUMN: Campus Image Frame with ALL 4 Floating Widgets from the Reference Pic */}
+          <div className="hidden lg:block lg:col-span-6 relative h-[580px]">
+            {/* Image Container with Rounded Corners */}
+            <div className="relative w-full h-full rounded-[32px] overflow-hidden shadow-md border border-[#DDD5C7] group">
+              <img
+                alt="University scholars and colleagues collaborating"
+                src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1200&q=80"
+                className="w-full h-full object-cover object-center filter saturate-[1.05] brightness-[0.98] transition-transform duration-700 ease-out group-hover:scale-[1.01]"
+              />
+
+              {/* Subtle Ambient Vignette */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent pointer-events-none" />
+
+              {/* WIDGET 1: Top-Left Stacked Pills (Dark pill behind + Yellow pill in front with dots) */}
+              <div className="absolute top-5 left-5 z-20">
+                {/* Dark Pill Behind */}
+                <div className="absolute top-3 left-6 z-10 px-3.5 py-1.5 rounded-2xl bg-neutral-900/90 text-white/80 text-[10px] font-medium shadow-md flex items-center gap-2 whitespace-nowrap">
+                  <span>09:30am-10:00am</span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#F5C443]" />
+                </div>
+
+                {/* Yellow Pill in Front with Black Dot */}
+                <div className="relative z-20 px-4 py-2.5 rounded-2xl bg-[#F5C443] text-[#242424] shadow-xl flex items-center justify-between gap-3 border border-[#E5B537] min-w-[200px]">
+                  <div>
+                    <div className="text-xs font-bold leading-tight">Task Review With Team</div>
+                    <div className="text-[10px] font-medium text-[#4A3D18]">09:30am-10:00am</div>
+                  </div>
+                  <span className="w-2 h-2 rounded-full bg-[#242424] shrink-0" />
+                </div>
+              </div>
+
+              {/* WIDGET 2: Triangular Avatar Cluster on Right (Exact match to reference pic) */}
+              <div className="absolute top-[34%] right-8 z-20 flex flex-col items-center select-none">
+                {/* Top Avatar Circle */}
+                <div className="w-12 h-12 rounded-full border-2 border-white overflow-hidden shadow-xl -mb-2 z-10">
+                  <img
+                    src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=120&q=80"
+                    alt="Scholar"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                {/* Bottom 2 Avatar Circles */}
+                <div className="flex -space-x-1">
+                  <div className="w-11 h-11 rounded-full border-2 border-white overflow-hidden shadow-xl">
+                    <img
+                      src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80"
+                      alt="Scholar"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="w-11 h-11 rounded-full border-2 border-white overflow-hidden shadow-xl">
+                    <img
+                      src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=120&q=80"
+                      alt="Scholar"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* WIDGET 3: Frosted Glass Calendar Strip with Diagonal Stripes (Exact match to reference pic) */}
+              <div className="absolute bottom-24 right-6 z-10 w-72 rounded-2xl bg-white/20 backdrop-blur-xl border border-white/40 shadow-2xl overflow-hidden text-white select-none">
+                {/* Top Row: Days & Numbers */}
+                <div className="p-3 pb-2">
+                  <div className="grid grid-cols-7 text-center text-[10px] font-semibold text-white/85 mb-1">
+                    <span>Sun</span>
+                    <span>Mon</span>
+                    <span>Tue</span>
+                    <span className="text-[#F5C443]">Wed</span>
+                    <span>Thu</span>
+                    <span>Fri</span>
+                    <span>Sat</span>
+                  </div>
+                  <div className="grid grid-cols-7 text-center text-sm font-bold text-white">
+                    <span>22</span>
+                    <span>23</span>
+                    <span>24</span>
+                    <span className="relative text-[#F5C443]">
+                      25
+                      <span className="absolute -top-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-[#F5C443] shadow-xs" />
+                    </span>
+                    <span>26</span>
+                    <span>27</span>
+                    <span>28</span>
                   </div>
                 </div>
 
-                {/* Floating Widget 2: Overlapping Circular Avatar Bubbles on Top Right */}
-                <div className="absolute top-5 right-5 z-20 flex -space-x-2 bg-black/35 backdrop-blur-xl p-1.5 rounded-full border border-white/25 shadow-lg">
-                  <div className="w-8 h-8 rounded-full border-2 border-white bg-[#682038] text-white flex items-center justify-center text-[10px] font-bold">
-                    KA
+                {/* Bottom Diagonal Striped Frosted Texture */}
+                <div
+                  className="h-14 w-full border-t border-white/20"
+                  style={{
+                    background:
+                      'repeating-linear-gradient(-45deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.22) 3px, rgba(255, 255, 255, 0.04) 3px, rgba(255, 255, 255, 0.04) 9px)',
+                  }}
+                />
+              </div>
+
+              {/* WIDGET 4: White Daily Meeting Card Overlapping Bottom-Left (Exact match to reference pic) */}
+              <div className="absolute bottom-8 left-8 z-20 w-60 rounded-2xl bg-white p-4 shadow-2xl border border-white/80 select-none">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <h4 className="text-xs font-bold text-[#242424]">Daily Meeting</h4>
+                    <p className="text-[10px] text-[#7A7267] font-medium mt-0.5">12:00pm-01:00pm</p>
                   </div>
-                  <div className="w-8 h-8 rounded-full border-2 border-white bg-[#8B5E3C] text-white flex items-center justify-center text-[10px] font-bold">
-                    MC
-                  </div>
-                  <div className="w-8 h-8 rounded-full border-2 border-white bg-[#2563EB] text-white flex items-center justify-center text-[10px] font-bold">
-                    DR
-                  </div>
-                  <div className="w-8 h-8 rounded-full border-2 border-white bg-[#F5C443] text-[#242424] flex items-center justify-center text-[10px] font-extrabold shadow-xs">
-                    +4
-                  </div>
+                  <span className="w-2 h-2 rounded-full bg-[#F5C443]" />
                 </div>
-
-                {/* Floating Widget 3: Frosted Glass Weekly Calendar Strip (Center/Upper Overlay) */}
-                <div className="absolute top-24 left-5 right-5 z-20 hidden sm:block">
-                  <div className="bg-white/20 backdrop-blur-2xl rounded-2xl p-4 border border-white/40 shadow-2xl text-white">
-                    <div className="flex items-center justify-between mb-2.5 px-1">
-                      <div className="flex items-center gap-2 text-xs font-bold text-white drop-shadow-xs">
-                        <Calendar className="w-3.5 h-3.5 text-[#F5C443]" />
-                        <span>Academic Cycle: Fall 2026</span>
-                      </div>
-                      <span className="text-[11px] font-mono text-[#F5C443] font-bold drop-shadow-xs">Term Week 8</span>
-                    </div>
-                    <div className="grid grid-cols-7 gap-1.5 text-center select-none">
-                      {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((d, i) => {
-                        const dayNum = 22 + i;
-                        const isWed = d === 'Wed';
-                        return (
-                          <div
-                            key={d}
-                            className={`py-2 rounded-xl transition-all ${
-                              isWed
-                                ? 'bg-[#682038]/90 text-white shadow-lg ring-2 ring-[#F5C443] backdrop-blur-md'
-                                : 'bg-white/15 hover:bg-white/25 text-white backdrop-blur-md border border-white/25 shadow-xs'
-                            }`}
-                          >
-                            <p
-                              className={`text-[9px] uppercase font-bold tracking-wider ${
-                                isWed ? 'text-[#F5C443]' : 'text-white/80'
-                              }`}
-                            >
-                              {d}
-                            </p>
-                            <p className="text-xs font-extrabold">{dayNum}</p>
-                          </div>
-                        );
-                      })}
-                    </div>
+                {/* 4 Overlapping Avatar Bubbles in Horizontal Row */}
+                <div className="flex -space-x-1.5 mt-3">
+                  <div className="w-6 h-6 rounded-full border-2 border-white overflow-hidden shadow-xs">
+                    <img
+                      src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=80&q=80"
+                      alt="Member"
+                      className="w-full h-full object-cover"
+                    />
                   </div>
-                </div>
-
-                {/* Floating Widget 4: Translucent Frosted Card at Bottom: Daily Lecture Roster */}
-                <div className="absolute bottom-5 left-5 right-5 z-20">
-                  <div className="bg-white/75 backdrop-blur-2xl rounded-[24px] p-4 border border-white/60 shadow-2xl">
-                    <div className="flex items-center justify-between gap-2 mb-2">
-                      <div className="flex items-center gap-2.5">
-                        <div className="w-9 h-9 rounded-full bg-white/70 backdrop-blur-md border border-white/60 flex items-center justify-center text-[#682038] shadow-xs">
-                          <Building className="w-4 h-4" />
-                        </div>
-                        <div>
-                          <h4 className="text-xs font-bold text-[#242424] leading-tight">Daily Lecture Roster</h4>
-                          <p className="text-[10px] text-[#6E6862] font-medium">12:00pm - 01:00pm • Lecture Hall LH-302</p>
-                        </div>
-                      </div>
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/15 backdrop-blur-md border border-emerald-500/30 text-emerald-900 text-[10px] font-bold">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-ping" />
-                        <span>In Progress</span>
-                      </span>
-                    </div>
-
-                    <div className="flex items-center justify-between pt-2.5 border-t border-black/[0.06] text-[11px] text-[#6E6862]">
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium text-[#242424]">Faculty Roster:</span>
-                        <div className="flex -space-x-1.5">
-                          <span className="w-5 h-5 rounded-full bg-[#682038] text-white text-[8px] font-bold flex items-center justify-center border-2 border-white shadow-xs">
-                            RV
-                          </span>
-                          <span className="w-5 h-5 rounded-full bg-[#8B5E3C] text-white text-[8px] font-bold flex items-center justify-center border-2 border-white shadow-xs">
-                            AS
-                          </span>
-                          <span className="w-5 h-5 rounded-full bg-[#2563EB] text-white text-[8px] font-bold flex items-center justify-center border-2 border-white shadow-xs">
-                            DP
-                          </span>
-                          <span className="w-5 h-5 rounded-full bg-[#F5C443] text-[#242424] text-[8px] font-bold flex items-center justify-center border-2 border-white shadow-xs">
-                            +4
-                          </span>
-                        </div>
-                      </div>
-                      <span className="font-bold text-[#682038]">CS401: Algorithms</span>
-                    </div>
+                  <div className="w-6 h-6 rounded-full border-2 border-white overflow-hidden shadow-xs">
+                    <img
+                      src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=80&q=80"
+                      alt="Member"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="w-6 h-6 rounded-full border-2 border-white overflow-hidden shadow-xs">
+                    <img
+                      src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=80&q=80"
+                      alt="Member"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="w-6 h-6 rounded-full border-2 border-white overflow-hidden shadow-xs">
+                    <img
+                      src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=80&q=80"
+                      alt="Member"
+                      className="w-full h-full object-cover"
+                    />
                   </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </main>
-
-      {/* Grounding Editorial Footer */}
-      <footer className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 border-t border-[#E5DFD7]/80 flex flex-col sm:flex-row justify-between items-center gap-2 text-xs text-[#6E6862]">
-        <div className="flex items-center gap-2">
-          <span className="font-bold text-[#682038]">JSS Academy of Technical Education</span>
-          <span>•</span>
-          <span>© 2026 All rights reserved. Collegiate ERP System.</span>
-        </div>
-        <div className="flex flex-wrap items-center gap-4 text-[11px]">
-          <span className="hover:text-[#682038] cursor-pointer">Privacy Policy</span>
-          <span className="hover:text-[#682038] cursor-pointer">Security Architecture</span>
-          <span className="hover:text-[#682038] cursor-pointer text-[#682038] font-bold">Academic Accreditations</span>
-        </div>
-      </footer>
+      </div>
 
       {/* 2FA TOTP Verification Modal (Frosted Glass Translucent Window) */}
       {showTotpModal && (
