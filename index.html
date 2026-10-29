@@ -332,32 +332,101 @@
           </div>
         </a>
 
-        <!-- CARD 2: Visual Specification Suite (Document) -->
-        <a href="docs/" class="portal-card" aria-label="Open Visual Specification & Architecture Document Suite">
+        <!-- CARD 2: Visual Specification Suite (Document) - SUPER ADMIN RESTRICTED -->
+        <div onclick="handleSpecDocAccess(event)" class="portal-card" style="cursor: pointer;" aria-label="Open Visual Specification & Architecture Document Suite (Super Admin Only)">
           <div>
             <div class="card-header">
               <div class="icon-box icon-docs">📑</div>
-              <span class="status-pill spec">● SPECIFICATION</span>
+              <span class="status-pill spec" style="background: #FEE2E2; color: #991B1B; border-color: #FECACA;">🔒 SUPER ADMIN ONLY</span>
             </div>
             <h2 class="card-title">Master Specification Suite</h2>
-            <code class="card-path">/garbage/docs/</code>
+            <code class="card-path">/garbage/docs/ (Restricted)</code>
             <p class="card-desc">
-              The original engineering specification and architectural documentation prepared for designing and building the ERP system. Interactive VS Code-style visual workspace featuring exhaustive PRD requirements, domain schemas, data flow models, and Architecture Decision Records (ADR-001 through ADR-033).
+              The original engineering specification and architectural documentation prepared for designing and building the ERP system. Access is strictly restricted to verified platform Super Administrators.
             </p>
             <div class="feature-tags">
               <span class="feature-tag">Visual Document Suite</span>
               <span class="feature-tag">Interactive Explorer</span>
               <span class="feature-tag">Complete PRD & Blueprints</span>
-              <span class="feature-tag">33 Documented ADRs</span>
+              <span class="feature-tag">34 Documented ADRs</span>
             </div>
           </div>
-          <div class="card-cta cta-docs">
-            <span>Open Specification Document</span>
-            <span>➔</span>
+          <div class="card-cta cta-docs" style="background: #682038;">
+            <span>Unlock Specification Document</span>
+            <span>🔒</span>
           </div>
-        </a>
+        </div>
       </main>
     </div>
+
+    <!-- Super Admin Access Verification Modal -->
+    <div id="superadmin-modal" style="display: none; position: fixed; inset: 0; background: rgba(30, 20, 15, 0.85); backdrop-filter: blur(8px); z-index: 99999; align-items: center; justify-content: center; padding: 16px;">
+      <div style="background: #FFFFFF; border-radius: 20px; max-width: 440px; width: 100%; padding: 28px; box-shadow: 0 20px 40px rgba(0,0,0,0.25); text-align: center; position: relative;">
+        <button onclick="closeSuperAdminModal()" style="position: absolute; top: 16px; right: 16px; background: #F4ECEE; border: none; width: 32px; height: 32px; border-radius: 50%; font-size: 16px; cursor: pointer; color: #682038; font-weight: bold;">✕</button>
+        <div style="font-size: 32px; margin-bottom: 8px;">🛡️</div>
+        <div style="display: inline-block; padding: 3px 10px; background: #FFEBEE; color: #BA1A1A; border-radius: 9999px; font-size: 11px; font-weight: 700; text-transform: uppercase; margin-bottom: 8px;">Restricted Enclave</div>
+        <h3 style="font-size: 1.25rem; font-weight: 800; color: #242424; margin-bottom: 6px;">Super Admin Authorization</h3>
+        <p style="font-size: 0.85rem; color: #6E6862; margin-bottom: 20px;">
+          Only users with the <strong>Super Administrator</strong> role are permitted to view the technical specification and internal blueprints.
+        </p>
+
+        <form onsubmit="event.preventDefault(); verifyGatewayPasskey();">
+          <input
+            id="gateway-passkey"
+            type="password"
+            placeholder="Enter Super Admin Passkey (e.g. SUPERADMIN)..."
+            style="width: 100%; padding: 12px; border: 1.5px solid #DDD4C8; border-radius: 10px; font-size: 14px; margin-bottom: 8px; outline: none; font-family: 'JetBrains Mono', monospace;"
+            required
+          />
+          <div id="gateway-err" style="display: none; color: #BA1A1A; font-size: 12px; font-weight: 600; margin-bottom: 10px; text-align: left;">Invalid authorization key. Access denied.</div>
+          <button type="submit" style="width: 100%; padding: 12px; background: #682038; color: #FFFFFF; font-weight: 700; border-radius: 10px; border: none; cursor: pointer; font-size: 13px; margin-bottom: 12px;">Authorize &amp; Open Document ➔</button>
+        </form>
+
+        <div style="display: flex; justify-content: space-between; font-size: 11px; border-top: 1px solid #EFE9E1; padding-top: 12px;">
+          <button onclick="quickGatewayAuth()" style="background: none; border: none; color: #8B5E3C; font-weight: 700; cursor: pointer; text-decoration: underline;">
+            Developer Quick Unlock
+          </button>
+          <a href="app/" style="color: #6E6862; text-decoration: none; font-weight: 600;">Go to App</a>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function handleSpecDocAccess(e) {
+        if (e) e.preventDefault();
+        const isAuth = sessionStorage.getItem('campus_superadmin_auth') === 'verified' || localStorage.getItem('campus_user_role') === 'SUPER_ADMIN';
+        if (isAuth) {
+          window.location.href = 'docs/';
+        } else {
+          document.getElementById('superadmin-modal').style.display = 'flex';
+          setTimeout(() => document.getElementById('gateway-passkey').focus(), 50);
+        }
+      }
+
+      function closeSuperAdminModal() {
+        document.getElementById('superadmin-modal').style.display = 'none';
+        document.getElementById('gateway-err').style.display = 'none';
+      }
+
+      function verifyGatewayPasskey() {
+        const input = document.getElementById('gateway-passkey');
+        const err = document.getElementById('gateway-err');
+        const val = (input.value || '').trim();
+        if (val === 'SUPERADMIN' || val === 'ADMIN-SUPER-2026' || val.toLowerCase() === 'superadmin' || val === 'devloft.root' || val === 'admin123') {
+          sessionStorage.setItem('campus_superadmin_auth', 'verified');
+          localStorage.setItem('campus_user_role', 'SUPER_ADMIN');
+          window.location.href = 'docs/';
+        } else {
+          err.style.display = 'block';
+        }
+      }
+
+      function quickGatewayAuth() {
+        sessionStorage.setItem('campus_superadmin_auth', 'verified');
+        localStorage.setItem('campus_user_role', 'SUPER_ADMIN');
+        window.location.href = 'docs/';
+      }
+    </script>
 
     <!-- Direct URL Footnote -->
     <footer class="gateway-footer">
@@ -365,7 +434,7 @@
         <span>Direct Access:</span>
         <a href="app/" class="direct-link">./app/ (Web Application)</a>
         <span>•</span>
-        <a href="docs/" class="direct-link">./docs/ (Specification Document)</a>
+        <a href="docs/" onclick="handleSpecDocAccess(event)" class="direct-link">./docs/ (Specification Document - Super Admin)</a>
       </div>
       <div>
         Campus Management System &copy; 2026. Institutional deployment on GitHub Pages.

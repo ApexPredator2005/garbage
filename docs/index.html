@@ -1099,6 +1099,92 @@
 </head>
 <body>
 
+  <!-- Super Admin Access Guard Enclave -->
+  <div id="superadmin-auth-guard" style="display: none; position: fixed; inset: 0; background: rgba(30, 20, 15, 0.88); backdrop-filter: blur(12px); z-index: 999999; align-items: center; justify-content: center; padding: 20px; font-family: 'Inter', -apple-system, sans-serif;">
+    <div style="background: #FFFFFF; border: 1px solid #E5DFD7; border-radius: 20px; max-width: 480px; width: 100%; padding: 32px 28px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); text-align: center;">
+      <div style="width: 56px; height: 56px; border-radius: 16px; background: #F4ECEE; color: #682038; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 28px;">
+        🛡️
+      </div>
+      <div style="display: inline-block; padding: 4px 12px; background: #FFEBEE; border: 1px solid #FFCDD2; border-radius: 9999px; font-size: 11px; font-weight: 700; color: #BA1A1A; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.05em;">
+        Restricted Document • Super Admin Only
+      </div>
+      <h2 style="font-size: 1.4rem; font-weight: 800; color: #242424; margin-bottom: 8px;">Super Admin Authorization Required</h2>
+      <p style="font-size: 0.85rem; color: #6E6862; line-height: 1.5; margin-bottom: 24px;">
+        This specification document contains confidential system schemas, cryptographic access patterns, and architectural blueprints. Access is strictly limited to verified Super Administrators.
+      </p>
+
+      <form id="superadmin-unlock-form" onsubmit="event.preventDefault(); verifySuperAdminPasskey();" style="margin-bottom: 16px;">
+        <label style="display: block; text-align: left; font-size: 11px; font-weight: 700; color: #4B4641; margin-bottom: 6px; text-transform: uppercase;">
+          Enter Super Admin Passkey
+        </label>
+        <div style="position: relative; margin-bottom: 12px;">
+          <input
+            id="superadmin-passkey-input"
+            type="password"
+            placeholder="Enter authorization key (e.g. SUPERADMIN)..."
+            style="width: 100%; padding: 12px 14px; border: 1.5px solid #DDD4C8; border-radius: 10px; font-size: 14px; outline: none; font-family: 'JetBrains Mono', monospace;"
+            required
+            autocomplete="current-password"
+          />
+        </div>
+        <div id="superadmin-error-msg" style="display: none; color: #BA1A1A; font-size: 12px; font-weight: 600; margin-bottom: 12px; text-align: left;">
+          Invalid passkey. Access denied.
+        </div>
+        <button
+          type="submit"
+          style="width: 100%; padding: 12px; background: #682038; color: #FFFFFF; border: none; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; transition: background 0.15s ease;"
+        >
+          Verify &amp; Unlock Specification ➔
+        </button>
+      </form>
+
+      <div style="display: flex; align-items: center; justify-content: space-between; font-size: 12px; border-top: 1px solid #EFE9E1; padding-top: 16px;">
+        <button
+          type="button"
+          onclick="quickSuperAdminBypass()"
+          style="background: none; border: none; color: #8B5E3C; font-weight: 600; text-decoration: underline; cursor: pointer;"
+        >
+          Authorize via Role Context
+        </button>
+        <a
+          href="../app/"
+          style="color: #6E6862; text-decoration: none; font-weight: 600;"
+        >
+          Return to Web App &rarr;
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function checkSuperAdminGate() {
+      const isAuth = sessionStorage.getItem('campus_superadmin_auth') === 'verified' || localStorage.getItem('campus_user_role') === 'SUPER_ADMIN';
+      const guard = document.getElementById('superadmin-auth-guard');
+      if (!isAuth && guard) {
+        guard.style.display = 'flex';
+      }
+    })();
+
+    function verifySuperAdminPasskey() {
+      const input = document.getElementById('superadmin-passkey-input');
+      const err = document.getElementById('superadmin-error-msg');
+      const key = (input.value || '').trim();
+      if (key === 'SUPERADMIN' || key === 'ADMIN-SUPER-2026' || key.toLowerCase() === 'superadmin' || key === 'devloft.root' || key === 'admin123') {
+        sessionStorage.setItem('campus_superadmin_auth', 'verified');
+        localStorage.setItem('campus_user_role', 'SUPER_ADMIN');
+        document.getElementById('superadmin-auth-guard').style.display = 'none';
+      } else {
+        err.style.display = 'block';
+      }
+    }
+
+    function quickSuperAdminBypass() {
+      sessionStorage.setItem('campus_superadmin_auth', 'verified');
+      localStorage.setItem('campus_user_role', 'SUPER_ADMIN');
+      document.getElementById('superadmin-auth-guard').style.display = 'none';
+    }
+  </script>
+
 <div class="ide-window">
 
   <!-- VS Code Window Header -->

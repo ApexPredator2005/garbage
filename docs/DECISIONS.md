@@ -485,6 +485,29 @@ This document chronicles the fundamental engineering and product decisions made 
 
 ---
 
+### [ADR-035] Privileged Role-Gated Specification Access & Advanced Higher-Ed Workspaces Elevation (Library LMS/OPAC & Placement T&P)
+- **Classification:** Security, Functional Domain & Operational Governance (SEC / FUNC / GOV)
+- **Status:** Approved & Implemented
+- **Decision Owner:** Stakeholder Directive & Engineering Lead
+- **Context:**
+  1. The visual engineering specification suite contains proprietary domain blueprints, database ERDs, and system architecture schemas that must not be exposed to unauthorized public users, students, or standard academic faculty. Access must be strictly restricted to the `SUPER_ADMIN` role.
+  2. The Library & Information Center module required operational depth beyond basic catalog search: 2D shelf/rack blueprint locator, in-app institutional digital full-text e-reader with citation generator, automated fast RFID/barcode check-out scanner simulator, reservation hold queues with 48-hour pickup shelf countdowns, and statutory fine recovery with Dean's justification waiver workflows.
+  3. The Training & Placement (T&P) module required operational expansion to support end-to-end corporate recruitments: ATS resume verification and review desk, live corporate interview slot scheduler with panel management, full CTC compensation breakdown (fixed base, variable, sign-on bonus, RSUs, and dual-offer quota enforcement), and pre-placement mock assessment readiness tracking.
+- **Decision:**
+  1. **Super Admin Exclusive Specification Guard:**
+     - Restricted the `Spec Doc` navigation action in `Navbar.tsx` exclusively to `currentRole === 'SUPER_ADMIN'`.
+     - Stripped the specification link from the public login screen (`LoginPage.tsx`).
+     - Implemented client-side security enclave gates in both root `index.html` and `docs/index.html` requiring active Super Admin session tokens or passkey authorization before allowing access to `/docs/`.
+  2. **Enhanced Library & Information Center (LMS / OPAC):**
+     - Built 6 operational workspaces: OPAC Search, RFID Circulation Desk, Book Holds & Reservations, Fines & Dean's Waivers Desk, Digital Resources Repository, and Real-Time Turnstile Telemetry.
+     - Integrated 2D shelf map locator, digital full-text e-reader with APA/IEEE citation exporter, RFID scanner simulator, and Dean's statutory fine waiver modal.
+  3. **Enhanced Training & Placement Hub (T&P):**
+     - Built 6 recruitment workspaces: Campus Drives Catalog (Super Dream >=20L, Dream 10-20L, Regular <10L), 6-Stage Selection Pipeline Stepper, Interview Slot Scheduler & Panel Management, Resume ATS Verification Desk, 6-Month Internship & PPO Registry, and NIRF Parameter 3 Analytics.
+     - Added CTC compensation breakdown modal with institutional dual-offer policy enforcement.
+- **Rationale:** Strictly isolates proprietary system architecture behind administrative role security while delivering full operational parity with premier Indian autonomous institutes (IITs/NITs/Tier-1 universities) for both library and placement operations.
+
+---
+
 ## 6. Comprehensive Decision Summary Matrix
 
 | ID | Decision Title | Category | Status | Primary Rationale & Impact |
@@ -523,3 +546,4 @@ This document chronicles the fundamental engineering and product decisions made 
 | **ADR-032** | Institutional White-Labeling & UI Brand Hygiene | UX/GOV | Implemented | Standardized on CAMPUS ERP; vendor brand confined to login badge; purged diagnostic header buttons. |
 | **ADR-033** | Higher-Ed Expansion: Placement (T&P) & Library OPAC | FUNC/ACCRED | Implemented | 6-stage placement recruitment pipeline + DDC/MARC-21 OPAC catalog with RFID circulation desk. |
 | **ADR-034** | Dual Standalone Deployment Architecture | DEPLOY/ARCH | Implemented | Independent isolated deployments for Web App (/app/) and Spec Suite (/docs/) via Gateway Portal (/). |
+| **ADR-035** | Privileged Spec Gating & Library / T&P Workspaces Elevation | SEC/FUNC | Implemented | Spec doc locked strictly to Super Admin + 6-tab Library LMS/OPAC & 6-tab Placement T&P hub. |

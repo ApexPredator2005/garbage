@@ -111,15 +111,21 @@ export const Navbar: React.FC<NavbarProps> = ({
           </button>
 
 
-          {/* Link to Master Specification Document */}
-          <a
-            href="../docs/"
-            className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-[#F4ECE2] hover:bg-[#EAE1D3] border border-[#E5DFD7] text-xs font-bold text-[#682038] transition-colors"
-            title="Open Master Specification & Architecture Document Suite"
-          >
-            <FileText className="w-3.5 h-3.5 text-[#8B5E3C]" />
-            <span>Spec Doc</span>
-          </a>
+          {/* Link to Master Specification Document - STRICTLY SUPER_ADMIN ONLY */}
+          {currentRole === 'SUPER_ADMIN' && (
+            <a
+              href="../docs/"
+              onClick={() => {
+                sessionStorage.setItem('campus_superadmin_auth', 'verified');
+                localStorage.setItem('campus_user_role', 'SUPER_ADMIN');
+              }}
+              className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-[#682038] hover:bg-[#50182A] text-white border border-[#50182A] text-xs font-bold transition-all shadow-xs"
+              title="Super Admin Only: Open Master Specification & Architecture Document Suite"
+            >
+              <FileText className="w-3.5 h-3.5 text-[#FED7AA]" />
+              <span>Spec Doc (Admin)</span>
+            </a>
+          )}
 
           {/* Role Switcher (11 Roles) */}
           <div className="flex items-center bg-[#F4ECE2] rounded-xl px-2.5 py-1.5 border border-[#E5DFD7]">
