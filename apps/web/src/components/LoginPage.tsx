@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { RoleType } from '../types';
+import { getStaffDirectory, StaffMember } from '../services/staffDirectory';
 import {
   GraduationCap,
   Shield,
@@ -49,6 +50,14 @@ export const LoginPage: React.FC<LoginPageProps> = ({
   const [portalType, setPortalType] = useState<'student' | 'staff'>('student');
   const [selectedTenant, setSelectedTenant] = useState(initialTenantId);
 
+  // Dynamic Staff Directory from persistent service
+  const [staffDirectory, setStaffDirectory] = useState<StaffMember[]>(() => getStaffDirectory());
+  const [selectedStaffId, setSelectedStaffId] = useState<string>(() => {
+    const dir = getStaffDirectory();
+    const principal = dir.find((s) => s.role === 'PRINCIPAL' && s.status === 'ACTIVE');
+    return principal ? principal.id : dir[0]?.id || 'emp-principal';
+  });
+
   // Student Form State
   const [studentIdInput, setStudentIdInput] = useState('rohan.verma@student.jssate.edu');
   const [studentPassword, setStudentPassword] = useState('••••••••••••');
@@ -57,6 +66,18 @@ export const LoginPage: React.FC<LoginPageProps> = ({
   const [selectedStaffRole, setSelectedStaffRole] = useState<RoleType>('PRINCIPAL');
   const [staffEmailInput, setStaffEmailInput] = useState('principal@jssate.edu');
   const [staffPassword, setStaffPassword] = useState('••••••••••••');
+
+  // Synchronize staff directory whenever toggled or on mount
+  useEffect(() => {
+    const updatedDir = getStaffDirectory();
+    setStaffDirectory(updatedDir);
+    const activePrincipal = updatedDir.find((s) => s.role === 'PRINCIPAL' && s.status === 'ACTIVE');
+    if (activePrincipal && !updatedDir.some((s) => s.id === selectedStaffId)) {
+      setSelectedStaffId(activePrincipal.id);
+      setSelectedStaffRole(activePrincipal.role);
+      setStaffEmailInput(activePrincipal.email);
+    }
+  }, [portalType]);
 
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -85,11 +106,15 @@ export const LoginPage: React.FC<LoginPageProps> = ({
 
   const currentTenant = tenantDomains[selectedTenant] || tenantDomains['t-1'];
 
-  const handleStaffRoleSelect = (role: RoleType) => {
-    setSelectedStaffRole(role);
-    const matched = STAFF_ROLES.find((r) => r.id === role);
+  const handleStaffSelect = (staffId: string) => {
+    setSelectedStaffId(staffId);
+    const matched = staffDirectory.find((s) => s.id === staffId);
     if (matched) {
+      setSelectedStaffRole(matched.role);
       setStaffEmailInput(matched.email);
+      if (matched.temporaryPassword) {
+        setStaffPassword(matched.temporaryPassword);
+      }
     }
   };
 
@@ -109,9 +134,11 @@ export const LoginPage: React.FC<LoginPageProps> = ({
           tenantId: selectedTenant,
         });
       } else {
-        // Staff login
-        const matched = STAFF_ROLES.find((r) => r.id === selectedStaffRole);
+        // Staff login - matched directly against active directory & succession incumbent
+        const matched = staffDirectory.find((s) => s.id === selectedStaffId) || staffDirectory.find((s) => s.role === selectedStaffRole);
         const name = matched ? matched.name : 'Institutional Officer';
+        const role = matched ? matched.role : selectedStaffRole;
+        const email = staffEmailInput || (matched ? matched.email : 'staff@jssate.edu');
 
         // Privileged roles require 2FA TOTP verification per specification
         const requires2FA = [
@@ -121,13 +148,13 @@ export const LoginPage: React.FC<LoginPageProps> = ({
           'ACCOUNTANT',
           'HR_OFFICER',
           'EXAM_CONTROLLER',
-        ].includes(selectedStaffRole);
+        ].includes(role);
 
         if (requires2FA) {
           setPendingUser({
             name,
-            email: staffEmailInput,
-            role: selectedStaffRole,
+            email,
+            role,
             tenantId: selectedTenant,
           });
           setTotpCode('');
@@ -136,8 +163,8 @@ export const LoginPage: React.FC<LoginPageProps> = ({
         } else {
           onLogin({
             name,
-            email: staffEmailInput,
-            role: selectedStaffRole,
+            email,
+            role,
             tenantId: selectedTenant,
           });
         }
@@ -275,19 +302,26 @@ export const LoginPage: React.FC<LoginPageProps> = ({
               {/* Staff Designation Select (Reveals dynamically when Staff is active) */}
               {portalType === 'staff' && (
                 <div className="space-y-1 animate-in fade-in duration-200">
-                  <label className="block text-xs font-medium text-[#7A7267] ml-4">
-                    Executive Designation
-                  </label>
+                  <div className="flex items-center justify-between ml-4 mr-2">
+                    <label className="block text-xs font-medium text-[#7A7267]">
+                      Staff Profile &amp; Role
+                    </label>
+                    <span className="text-[10px] text-[#F97316] font-semibold">
+                      {staffDirectory.filter((s) => s.status === 'ACTIVE').length} Active Profiles
+                    </span>
+                  </div>
                   <select
-                    value={selectedStaffRole}
-                    onChange={(e) => handleStaffRoleSelect(e.target.value as RoleType)}
+                    value={selectedStaffId}
+                    onChange={(e) => handleStaffSelect(e.target.value)}
                     className="w-full px-5 py-3.5 rounded-full bg-white border border-[#E5DFD7] text-xs font-bold text-[#682038] focus:outline-none focus:border-[#F97316] focus:ring-2 focus:ring-[#F97316]/40 appearance-none shadow-2xs transition-all cursor-pointer"
                   >
-                    {STAFF_ROLES.map((r) => (
-                      <option key={r.id} value={r.id}>
-                        {r.label} ({r.name})
-                      </option>
-                    ))}
+                    {staffDirectory
+                      .filter((s) => s.status === 'ACTIVE')
+                      .map((s) => (
+                        <option key={s.id} value={s.id}>
+                          {s.designation} — {s.name} [{s.role}]
+                        </option>
+                      ))}
                   </select>
                 </div>
               )}
