@@ -10,6 +10,7 @@ import {
   LogOut,
   FileCheck,
   ExternalLink,
+  FileText,
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -109,6 +110,16 @@ export const Navbar: React.FC<NavbarProps> = ({
             <Search className="w-4 h-4" />
           </button>
 
+
+          {/* Link to Master Specification Document */}
+          <a
+            href="../docs/"
+            className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-[#F4ECE2] hover:bg-[#EAE1D3] border border-[#E5DFD7] text-xs font-bold text-[#682038] transition-colors"
+            title="Open Master Specification & Architecture Document Suite"
+          >
+            <FileText className="w-3.5 h-3.5 text-[#8B5E3C]" />
+            <span>Spec Doc</span>
+          </a>
 
           {/* Role Switcher (11 Roles) */}
           <div className="flex items-center bg-[#F4ECE2] rounded-xl px-2.5 py-1.5 border border-[#E5DFD7]">

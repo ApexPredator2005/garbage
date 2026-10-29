@@ -19,6 +19,7 @@ import {
   Sparkles,
   ArrowRight,
   Check,
+  FileText,
 } from 'lucide-react';
 
 interface LoginPageProps {
@@ -234,6 +235,17 @@ export const LoginPage: React.FC<LoginPageProps> = ({
                   <option value="t-3">dit.campus.edu</option>
                 </select>
               </div>
+
+              {/* Link to Specification Document */}
+              <a
+                href="../docs/"
+                className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-[#D5CDC0] bg-white/90 hover:bg-white text-[11px] font-bold text-[#8B5E3C] hover:text-[#682038] shadow-2xs transition-all active:scale-95"
+                title="View Master Specification & Architecture Document Suite"
+              >
+                <FileText className="w-3 h-3 text-[#682038]" />
+                <span>Spec Doc</span>
+                <ArrowRight className="w-3 h-3 text-[#682038]" />
+              </a>
             </div>
 
             {/* Centered Typography: Title & Subtitle */}

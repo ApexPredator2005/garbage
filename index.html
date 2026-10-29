@@ -2,16 +2,374 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23682038'><polygon points='12 2 2 7 12 12 22 7 12 2'/><polyline points='2 17 12 22 22 17'/><polyline points='2 12 12 17 22 12'/></svg>" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Campus Management System | Institutional ERP</title>
+    <title>Campus Management System | Institutional Deployment Gateway</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23682038'><polygon points='12 2 2 7 12 12 22 7 12 2'/><polyline points='2 17 12 22 22 17'/><polyline points='2 12 12 17 22 12'/></svg>" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
-    <script type="module" crossorigin src="./assets/index-BFYUyFlA.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-Bm2lmGKD.css">
+    <script>
+      // Immediate query redirect if explicitly requested
+      const params = new URLSearchParams(window.location.search);
+      const target = (params.get('go') || params.get('target') || '').toLowerCase();
+      if (target === 'app') {
+        window.location.replace('app/');
+      } else if (target === 'docs' || target === 'doc' || target === 'spec') {
+        window.location.replace('docs/');
+      }
+    </script>
+    <style>
+      :root {
+        --burgundy: #682038;
+        --burgundy-dark: #50182A;
+        --burgundy-light: #F4ECEE;
+        --canvas: #FAF7F2;
+        --card-bg: #FFFFFF;
+        --card-border: #E5DFD7;
+        --text-primary: #242424;
+        --text-muted: #6E6862;
+        --bronze: #8B5E3C;
+        --bronze-light: #FBF4EE;
+        --shadow-elevation: 0 10px 30px -5px rgba(40, 20, 15, 0.08), 0 4px 12px -2px rgba(40, 20, 15, 0.04);
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background-color: var(--canvas);
+        color: var(--text-primary);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 24px 16px;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      .container {
+        max-width: 960px;
+        width: 100%;
+        margin: 0 auto;
+      }
+
+      /* Header Section */
+      .gateway-header {
+        text-align: center;
+        padding: 32px 0 28px;
+      }
+
+      .crest-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: #FFFFFF;
+        border: 1px solid var(--card-border);
+        border-radius: 9999px;
+        padding: 6px 16px;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--burgundy);
+        box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        margin-bottom: 16px;
+      }
+
+      .crest-badge-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background-color: var(--burgundy);
+      }
+
+      .gateway-title {
+        font-size: 2.2rem;
+        font-weight: 800;
+        letter-spacing: -0.025em;
+        color: var(--burgundy);
+        line-height: 1.15;
+        margin-bottom: 8px;
+      }
+
+      .gateway-subtitle {
+        font-size: 0.95rem;
+        color: var(--text-muted);
+        max-width: 620px;
+        margin: 0 auto;
+        line-height: 1.5;
+      }
+
+      /* Dual Cards Grid */
+      .cards-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 24px;
+        margin: 20px 0 32px;
+      }
+
+      .portal-card {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 20px;
+        padding: 28px 24px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        box-shadow: var(--shadow-elevation);
+        transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+        position: relative;
+        text-decoration: none;
+        color: inherit;
+      }
+
+      .portal-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 16px 36px -4px rgba(40, 20, 15, 0.12), 0 6px 16px -2px rgba(40, 20, 15, 0.06);
+        border-color: var(--burgundy);
+      }
+
+      .portal-card:focus-visible {
+        outline: 3px solid var(--burgundy);
+        outline-offset: 3px;
+      }
+
+      .card-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        margin-bottom: 16px;
+      }
+
+      .icon-box {
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+      }
+
+      .icon-app {
+        background: var(--burgundy-light);
+        color: var(--burgundy);
+      }
+
+      .icon-docs {
+        background: var(--bronze-light);
+        color: var(--bronze);
+      }
+
+      .status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        border-radius: 9999px;
+        font-size: 11px;
+        font-weight: 600;
+        font-family: 'JetBrains Mono', monospace;
+      }
+
+      .status-pill.live {
+        background: #E8F5E9;
+        color: #2E7D32;
+        border: 1px solid #C8E6C9;
+      }
+
+      .status-pill.spec {
+        background: #FFF8E1;
+        color: #B26A00;
+        border: 1px solid #FFE082;
+      }
+
+      .card-title {
+        font-size: 1.35rem;
+        font-weight: 800;
+        color: var(--text-primary);
+        letter-spacing: -0.02em;
+        margin-bottom: 6px;
+      }
+
+      .card-path {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 12px;
+        color: var(--bronze);
+        margin-bottom: 12px;
+        display: block;
+      }
+
+      .card-desc {
+        font-size: 0.88rem;
+        color: var(--text-muted);
+        line-height: 1.55;
+        margin-bottom: 20px;
+        flex-grow: 1;
+      }
+
+      .feature-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-bottom: 24px;
+      }
+
+      .feature-tag {
+        font-size: 11px;
+        font-weight: 600;
+        padding: 3px 8px;
+        border-radius: 6px;
+        background: #F4EFEB;
+        color: #554D45;
+        border: 1px solid #E5DFD7;
+      }
+
+      .card-cta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 18px;
+        border-radius: 12px;
+        font-size: 0.9rem;
+        font-weight: 700;
+        transition: all 0.15s ease;
+      }
+
+      .cta-app {
+        background: var(--burgundy);
+        color: #FFFFFF;
+      }
+
+      .portal-card:hover .cta-app {
+        background: var(--burgundy-dark);
+      }
+
+      .cta-docs {
+        background: #242424;
+        color: #FFFFFF;
+      }
+
+      .portal-card:hover .cta-docs {
+        background: #000000;
+      }
+
+      /* Bottom Footer Info */
+      .gateway-footer {
+        text-align: center;
+        padding: 24px 0 12px;
+        border-top: 1px solid var(--card-border);
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        line-height: 1.6;
+      }
+
+      .direct-links {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 16px;
+        margin-bottom: 8px;
+        flex-wrap: wrap;
+      }
+
+      .direct-link {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--burgundy);
+        text-decoration: underline;
+        text-underline-offset: 2px;
+      }
+
+      .direct-link:hover {
+        color: var(--burgundy-dark);
+      }
+    </style>
   </head>
-  <body class="bg-[#FAF7F2] text-[#242424] antialiased min-h-screen">
-    <div id="root"></div>
+  <body>
+    <div class="container">
+      <!-- Institutional Header -->
+      <header class="gateway-header">
+        <div class="crest-badge">
+          <span class="crest-badge-dot"></span>
+          Academy College of Engineering & Technology
+        </div>
+        <h1 class="gateway-title">Campus Management System</h1>
+        <p class="gateway-subtitle">
+          Select an environment below. The interactive web application and the master visual engineering specification are deployed independently side-by-side.
+        </p>
+      </header>
+
+      <!-- Dual Environments Grid -->
+      <main class="cards-grid">
+        <!-- CARD 1: Production Web Application -->
+        <a href="app/" class="portal-card" aria-label="Launch Campus Management System Web Application">
+          <div>
+            <div class="card-header">
+              <div class="icon-box icon-app">🏛️</div>
+              <span class="status-pill live">● LIVE WEB APP</span>
+            </div>
+            <h2 class="card-title">Campus ERP Application</h2>
+            <code class="card-path">/garbage/app/</code>
+            <p class="card-desc">
+              Interactive college ERP featuring 10 operational modules: Admissions & Quota Seat Matrix, Period-Wise Biometric Attendance with 78% Buffer Warning Radar, CBCS Academics, Dual-Signoff Grade Moderation, Bursar Fee Ledgers with Manual UTR Verification Desk, HR & Payroll with Executive Role Succession Handover, SLA Helpdesk, Regulatory Returns (NAAC/NBA), Training & Placement Cell (T&P), and Library LMS/OPAC.
+            </p>
+            <div class="feature-tags">
+              <span class="feature-tag">10 Core Workspaces</span>
+              <span class="feature-tag">Role-Based Access (11 Roles)</span>
+              <span class="feature-tag">2FA TOTP Enclave</span>
+              <span class="feature-tag">Role Succession Engine</span>
+            </div>
+          </div>
+          <div class="card-cta cta-app">
+            <span>Launch Web Application</span>
+            <span>➔</span>
+          </div>
+        </a>
+
+        <!-- CARD 2: Visual Specification Suite (Document) -->
+        <a href="docs/" class="portal-card" aria-label="Open Visual Specification & Architecture Document Suite">
+          <div>
+            <div class="card-header">
+              <div class="icon-box icon-docs">📑</div>
+              <span class="status-pill spec">● SPECIFICATION</span>
+            </div>
+            <h2 class="card-title">Master Specification Suite</h2>
+            <code class="card-path">/garbage/docs/</code>
+            <p class="card-desc">
+              The original engineering specification and architectural documentation prepared for designing and building the ERP system. Interactive VS Code-style visual workspace featuring exhaustive PRD requirements, domain schemas, data flow models, and Architecture Decision Records (ADR-001 through ADR-033).
+            </p>
+            <div class="feature-tags">
+              <span class="feature-tag">Visual Document Suite</span>
+              <span class="feature-tag">Interactive Explorer</span>
+              <span class="feature-tag">Complete PRD & Blueprints</span>
+              <span class="feature-tag">33 Documented ADRs</span>
+            </div>
+          </div>
+          <div class="card-cta cta-docs">
+            <span>Open Specification Document</span>
+            <span>➔</span>
+          </div>
+        </a>
+      </main>
+    </div>
+
+    <!-- Direct URL Footnote -->
+    <footer class="gateway-footer">
+      <div class="direct-links">
+        <span>Direct Access:</span>
+        <a href="app/" class="direct-link">./app/ (Web Application)</a>
+        <span>•</span>
+        <a href="docs/" class="direct-link">./docs/ (Specification Document)</a>
+      </div>
+      <div>
+        Campus Management System &copy; 2026. Institutional deployment on GitHub Pages.
+      </div>
+    </footer>
   </body>
 </html>
