@@ -170,10 +170,10 @@ export const LoginPage: React.FC<LoginPageProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#DFE3E6] via-[#EAE6DF] to-[#FBE7A8] p-3 sm:p-6 lg:p-10 flex items-center justify-center font-sans relative overflow-hidden selection:bg-[#682038] selection:text-white">
+    <div className="min-h-screen bg-gradient-to-br from-[#DFE3E6] via-[#EAE6DF] to-[#FED7AA] p-3 sm:p-6 lg:p-10 flex items-center justify-center font-sans relative overflow-hidden selection:bg-[#F97316] selection:text-white">
       {/* Atmospheric Soft Light Aura behind Card */}
       <div className="absolute top-1/4 left-1/3 w-[500px] h-[500px] rounded-full bg-white/40 blur-[130px] pointer-events-none -z-0" />
-      <div className="absolute bottom-10 right-10 w-[550px] h-[550px] rounded-full bg-[#F5C443]/25 blur-[140px] pointer-events-none -z-0" />
+      <div className="absolute bottom-10 right-10 w-[550px] h-[550px] rounded-full bg-[#F97316]/20 blur-[140px] pointer-events-none -z-0" />
 
       {/* Main Floating Card Container (Directly modeled on the reference image) */}
       <div className="w-full max-w-6xl bg-[#FAF8F5]/92 backdrop-blur-2xl rounded-[40px] border border-white/80 shadow-[0_30px_70px_-15px_rgba(30,20,10,0.15)] p-5 sm:p-8 lg:p-10 relative overflow-hidden z-10">
@@ -242,7 +242,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
                     : 'text-[#7A7267] hover:text-[#242424]'
                 }`}
               >
-                <Shield className="w-3.5 h-3.5 text-[#F5C443]" />
+                <Shield className="w-3.5 h-3.5 text-[#FB923C]" />
                 <span>Staff</span>
               </button>
             </div>
@@ -268,7 +268,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
                       ? 'rohan.verma@student.jssate.edu'
                       : 'principal@jssate.edu'
                   }
-                  className="w-full px-5 py-3.5 rounded-full bg-white border border-[#E5DFD7] text-xs font-medium text-[#242424] placeholder-[#A39B8F] focus:outline-none focus:border-[#682038] focus:ring-2 focus:ring-[#F5C443]/40 shadow-2xs transition-all"
+                  className="w-full px-5 py-3.5 rounded-full bg-white border border-[#E5DFD7] text-xs font-medium text-[#242424] placeholder-[#A39B8F] focus:outline-none focus:border-[#F97316] focus:ring-2 focus:ring-[#F97316]/40 shadow-2xs transition-all"
                 />
               </div>
 
@@ -281,7 +281,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
                   <select
                     value={selectedStaffRole}
                     onChange={(e) => handleStaffRoleSelect(e.target.value as RoleType)}
-                    className="w-full px-5 py-3.5 rounded-full bg-white border border-[#E5DFD7] text-xs font-bold text-[#682038] focus:outline-none focus:border-[#682038] focus:ring-2 focus:ring-[#F5C443]/40 appearance-none shadow-2xs transition-all cursor-pointer"
+                    className="w-full px-5 py-3.5 rounded-full bg-white border border-[#E5DFD7] text-xs font-bold text-[#682038] focus:outline-none focus:border-[#F97316] focus:ring-2 focus:ring-[#F97316]/40 appearance-none shadow-2xs transition-all cursor-pointer"
                   >
                     {STAFF_ROLES.map((r) => (
                       <option key={r.id} value={r.id}>
@@ -315,7 +315,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
                         : setStaffPassword(e.target.value)
                     }
                     placeholder="••••••••••••••••••••"
-                    className="w-full px-5 py-3.5 pr-12 rounded-full bg-white border border-[#E5DFD7] text-xs font-medium text-[#242424] placeholder-[#A39B8F] focus:outline-none focus:border-[#682038] focus:ring-2 focus:ring-[#F5C443]/40 shadow-2xs transition-all"
+                    className="w-full px-5 py-3.5 pr-12 rounded-full bg-white border border-[#E5DFD7] text-xs font-medium text-[#242424] placeholder-[#A39B8F] focus:outline-none focus:border-[#F97316] focus:ring-2 focus:ring-[#F97316]/40 shadow-2xs transition-all"
                   />
                   <button
                     type="button"
@@ -328,12 +328,12 @@ export const LoginPage: React.FC<LoginPageProps> = ({
                 </div>
               </div>
 
-              {/* Primary Submit Button: Rich Amber Pill (Exact match to "Submit" in reference) */}
+              {/* Primary Submit Button: Vibrant Sunset Orange Pill */}
               <div className="pt-1">
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full py-3.5 rounded-full bg-[#F5C443] hover:bg-[#E5B537] active:scale-[0.99] text-[#242424] font-bold text-xs shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  className="w-full py-3.5 rounded-full bg-[#F97316] hover:bg-[#EA580C] active:scale-[0.99] text-white font-bold text-xs shadow-md shadow-orange-500/25 transition-all flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <span>
                     {isSubmitting
@@ -392,21 +392,21 @@ export const LoginPage: React.FC<LoginPageProps> = ({
               {/* Subtle Ambient Vignette */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent pointer-events-none" />
 
-              {/* WIDGET 1: Top-Left Stacked Pills (Dark pill behind + Yellow pill in front with dots) */}
+              {/* WIDGET 1: Top-Left Stacked Pills (Dark pill behind + Orange pill in front with dots) */}
               <div className="absolute top-5 left-5 z-20">
                 {/* Dark Pill Behind */}
                 <div className="absolute top-3 left-6 z-10 px-3.5 py-1.5 rounded-2xl bg-neutral-900/90 text-white/80 text-[10px] font-medium shadow-md flex items-center gap-2 whitespace-nowrap">
                   <span>09:30am-10:00am</span>
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#F5C443]" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#F97316]" />
                 </div>
 
-                {/* Yellow Pill in Front with Black Dot */}
-                <div className="relative z-20 px-4 py-2.5 rounded-2xl bg-[#F5C443] text-[#242424] shadow-xl flex items-center justify-between gap-3 border border-[#E5B537] min-w-[200px]">
+                {/* Orange Pill in Front with White Dot */}
+                <div className="relative z-20 px-4 py-2.5 rounded-2xl bg-[#F97316] text-white shadow-xl shadow-orange-500/20 flex items-center justify-between gap-3 border border-[#EA580C] min-w-[200px]">
                   <div>
                     <div className="text-xs font-bold leading-tight">Task Review With Team</div>
-                    <div className="text-[10px] font-medium text-[#4A3D18]">09:30am-10:00am</div>
+                    <div className="text-[10px] font-medium text-white/80">09:30am-10:00am</div>
                   </div>
-                  <span className="w-2 h-2 rounded-full bg-[#242424] shrink-0" />
+                  <span className="w-2 h-2 rounded-full bg-white shrink-0" />
                 </div>
               </div>
 
@@ -447,7 +447,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
                     <span>Sun</span>
                     <span>Mon</span>
                     <span>Tue</span>
-                    <span className="text-[#F5C443]">Wed</span>
+                    <span className="text-[#FB923C] font-extrabold">Wed</span>
                     <span>Thu</span>
                     <span>Fri</span>
                     <span>Sat</span>
@@ -456,9 +456,9 @@ export const LoginPage: React.FC<LoginPageProps> = ({
                     <span>22</span>
                     <span>23</span>
                     <span>24</span>
-                    <span className="relative text-[#F5C443]">
+                    <span className="relative text-[#FB923C] font-extrabold">
                       25
-                      <span className="absolute -top-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-[#F5C443] shadow-xs" />
+                      <span className="absolute -top-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-[#FB923C] shadow-xs" />
                     </span>
                     <span>26</span>
                     <span>27</span>
@@ -483,7 +483,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
                     <h4 className="text-xs font-bold text-[#242424]">Daily Meeting</h4>
                     <p className="text-[10px] text-[#7A7267] font-medium mt-0.5">12:00pm-01:00pm</p>
                   </div>
-                  <span className="w-2 h-2 rounded-full bg-[#F5C443]" />
+                  <span className="w-2 h-2 rounded-full bg-[#F97316]" />
                 </div>
                 {/* 4 Overlapping Avatar Bubbles in Horizontal Row */}
                 <div className="flex -space-x-1.5 mt-3">
@@ -558,7 +558,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
                   value={totpCode}
                   onChange={(e) => setTotpCode(e.target.value.replace(/\D/g, ''))}
                   placeholder="• • • • • •"
-                  className="w-full text-center tracking-[0.5em] font-mono text-xl py-3 rounded-full border border-white/80 bg-white/60 backdrop-blur-md font-bold text-[#242424] focus:outline-none focus:bg-white/90 focus:ring-2 focus:ring-[#F5C443]"
+                  className="w-full text-center tracking-[0.5em] font-mono text-xl py-3 rounded-full border border-white/80 bg-white/60 backdrop-blur-md font-bold text-[#242424] focus:outline-none focus:bg-white/90 focus:ring-2 focus:ring-[#F97316]"
                 />
               </div>
 
@@ -572,7 +572,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 rounded-full bg-[#F5C443] hover:bg-[#E5B537] text-[#242424] text-xs font-bold shadow-xs flex items-center gap-1.5 cursor-pointer"
+                  className="px-5 py-2.5 rounded-full bg-[#F97316] hover:bg-[#EA580C] text-white text-xs font-bold shadow-xs flex items-center gap-1.5 cursor-pointer"
                 >
                   <KeyRound className="w-3.5 h-3.5" />
                   <span>Verify &amp; Enter Workspace</span>
@@ -612,7 +612,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
                     value={resetEmail}
                     onChange={(e) => setResetEmail(e.target.value)}
                     placeholder="e.g. employee@jssate.edu"
-                    className="w-full text-xs px-4 py-3 rounded-full border border-white/80 bg-white/60 backdrop-blur-md focus:outline-none focus:bg-white/90 focus:ring-2 focus:ring-[#F5C443]"
+                    className="w-full text-xs px-4 py-3 rounded-full border border-white/80 bg-white/60 backdrop-blur-md focus:outline-none focus:bg-white/90 focus:ring-2 focus:ring-[#F97316]"
                   />
                 </div>
 
@@ -626,7 +626,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
                   </button>
                   <button
                     type="submit"
-                    className="px-5 py-2.5 rounded-full bg-[#F5C443] hover:bg-[#E5B537] text-[#242424] text-xs font-bold shadow-xs cursor-pointer"
+                    className="px-5 py-2.5 rounded-full bg-[#F97316] hover:bg-[#EA580C] text-white text-xs font-bold shadow-xs cursor-pointer"
                   >
                     Send Reset Link
                   </button>
