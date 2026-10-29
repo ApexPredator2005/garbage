@@ -221,7 +221,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
             <div className="flex items-center justify-between">
               <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#D5CDC0] bg-white/90 text-xs text-[#242424] shadow-2xs">
                 <span className="w-2 h-2 rounded-full bg-[#682038]" />
-                <span className="font-bold text-[#682038]">Devloft Campus</span>
+                <span className="font-bold text-[#682038]">Devloft CMS</span>
                 <span className="text-[#8B8276]">•</span>
                 <select
                   value={selectedTenant}
@@ -404,10 +404,10 @@ export const LoginPage: React.FC<LoginPageProps> = ({
             <div className="flex items-center justify-between text-xs text-[#7A7267] pt-4 px-2">
               <button
                 type="button"
-                onClick={() => setShowForgotModal(true)}
+                onClick={onOpenPublicApply}
                 className="hover:text-[#242424] cursor-pointer"
               >
-                Have any account? <span className="underline font-semibold text-[#242424]">Sign in</span>
+                Don&apos;t Have any account? <span className="underline font-semibold text-[#242424]">Sign up</span>
               </button>
               <span className="hover:text-[#242424] cursor-pointer">Terms &amp; Conditions</span>
             </div>
