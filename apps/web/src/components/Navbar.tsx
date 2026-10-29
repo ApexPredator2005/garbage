@@ -53,11 +53,11 @@ export const Navbar: React.FC<NavbarProps> = ({
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
             <div className="w-9 h-9 rounded-xl bg-[#682038] text-white flex items-center justify-center font-bold text-base shadow-xs">
-              D
+              C
             </div>
             <div>
               <div className="text-sm font-extrabold text-[#682038] tracking-tight leading-tight">
-                DEVLOFT CMS
+                CAMPUS ERP
               </div>
               <div className="text-[11px] font-mono text-[#8B5E3C] leading-none">
                 {currentTenant.subdomain}

@@ -3,7 +3,7 @@ import { TenantInfo, StudentRecord, TimetableSlotItem, MarkRecord, FeeDemandItem
 export const MOCK_TENANTS: TenantInfo[] = [
   { id: 't-1', name: 'JSS Academy of Technical Education', code: 'JSSATE', subdomain: 'jssate.campus.edu' },
   { id: 't-2', name: 'JSS College of Arts, Commerce & Science', code: 'JSSCACS', subdomain: 'jsscacs.campus.edu' },
-  { id: 't-3', name: 'Devloft Institute of Technology', code: 'DIT', subdomain: 'dit.campus.edu' },
+  { id: 't-3', name: 'Deccan Institute of Technology', code: 'DIT', subdomain: 'dit.campus.edu' },
 ];
 
 export const MOCK_STUDENTS: StudentRecord[] = [

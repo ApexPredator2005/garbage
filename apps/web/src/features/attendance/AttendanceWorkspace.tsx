@@ -901,7 +901,7 @@ export const AttendanceWorkspace: React.FC = () => {
             <div className="space-y-1 text-xs text-[#242424]">
               <h3 className="font-bold text-sm">Immutable Raw Biometric Device Ingestion Pipeline</h3>
               <p className="text-[#6E6862]">
-                Per Devloft Section 3.2, hardware punch events streamed via TCP socket listeners are written directly to an append-only audit store. Attendance reconciliation records point to device punches without mutating raw event logs.
+                Per System Architecture Section 3.2, hardware punch events streamed via TCP socket listeners are written directly to an append-only audit store. Attendance reconciliation records point to device punches without mutating raw event logs.
               </p>
             </div>
           </div>

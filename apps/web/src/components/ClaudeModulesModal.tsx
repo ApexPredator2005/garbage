@@ -13,7 +13,7 @@ export const ClaudeModulesModal: React.FC<ClaudeModulesModalProps> = ({ isOpen, 
   if (!isOpen) return null;
 
   const CLAUDE_PROMPTS = {
-    attendance: `You are a Principal Frontend Architect building Module 02 for the Devloft College Campus Management System.
+    attendance: `You are a Principal Frontend Architect building Module 02 for the Institutional College Campus Management System.
 Generate the complete, production-grade, self-contained React TypeScript file for:
 \`apps/web/src/features/attendance/AttendanceWorkspace.tsx\`
 
@@ -52,7 +52,7 @@ Generate the complete, production-grade, self-contained React TypeScript file fo
    - Export signature: \`export const AttendanceWorkspace: React.FC = () => { ... }\`.
    - Strictly NO placeholder comments like \`// implement here\`. Return the full, working component code.`,
 
-    payroll: `You are a Principal Frontend Architect building Module 06 for the Devloft College Campus Management System.
+    payroll: `You are a Principal Frontend Architect building Module 06 for the Institutional College Campus Management System.
 Generate the complete, production-grade, self-contained React TypeScript file for:
 \`apps/web/src/features/hr/HrPayrollWorkspace.tsx\`
 
@@ -77,7 +77,7 @@ Generate the complete, production-grade, self-contained React TypeScript file fo
      - In \`LOCKED\` mode: Entire cycle is frozen, displays balanced General Ledger Voucher Number (\`JV-2026-PAY-104\`) and immutable watermark badge.
    - **Interactive Payslip Modal:**
      - Clicking "View Payslip" opens a formal institutional slip.
-     - Features: Formal Header ("Devloft College of Engineering & Technology"), Employee Details, Itemized Earnings vs. Deductions columns, Net Payable in numbers and written in words (\`Rupees Eighty-Two Thousand Four Hundred Only\`), Registrar Signature stamp placeholder, and simulated "Download PDF" / "Print" triggers.
+     - Features: Formal Header ("College of Engineering & Technology"), Employee Details, Itemized Earnings vs. Deductions columns, Net Payable in numbers and written in words (\`Rupees Eighty-Two Thousand Four Hundred Only\`), Registrar Signature stamp placeholder, and simulated "Download PDF" / "Print" triggers.
    - **Banking Export Trigger:**
      - "Generate NEFT Bank Batch File" button with confirmation alert.
 
@@ -90,7 +90,7 @@ Generate the complete, production-grade, self-contained React TypeScript file fo
    - Export signature: \`export const HrPayrollWorkspace: React.FC = () => { ... }\`.
    - Strictly NO placeholder comments like \`// implement here\`. Return the full, working component code.`,
 
-    communication: `You are a Principal Frontend Architect building Module 07 for the Devloft College Campus Management System.
+    communication: `You are a Principal Frontend Architect building Module 07 for the Institutional College Campus Management System.
 Generate the complete, production-grade, self-contained React TypeScript file for:
 \`apps/web/src/features/communication/CommunicationWorkspace.tsx\`
 
@@ -128,7 +128,7 @@ Generate the complete, production-grade, self-contained React TypeScript file fo
    - Export signature: \`export const CommunicationWorkspace: React.FC = () => { ... }\`.
    - Strictly NO placeholder comments like \`// implement here\`. Return the full, working component code.`,
 
-    reports: `You are a Principal Frontend Architect building Module 08 for the Devloft College Campus Management System.
+    reports: `You are a Principal Frontend Architect building Module 08 for the Institutional College Campus Management System.
 Generate the complete, production-grade, self-contained React TypeScript file for:
 \`apps/web/src/features/reports/ReportsWorkspace.tsx\`
 

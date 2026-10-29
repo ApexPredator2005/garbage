@@ -432,7 +432,7 @@ export const ReportsWorkspace: React.FC = () => {
             <div className="space-y-0.5 text-xs text-[#242424]">
               <span className="font-bold text-sm">Anti-Injection Parameterized Query Console:</span>
               <p className="text-[#6E6862]">
-                Users cannot execute arbitrary raw SQL queries. Queries are strictly constructed via safe parameter bindings (<code>$1</code>, <code>$2</code>) against pre-indexed materialized view catalogs per Devloft Section 4.3.
+                Users cannot execute arbitrary raw SQL queries. Queries are strictly constructed via safe parameter bindings (<code>$1</code>, <code>$2</code>) against pre-indexed materialized view catalogs per System Architecture Section 4.3.
               </p>
             </div>
           </div>

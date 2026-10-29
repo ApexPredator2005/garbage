@@ -291,7 +291,7 @@ export const DEFAULT_STAFF_DIRECTORY: StaffMember[] = [
     designation: 'Enterprise Cloud Architect',
     department: 'IT Directorate',
     role: 'SUPER_ADMIN',
-    email: 'platform.root@devloft.io',
+    email: 'platform.root@campus.edu',
     status: 'ACTIVE',
     dateOfJoining: '2015-01-01',
     bankAccount: '111122223333',
