@@ -472,6 +472,19 @@ This document chronicles the fundamental engineering and product decisions made 
 
 ---
 
+### [ADR-034] Dual Standalone Deployment Architecture (Independent Web Application & Specification Document Suite)
+- **Classification:** Deployment & Delivery Architecture (DEPLOY / ARCH)
+- **Status:** Approved & Implemented
+- **Decision Owner:** Stakeholder Directive & Engineering Lead
+- **Context:** The stakeholder prepared an extensive visual engineering specification document (`docs/index.html`) used to design the college ERP system. During initial deployment of the web application (`apps/web`), publishing compiled app assets to the repository root inadvertently overwrote the root entrypoint that previously served the specification document suite. The stakeholder required both artifacts to be simultaneously deployed and accessible on GitHub Pages, but as strictly independent, standalone environments rather than a merged or co-mingled screen.
+- **Decision:** Architected a cleanly partitioned dual-deployment structure hosted under a unified GitHub Pages origin:
+  1. **Independent Specification Suite (`/docs/`):** The complete original specification document suite remains intact and accessible in its own standalone directory at `/garbage/docs/`, equipped with an unobtrusive top header button linking to `../app/`.
+  2. **Independent Web Application (`/app/`):** The production React + Vite application bundle is compiled with relative base paths (`./`) and hosted in its own isolated directory at `/garbage/app/`, equipped with a reciprocal link in the navigation header and login view to `../docs/`.
+  3. **Institutional Gateway Launchpad (`/`):** The repository root (`index.html`) serves a lightweight, high-contrast institutional gateway presenting two prominent, dedicated launch cards: one for the live Web Application and one for the Specification Suite, plus URL query routing (`?go=app` or `?go=docs`) for direct headless access.
+- **Rationale:** Guarantees 100% independent, non-conflicting access to both the engineering document and the production application without either overwriting or polluting the other.
+
+---
+
 ## 6. Comprehensive Decision Summary Matrix
 
 | ID | Decision Title | Category | Status | Primary Rationale & Impact |
@@ -509,3 +522,4 @@ This document chronicles the fundamental engineering and product decisions made 
 | **ADR-031** | Staff Credential Provisioning & Role Succession | FUNC/GOV | Implemented | Auto @campus.edu onboarding slips + single-incumbent executive handover workflow with audit log. |
 | **ADR-032** | Institutional White-Labeling & UI Brand Hygiene | UX/GOV | Implemented | Standardized on CAMPUS ERP; vendor brand confined to login badge; purged diagnostic header buttons. |
 | **ADR-033** | Higher-Ed Expansion: Placement (T&P) & Library OPAC | FUNC/ACCRED | Implemented | 6-stage placement recruitment pipeline + DDC/MARC-21 OPAC catalog with RFID circulation desk. |
+| **ADR-034** | Dual Standalone Deployment Architecture | DEPLOY/ARCH | Implemented | Independent isolated deployments for Web App (/app/) and Spec Suite (/docs/) via Gateway Portal (/). |
