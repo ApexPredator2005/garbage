@@ -495,7 +495,7 @@ export const AdmissionsWorkspace: React.FC = () => {
             }`}
           >
             <UserCheck className="w-3.5 h-3.5" />
-            <span>1. Master Registry</span>
+            <span>1. Student Directory & Records</span>
           </button>
 
           <button
@@ -507,7 +507,7 @@ export const AdmissionsWorkspace: React.FC = () => {
             }`}
           >
             <PieChart className="w-3.5 h-3.5" />
-            <span>2. Quota Matrix ({totalVacant} Vacant)</span>
+            <span>2. Seat Matrix ({totalVacant} Vacant)</span>
           </button>
 
           <button
@@ -572,7 +572,7 @@ export const AdmissionsWorkspace: React.FC = () => {
         </div>
       </div>
 
-      {/* SUB-TAB 1: MASTER REGISTRY & STATUTORY EXIT BARRIER GUARD */}
+      {/* SUB-TAB 1: STUDENT DIRECTORY & CLEARANCE RECORDS */}
       {subTab === 'registry' && (
         <div className="space-y-6">
           <div className="flex items-center justify-between gap-3 bg-white p-4 rounded-xl border border-[#E5DFD7]">
@@ -587,7 +587,7 @@ export const AdmissionsWorkspace: React.FC = () => {
               />
             </div>
             <div className="text-xs text-[#6E6862]">
-              Enforces <strong>Statutory Student Exit Barrier Guard</strong> (4 verified certificates mandatory)
+              Enforces <strong>Statutory Graduation Clearance</strong> (4 verified certificates mandatory)
             </div>
           </div>
 
@@ -597,7 +597,7 @@ export const AdmissionsWorkspace: React.FC = () => {
               <h3 className="text-sm font-bold text-[#682038] uppercase tracking-wider">
                 Enrolled Student Records ({filteredStudents.length})
               </h3>
-              <span className="text-xs text-[#6E6862]">Enforces Statutory Student Exit Barrier Guard</span>
+              <span className="text-xs text-[#6E6862]">Enforces Statutory Graduation Clearance</span>
             </div>
 
             <div className="overflow-x-auto">
@@ -676,7 +676,7 @@ export const AdmissionsWorkspace: React.FC = () => {
         </div>
       )}
 
-      {/* SUB-TAB 2: QUOTA RESERVATION SEAT MATRIX VISUALIZER */}
+      {/* SUB-TAB 2: SEAT MATRIX & INTAKE CAPACITY */}
       {subTab === 'seat_matrix' && (
         <div className="space-y-6">
           {slidingToast && (
