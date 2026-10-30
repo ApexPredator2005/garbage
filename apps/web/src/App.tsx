@@ -90,9 +90,9 @@ const ROLE_METADATA: Record<
   },
   REGISTRAR: {
     title: 'Registrar',
-    badge: 'Admissions & SIS Office',
-    scope: 'Student Enrolment, Statutory Quota Matrices, Transfer & Exit Barriers, Result Publishing',
-    allowedModules: ['admissions', 'academics', 'exams', 'placement', 'library', 'reports'],
+    badge: 'Admissions & University Records Office',
+    scope: 'Student Enrolment, Faculty Appointment Registry, Curriculum & Timetable Sanctions, Course Catalogs, Library Oversight',
+    allowedModules: ['admissions', 'academics', 'payroll', 'library', 'exams', 'attendance', 'fees', 'placement', 'reports'],
     color: '#1E3A8A',
   },
   HOD: {

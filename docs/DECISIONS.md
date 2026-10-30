@@ -614,6 +614,23 @@ This document chronicles the fundamental engineering and product decisions made 
 
 ---
 
+### [ADR-041] Institutional Registrar Day-One Seed & Operations Verification
+- **Classification:** Operational Governance, Academic Administration & System Seed Verification (GOV / SIS / ACAD / HR / LIB)
+- **Status:** Approved & Implemented
+- **Decision Owner:** Institutional Registrar Authority & Operational Acceptance
+- **Context:** A comprehensive end-to-end verification was conducted assuming the persona of the **Academic Registrar** on Day One of institutional ERP commissioning, tasked with populating the college from A to Z. All core registrar functions across Admissions, Academics, HR, and Library were audited and tested, uncovering missing controls and incomplete execution handlers.
+- **Decision:** Architected, implemented, and verified the complete day-one institutional onboarding and administrative operations suite:
+  1. **Course Catalog & Variable Credit Subject Allocation:** Added `isAddCourseModalOpen` in `AcademicsWorkspace.tsx` allowing the Registrar and Board of Studies to add new courses/subjects to the catalog. Enabled variable subject credit weighting within the same academic program (e.g. `CS302 DBMS Theory` with 4.0 credits, L-T-P `3-1-0` alongside `CS302L DBMS Lab` with 1.5 credits, L-T-P `0-0-3`).
+  2. **Syllabus Unit Revision & Credit Customization:** Enhanced the course syllabus editor modal to allow adjusting CBCS credit weights (5.0, 4.0, 3.0, 2.0, 1.5, 1.0) and L-T-P distribution alongside appending unit syllabus topics and lecture hours.
+  3. **Academic Calendar Milestones:** Added `isAddCalendarEventModalOpen` in Pillar 6 allowing the Registrar to schedule instructional milestones, internal exam series (CIA-1, CIA-2), gazetted holidays, and university semester-end exams.
+  4. **Timetable Slot Builder:** Tested manual slot creation with real-time clash checking against room occupancy (`LH-202`) and instructor availability (`Dr. Ramesh Kulkarni`).
+  5. **Student SIS Operations:** Verified walk-in admission with deterministic Auto-Mint USN (`2026CSE60`), fee ledger creation, and quota matrix sync. Added `isEditStudentModalOpen` enabling student profile updates and Class Section re-allocation (moving from Section A to Section B). Added `isPromoteCohortModalOpen` allowing the Registrar to execute batch progression (advancing Semester 1 cohort to Semester 2). Added `isAdjustQuotaModalOpen` in the Seat Matrix allowing intake capacity adjustments.
+  6. **Faculty Appointments (HR & Payroll):** Expanded Registrar role permissions in `App.tsx` to include HR/Payroll and Attendance oversight. Verified staff onboarding workflow for `Dr. Ananya Sen` with official Welcome Slip & Credential Memo issuance.
+  7. **Library Circulation Desk ("Giving Books to Students"):** Elevated `isScannerModalOpen` in `LibraryWorkspace.tsx` into a full-fledged Circulation Desk modal with student USN selection, patron name, loan duration presets (14d, 28d, 60d, 90d), and live due date calculation. Verified issuing `Designing Data-Intensive Applications` to `Kavya Ramanathan (2026CSE60)`, tested loan renewal (+14 days), and processed book check-in (return).
+- **Rationale:** Ensures 100% operational readiness for academic institutions deploying the ERP from scratch, guaranteeing that all institutional duties are fully interactive and deterministic.
+
+---
+
 ## 6. Comprehensive Decision Summary Matrix
 
 | ID | Decision Title | Category | Status | Primary Rationale & Impact |
@@ -658,3 +675,4 @@ This document chronicles the fundamental engineering and product decisions made 
 | **ADR-038** | Attendance Role-Gating, Class Selectors & Student Fines | FUNC/SEC/UX | Implemented | Principal view-only audit mode (faculty marking only), live Program/Sem/Section cohort switcher, and itemized student fines ledger. |
 | **ADR-039** | Faculty Subject-Scoped Isolation & Admission USN Authority | SEC/GOV/UX | Implemented | Faculty data-scoping to assigned subjects/cohorts with access restriction barriers, persona switcher & Registrar USN governance. |
 | **ADR-040** | Institutional RACI Matrix, Parent Login, Syllabus & Timetable | GOV/SEC/FUNC | Implemented | Parent login portal option, HOD syllabus revision modal, manual timetable builder & walk-in admission desk with auto-USN. |
+| **ADR-041** | Institutional Registrar Day-One Seed & Operations Verification | GOV/SIS/ACAD/HR/LIB | Implemented | Course catalog creation, variable credit subject weights, syllabus unit editor, calendar milestones, student section reallocation, batch promotion, quota adjustments, faculty onboarding, and library circulation desk. |

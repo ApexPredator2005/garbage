@@ -416,14 +416,40 @@ export const AcademicsWorkspace: React.FC<AcademicsWorkspaceProps> = ({ currentR
   const [newDiaryPeriod, setNewDiaryPeriod] = useState(1);
   const [newDiaryAttendance, setNewDiaryAttendance] = useState(58);
 
-  // Syllabus Update State (Authorized: HOD & Board of Studies / Academic Dean)
+  // Course Creation State (Authorized: Registrar / BOS / Academic Dean)
+  const [isAddCourseModalOpen, setIsAddCourseModalOpen] = useState(false);
+  const [newCourseCode, setNewCourseCode] = useState('');
+  const [newCourseTitle, setNewCourseTitle] = useState('');
+  const [newCourseDept, setNewCourseDept] = useState('Computer Science & Engg');
+  const [newCourseSemester, setNewCourseSemester] = useState(4);
+  const [newCourseType, setNewCourseType] = useState<'THEORY' | 'LAB' | 'PROFESSIONAL_ELECTIVE' | 'OPEN_ELECTIVE'>('THEORY');
+  const [newCourseCredits, setNewCourseCredits] = useState<number>(4);
+  const [newCourseLtpHours, setNewCourseLtpHours] = useState('3-1-0');
+  const [newCourseRegulation, setNewCourseRegulation] = useState('R26-NEP');
+  const [newCoursePrereq, setNewCoursePrereq] = useState('CS201 Data Structures');
+  const [newCourseUnitTitle, setNewCourseUnitTitle] = useState('Unit 1: Fundamentals & System Design');
+  const [newCourseUnitHours, setNewCourseUnitHours] = useState(10);
+  const [newCourseUnitTopics, setNewCourseUnitTopics] = useState('Foundational architecture, relational schemas, ER modeling, and transaction semantics.');
+  const [courseSaveSuccess, setCourseSaveSuccess] = useState<string | null>(null);
+
+  // Syllabus & Subject Credit Revision State (Authorized: HOD, BOS, Registrar)
   const [isEditSyllabusModalOpen, setIsEditSyllabusModalOpen] = useState(false);
   const [editingCourse, setEditingCourse] = useState<AcademicCourse | null>(null);
+  const [syllabusCredits, setSyllabusCredits] = useState<number>(4);
+  const [syllabusLtpHours, setSyllabusLtpHours] = useState('3-1-0');
   const [syllabusUnitTitle, setSyllabusUnitTitle] = useState('');
   const [syllabusUnitTopics, setSyllabusUnitTopics] = useState('');
   const [syllabusPlannedHours, setSyllabusPlannedHours] = useState(8);
   const [syllabusVersionCode, setSyllabusVersionCode] = useState('R-2026-CBCS');
   const [syllabusSaveSuccess, setSyllabusSaveSuccess] = useState<string | null>(null);
+
+  // Calendar Event Addition State (Authorized: Registrar)
+  const [isAddCalendarEventModalOpen, setIsAddCalendarEventModalOpen] = useState(false);
+  const [calDate, setCalDate] = useState('2026-11-15');
+  const [calTitle, setCalTitle] = useState('');
+  const [calDesc, setCalDesc] = useState('');
+  const [calCategory, setCalCategory] = useState<'INSTRUCTIONAL_DAY' | 'GAZETTED_HOLIDAY' | 'INTERNAL_EXAM' | 'SEMESTER_END_EXAM' | 'VACATION'>('INSTRUCTIONAL_DAY');
+  const [calendarSaveSuccess, setCalendarSaveSuccess] = useState<string | null>(null);
 
   // Timetable Slot Builder State (Authorized: Timetable Coordinator & HOD)
   const [isAddSlotModalOpen, setIsAddSlotModalOpen] = useState(false);
@@ -439,6 +465,8 @@ export const AcademicsWorkspace: React.FC<AcademicsWorkspaceProps> = ({ currentR
 
   const handleOpenEditSyllabus = (course: AcademicCourse) => {
     setEditingCourse(course);
+    setSyllabusCredits(course.credits);
+    setSyllabusLtpHours(course.ltpHours);
     setSyllabusUnitTitle(`Unit ${course.syllabusUnits.length + 1}: Emerging Architectures & Applied Paradigms`);
     setSyllabusUnitTopics('Core theoretical framework, practical application benchmarks, and algorithmic analysis.');
     setSyllabusPlannedHours(8);
@@ -462,6 +490,8 @@ export const AcademicsWorkspace: React.FC<AcademicsWorkspaceProps> = ({ currentR
       if (c.id === editingCourse.id) {
         return {
           ...c,
+          credits: Number(syllabusCredits),
+          ltpHours: syllabusLtpHours,
           regulationCode: syllabusVersionCode,
           syllabusUnits: [...c.syllabusUnits, newUnit],
         };
@@ -470,16 +500,81 @@ export const AcademicsWorkspace: React.FC<AcademicsWorkspaceProps> = ({ currentR
     });
 
     setCourses(updatedCourses);
-    setEditingCourse((prev) => (prev ? { ...prev, regulationCode: syllabusVersionCode, syllabusUnits: [...prev.syllabusUnits, newUnit] } : null));
+    setEditingCourse((prev) => (prev ? { ...prev, credits: Number(syllabusCredits), ltpHours: syllabusLtpHours, regulationCode: syllabusVersionCode, syllabusUnits: [...prev.syllabusUnits, newUnit] } : null));
     if (selectedCourseForDetail?.id === editingCourse.id) {
-      setSelectedCourseForDetail((prev) => (prev ? { ...prev, regulationCode: syllabusVersionCode, syllabusUnits: [...prev.syllabusUnits, newUnit] } : null));
+      setSelectedCourseForDetail((prev) => (prev ? { ...prev, credits: Number(syllabusCredits), ltpHours: syllabusLtpHours, regulationCode: syllabusVersionCode, syllabusUnits: [...prev.syllabusUnits, newUnit] } : null));
     }
 
-    setSyllabusSaveSuccess(`Syllabus Unit ${newUnit.unitNumber} ("${newUnit.title}") successfully saved for ${editingCourse.code}!`);
+    setSyllabusSaveSuccess(`Syllabus Unit ${newUnit.unitNumber} & Credit Allocation (${syllabusCredits} Credits, L-T-P: ${syllabusLtpHours}) successfully saved for ${editingCourse.code}!`);
     setTimeout(() => {
       setSyllabusSaveSuccess(null);
       setIsEditSyllabusModalOpen(false);
     }, 1500);
+  };
+
+  const handleSaveNewCourse = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newCourseCode || !newCourseTitle) return;
+
+    const newCourseItem: AcademicCourse = {
+      id: `course-${Date.now()}`,
+      code: newCourseCode.trim().toUpperCase(),
+      title: newCourseTitle.trim(),
+      department: newCourseDept,
+      semester: Number(newCourseSemester),
+      type: newCourseType,
+      credits: Number(newCourseCredits),
+      ltpHours: newCourseLtpHours,
+      lectureHours: Number(newCourseLtpHours.split('-')[0]) || 3,
+      tutorialHours: Number(newCourseLtpHours.split('-')[1]) || 0,
+      practicalHours: Number(newCourseLtpHours.split('-')[2]) || 0,
+      regulationCode: newCourseRegulation,
+      prerequisites: newCoursePrereq ? [newCoursePrereq] : [],
+      courseOutcomes: [
+        { code: 'CO1', description: `Understand foundational principles and architecture of ${newCourseTitle}.`, bloomLevel: 'UNDERSTAND', poMapping: { PO1: 3, PO2: 2 } },
+        { code: 'CO2', description: `Apply theoretical techniques to solve complex engineering problems in ${newCourseTitle}.`, bloomLevel: 'APPLY', poMapping: { PO2: 3, PO3: 2 } },
+      ],
+      syllabusUnits: [
+        {
+          unitNumber: 1,
+          title: newCourseUnitTitle || 'Unit 1: Foundations',
+          hours: Number(newCourseUnitHours) || 8,
+          content: newCourseUnitTopics || 'Fundamental principles and design paradigms.',
+        },
+      ],
+      textbooks: ['Standard Prescribed University Textbook, 2026 Edition'],
+    };
+
+    setCourses((prev) => [newCourseItem, ...prev]);
+    setCourseSaveSuccess(`New Course ${newCourseItem.code} ("${newCourseItem.title}") created with ${newCourseItem.credits} credits!`);
+    setTimeout(() => {
+      setCourseSaveSuccess(null);
+      setIsAddCourseModalOpen(false);
+      setNewCourseCode('');
+      setNewCourseTitle('');
+    }, 1400);
+  };
+
+  const handleSaveCalendarEvent = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!calTitle || !calDate) return;
+
+    const newEvt: CalendarEventItem = {
+      id: `cal-${Date.now()}`,
+      date: calDate,
+      title: calTitle,
+      description: calDesc || 'Institutional academic milestone registered by Registrar Office.',
+      category: calCategory,
+    };
+
+    setCalendarEvents((prev) => [newEvt, ...prev]);
+    setCalendarSaveSuccess(`Calendar event "${calTitle}" added for ${calDate}.`);
+    setTimeout(() => {
+      setCalendarSaveSuccess(null);
+      setIsAddCalendarEventModalOpen(false);
+      setCalTitle('');
+      setCalDesc('');
+    }, 1200);
   };
 
   const handleOpenAddSlot = (slot?: TimetableSlotItem) => {
@@ -824,14 +919,24 @@ export const AcademicsWorkspace: React.FC<AcademicsWorkspaceProps> = ({ currentR
               </p>
             </div>
             
-            <button
-              type="button"
-              onClick={() => handleOpenEditSyllabus(courses[0])}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#682038] hover:bg-[#54192D] text-white text-xs font-bold transition-all shadow-2xs self-start md:self-auto cursor-pointer"
-            >
-              <BookOpen className="w-3.5 h-3.5 text-amber-300" />
-              <span>Update Course Syllabus Units (HOD/BOS)</span>
-            </button>
+            <div className="flex items-center gap-2 flex-wrap">
+              <button
+                type="button"
+                onClick={() => setIsAddCourseModalOpen(true)}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#682038] hover:bg-[#54192D] text-white text-xs font-bold transition-all shadow-2xs cursor-pointer"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>Add New Course to Catalog</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleOpenEditSyllabus(courses[0])}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white border border-[#E5DFD7] hover:bg-[#FAF7F2] text-[#682038] text-xs font-bold transition-all shadow-2xs cursor-pointer"
+              >
+                <BookOpen className="w-3.5 h-3.5 text-[#8B5E3C]" />
+                <span>Update Course Syllabus &amp; Credits</span>
+              </button>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1203,16 +1308,26 @@ export const AcademicsWorkspace: React.FC<AcademicsWorkspaceProps> = ({ currentR
       {activeTab === 'calendar' && (
         <div className="space-y-4">
           <div className="bg-white rounded-2xl border border-[#E5DFD7] p-5 shadow-xs space-y-4">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
                 <h3 className="font-bold text-sm text-[#242424]">Institutional Academic Calendar &amp; Statutory 90-Day Tracker</h3>
                 <p className="text-xs text-[#6E6862]">
                   UGC / AICTE mandates minimum 90 instructional working days per semester before exam eligibility.
                 </p>
               </div>
-              <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
-                Current Progress: 82 / 90 Working Days (91.1%)
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                  Current Progress: 82 / 90 Working Days (91.1%)
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setIsAddCalendarEventModalOpen(true)}
+                  className="px-3 py-1.5 rounded-lg bg-[#682038] hover:bg-[#54192D] text-white text-xs font-bold flex items-center gap-1.5 shadow-2xs cursor-pointer"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>Add Milestone / Date</span>
+                </button>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -1856,6 +1971,42 @@ export const AcademicsWorkspace: React.FC<AcademicsWorkspaceProps> = ({ currentR
                 </div>
               </div>
 
+              {/* Subject Credit Weighting & L-T-P Hours */}
+              <div className="grid grid-cols-2 gap-3 bg-amber-50/50 p-3 rounded-xl border border-amber-200">
+                <div className="space-y-1">
+                  <label className="font-bold text-[#242424] flex items-center justify-between">
+                    <span>Subject Credits *</span>
+                    <span className="text-[10px] text-[#8B5E3C]">CBCS Weight</span>
+                  </label>
+                  <select
+                    value={syllabusCredits}
+                    onChange={(e) => setSyllabusCredits(Number(e.target.value))}
+                    className="w-full px-3 py-2 rounded-xl border border-[#E5DFD7] bg-white text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-[#682038] cursor-pointer"
+                  >
+                    <option value={5}>5.0 Credits (Advanced Core)</option>
+                    <option value={4}>4.0 Credits (Standard Theory Core)</option>
+                    <option value={3}>3.0 Credits (Applied Theory / Elective)</option>
+                    <option value={2}>2.0 Credits (Professional Elective)</option>
+                    <option value={1.5}>1.5 Credits (Laboratory / Practicum)</option>
+                    <option value={1}>1.0 Credit (UHV / Social Skill)</option>
+                  </select>
+                </div>
+                <div className="space-y-1">
+                  <label className="font-bold text-[#242424] flex items-center justify-between">
+                    <span>L-T-P Distribution *</span>
+                    <span className="text-[10px] text-[#8B5E3C]">Lec-Tut-Prac</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={syllabusLtpHours}
+                    onChange={(e) => setSyllabusLtpHours(e.target.value)}
+                    placeholder="e.g. 3-1-0 or 0-0-3"
+                    className="w-full px-3 py-2 rounded-xl border border-[#E5DFD7] bg-white text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-[#682038]"
+                  />
+                </div>
+              </div>
+
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
                   <label className="font-bold text-[#242424]">Regulation Version *</label>
@@ -2064,6 +2215,329 @@ export const AcademicsWorkspace: React.FC<AcademicsWorkspaceProps> = ({ currentR
                   className="px-4 py-2 rounded-xl bg-[#682038] hover:bg-[#54192D] text-white font-bold transition-all shadow-sm"
                 >
                   Save Timetable Slot
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================
+          MODAL: ADD NEW COURSE / SUBJECT TO CURRICULUM CATALOG
+          (Authorized Role: Registrar & Board of Studies / Dean)
+         ======================================================== */}
+      {isAddCourseModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-xl w-full p-6 shadow-2xl border border-[#E5DFD7] space-y-4 max-h-[90vh] overflow-y-auto animate-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between border-b border-[#E5DFD7] pb-3">
+              <div className="flex items-center gap-2">
+                <BookOpen className="w-5 h-5 text-[#682038]" />
+                <div>
+                  <h3 className="text-sm font-bold text-[#242424]">Add New Course / Subject to Catalog</h3>
+                  <p className="text-[11px] text-[#6E6862]">
+                    Curriculum Authority: <strong>Registrar Office &amp; Board of Studies (BOS)</strong>
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsAddCourseModalOpen(false)}
+                className="text-[#6E6862] hover:text-[#242424] cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveNewCourse} className="space-y-3 text-xs">
+              {courseSaveSuccess && (
+                <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 font-semibold flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>{courseSaveSuccess}</span>
+                </div>
+              )}
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="font-bold text-[#242424]">Course / Subject Code *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. CS302 or EC204"
+                    value={newCourseCode}
+                    onChange={(e) => setNewCourseCode(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl border border-[#E5DFD7] bg-[#FAF7F2] font-mono text-xs font-bold text-[#682038] focus:outline-none focus:ring-1 focus:ring-[#682038]"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="font-bold text-[#242424]">Academic Department *</label>
+                  <select
+                    value={newCourseDept}
+                    onChange={(e) => setNewCourseDept(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl border border-[#E5DFD7] bg-[#FAF7F2] text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-[#682038] cursor-pointer"
+                  >
+                    <option value="Computer Science & Engg">Computer Science &amp; Engg</option>
+                    <option value="Electronics & Comm. Engg">Electronics &amp; Comm. Engg</option>
+                    <option value="Mechanical Engineering">Mechanical Engineering</option>
+                    <option value="Information Science & Engg">Information Science &amp; Engg</option>
+                    <option value="Basic Sciences & Humanities">Basic Sciences &amp; Humanities</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className="font-bold text-[#242424]">Subject Title *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Database Management Systems"
+                  value={newCourseTitle}
+                  onChange={(e) => setNewCourseTitle(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl border border-[#E5DFD7] bg-[#FAF7F2] text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-[#682038]"
+                />
+              </div>
+
+              <div className="grid grid-cols-3 gap-3">
+                <div className="space-y-1">
+                  <label className="font-bold text-[#242424]">Semester *</label>
+                  <select
+                    value={newCourseSemester}
+                    onChange={(e) => setNewCourseSemester(Number(e.target.value))}
+                    className="w-full px-3 py-2 rounded-xl border border-[#E5DFD7] bg-[#FAF7F2] text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-[#682038] cursor-pointer"
+                  >
+                    {[1, 2, 3, 4, 5, 6, 7, 8].map((sem) => (
+                      <option key={sem} value={sem}>
+                        Semester {sem}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="font-bold text-[#242424]">Course Type *</label>
+                  <select
+                    value={newCourseType}
+                    onChange={(e) => setNewCourseType(e.target.value as any)}
+                    className="w-full px-3 py-2 rounded-xl border border-[#E5DFD7] bg-[#FAF7F2] text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-[#682038] cursor-pointer"
+                  >
+                    <option value="THEORY">Theory Core</option>
+                    <option value="LAB">Practical / Laboratory</option>
+                    <option value="PROFESSIONAL_ELECTIVE">Professional Elective</option>
+                    <option value="OPEN_ELECTIVE">Open Elective (CBCS)</option>
+                  </select>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="font-bold text-[#242424]">Regulation Scheme *</label>
+                  <input
+                    type="text"
+                    required
+                    value={newCourseRegulation}
+                    onChange={(e) => setNewCourseRegulation(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl border border-[#E5DFD7] bg-[#FAF7F2] text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-[#682038]"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 bg-amber-50/50 p-3 rounded-xl border border-amber-200">
+                <div className="space-y-1">
+                  <label className="font-bold text-[#242424] flex items-center justify-between">
+                    <span>Credits Weight *</span>
+                    <span className="text-[10px] text-[#8B5E3C]">AICTE/UGC CBCS</span>
+                  </label>
+                  <select
+                    value={newCourseCredits}
+                    onChange={(e) => setNewCourseCredits(Number(e.target.value))}
+                    className="w-full px-3 py-2 rounded-xl border border-[#E5DFD7] bg-white text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-[#682038] cursor-pointer"
+                  >
+                    <option value={5}>5.0 Credits (Advanced Major)</option>
+                    <option value={4}>4.0 Credits (Standard Theory Core)</option>
+                    <option value={3}>3.0 Credits (Elective / Applied Theory)</option>
+                    <option value={2}>2.0 Credits (Skill / Mini Project)</option>
+                    <option value={1.5}>1.5 Credits (Laboratory / Practicum)</option>
+                    <option value={1}>1.0 Credit (UHV / Foundation)</option>
+                  </select>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="font-bold text-[#242424] flex items-center justify-between">
+                    <span>L-T-P Hours *</span>
+                    <span className="text-[10px] text-[#8B5E3C]">Lec-Tut-Prac</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={newCourseLtpHours}
+                    onChange={(e) => setNewCourseLtpHours(e.target.value)}
+                    placeholder="e.g. 3-1-0 or 0-0-3"
+                    className="w-full px-3 py-2 rounded-xl border border-[#E5DFD7] bg-white text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-[#682038]"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className="font-bold text-[#242424]">Prerequisite Subjects</label>
+                <input
+                  type="text"
+                  placeholder="e.g. CS201 Data Structures, CS204 Discrete Math"
+                  value={newCoursePrereq}
+                  onChange={(e) => setNewCoursePrereq(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl border border-[#E5DFD7] bg-[#FAF7F2] text-xs font-medium focus:outline-none focus:ring-1 focus:ring-[#682038]"
+                />
+              </div>
+
+              {/* Initial Syllabus Unit */}
+              <div className="p-3 rounded-xl border border-[#E5DFD7] bg-[#FAF7F2] space-y-2">
+                <div className="font-bold text-xs text-[#682038] flex items-center gap-1.5">
+                  <BookOpen className="w-3.5 h-3.5" />
+                  <span>Initial Syllabus Unit (Unit 1 Outlines)</span>
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="col-span-2 space-y-0.5">
+                    <label className="text-[10px] font-semibold text-[#6E6862]">Unit Title</label>
+                    <input
+                      type="text"
+                      value={newCourseUnitTitle}
+                      onChange={(e) => setNewCourseUnitTitle(e.target.value)}
+                      className="w-full px-2.5 py-1.5 rounded-lg border border-[#E5DFD7] bg-white text-xs"
+                    />
+                  </div>
+                  <div className="space-y-0.5">
+                    <label className="text-[10px] font-semibold text-[#6E6862]">Lecture Hours</label>
+                    <input
+                      type="number"
+                      value={newCourseUnitHours}
+                      onChange={(e) => setNewCourseUnitHours(Number(e.target.value))}
+                      className="w-full px-2.5 py-1.5 rounded-lg border border-[#E5DFD7] bg-white text-xs"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-0.5">
+                  <label className="text-[10px] font-semibold text-[#6E6862]">Topics Covered</label>
+                  <textarea
+                    rows={2}
+                    value={newCourseUnitTopics}
+                    onChange={(e) => setNewCourseUnitTopics(e.target.value)}
+                    className="w-full p-2 rounded-lg border border-[#E5DFD7] bg-white text-xs"
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2 border-t border-[#E5DFD7]">
+                <button
+                  type="button"
+                  onClick={() => setIsAddCourseModalOpen(false)}
+                  className="px-4 py-2 rounded-xl bg-[#FAF7F2] text-[#6E6862] font-semibold hover:bg-[#E5DFD7]"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 rounded-xl bg-[#682038] hover:bg-[#54192D] text-white font-bold transition-all shadow-sm"
+                >
+                  Add Course to Catalog
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================
+          MODAL: ADD ACADEMIC CALENDAR MILESTONE / DATE
+          (Authorized Role: Registrar)
+         ======================================================== */}
+      {isAddCalendarEventModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-[#E5DFD7] space-y-4 animate-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between border-b border-[#E5DFD7] pb-3">
+              <div className="flex items-center gap-2">
+                <Calendar className="w-5 h-5 text-[#682038]" />
+                <div>
+                  <h3 className="text-sm font-bold text-[#242424]">Add Calendar Milestone</h3>
+                  <p className="text-[11px] text-[#6E6862]">
+                    Registrar Authority: Statutory Academic Calendar &amp; 90-Day Schedule
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsAddCalendarEventModalOpen(false)}
+                className="text-[#6E6862] hover:text-[#242424] cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveCalendarEvent} className="space-y-3 text-xs">
+              {calendarSaveSuccess && (
+                <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 font-semibold flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>{calendarSaveSuccess}</span>
+                </div>
+              )}
+
+              <div className="space-y-1">
+                <label className="font-bold text-[#242424]">Event / Milestone Date *</label>
+                <input
+                  type="date"
+                  required
+                  value={calDate}
+                  onChange={(e) => setCalDate(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl border border-[#E5DFD7] bg-[#FAF7F2] text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-[#682038]"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="font-bold text-[#242424]">Milestone Title *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Mid-Term Assessment 2 or College Annual Day"
+                  value={calTitle}
+                  onChange={(e) => setCalTitle(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl border border-[#E5DFD7] bg-[#FAF7F2] text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-[#682038]"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="font-bold text-[#242424]">Category *</label>
+                <select
+                  value={calCategory}
+                  onChange={(e) => setCalCategory(e.target.value as any)}
+                  className="w-full px-3 py-2 rounded-xl border border-[#E5DFD7] bg-[#FAF7F2] text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-[#682038] cursor-pointer"
+                >
+                  <option value="INSTRUCTIONAL_DAY">Instructional Working Day / Milestone</option>
+                  <option value="INTERNAL_EXAM">Continuous Internal Assessment (CIA / Mid-term)</option>
+                  <option value="GAZETTED_HOLIDAY">Gazetted Holiday</option>
+                  <option value="SEMESTER_END_EXAM">Semester End University Examinations</option>
+                  <option value="VACATION">Academic Recess / Vacation</option>
+                </select>
+              </div>
+
+              <div className="space-y-1">
+                <label className="font-bold text-[#242424]">Description / Circular Reference</label>
+                <textarea
+                  rows={2}
+                  placeholder="Details, regulatory mandate, or institutional notice number..."
+                  value={calDesc}
+                  onChange={(e) => setCalDesc(e.target.value)}
+                  className="w-full p-2.5 rounded-xl border border-[#E5DFD7] bg-[#FAF7F2] text-xs font-medium focus:outline-none focus:ring-1 focus:ring-[#682038]"
+                />
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2 border-t border-[#E5DFD7]">
+                <button
+                  type="button"
+                  onClick={() => setIsAddCalendarEventModalOpen(false)}
+                  className="px-4 py-2 rounded-xl bg-[#FAF7F2] text-[#6E6862] font-semibold hover:bg-[#E5DFD7]"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 rounded-xl bg-[#682038] hover:bg-[#54192D] text-white font-bold transition-all shadow-sm"
+                >
+                  Add to Academic Calendar
                 </button>
               </div>
             </form>

@@ -866,10 +866,10 @@ export const HrPayrollWorkspace: React.FC = () => {
                 </p>
               </div>
               <button
-                onClick={() => alert('New Faculty Requisition Form opened.')}
-                className="px-3.5 py-1.5 rounded-lg bg-[#682038] hover:bg-[#54192D] text-white text-xs font-bold self-start"
+                onClick={() => setIsOnboardModalOpen(true)}
+                className="px-3.5 py-1.5 rounded-lg bg-[#682038] hover:bg-[#54192D] text-white text-xs font-bold self-start cursor-pointer"
               >
-                + Post New Vacancy
+                + Onboard Faculty / Staff Member
               </button>
             </div>
 

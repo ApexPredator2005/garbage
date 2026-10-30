@@ -393,9 +393,11 @@ export const LibraryWorkspace: React.FC = () => {
   const [newWing, setNewWing] = useState<'WING_A' | 'WING_B' | 'WING_C' | 'REFERENCE'>('WING_A');
   const [newCopies, setNewCopies] = useState<number>(5);
 
-  // Scanner Simulator State
+  // Scanner Simulator & Circulation Desk State
   const [scannedAccession, setScannedAccession] = useState('ACC-CSE-2023-088');
-  const [scannedBorrowerId, setScannedBorrowerId] = useState('26CS03');
+  const [scannedBorrowerId, setScannedBorrowerId] = useState('2024CSE001');
+  const [scannedBorrowerName, setScannedBorrowerName] = useState('Aarav Sharma');
+  const [loanPeriodDays, setLoanPeriodDays] = useState<number>(14);
   const [scannerFeedback, setScannerFeedback] = useState<string | null>(null);
 
   // Return Book Action
@@ -454,15 +456,19 @@ export const LibraryWorkspace: React.FC = () => {
     }
 
     const dueDate = new Date();
-    dueDate.setDate(dueDate.getDate() + 14);
+    dueDate.setDate(dueDate.getDate() + Number(loanPeriodDays));
+
+    const finalBorrowerName =
+      scannedBorrowerName.trim() ||
+      (scannedBorrowerId.startsWith('EMP') ? 'Prof. Faculty User' : 'Student Scholar');
 
     const newRecord: CirculationRecord = {
       id: `cir-${Date.now().toString(36)}`,
       accessionNo: targetBook.accessionNo,
       bookTitle: targetBook.title,
-      borrowerName: scannedBorrowerId.startsWith('EMP') ? 'Faculty Member' : 'Student Scholar',
+      borrowerName: finalBorrowerName,
       borrowerType: scannedBorrowerId.startsWith('EMP') ? 'FACULTY' : 'STUDENT',
-      borrowerId: scannedBorrowerId,
+      borrowerId: scannedBorrowerId.trim(),
       borrowDate: new Date().toISOString().split('T')[0],
       dueDate: dueDate.toISOString().split('T')[0],
       renewCount: 0,
@@ -473,7 +479,7 @@ export const LibraryWorkspace: React.FC = () => {
 
     setCirculation([newRecord, ...circulation]);
     setBooks(books.map((b) => (b.id === targetBook.id ? { ...b, availableCopies: b.availableCopies - 1 } : b)));
-    setScannerFeedback(`Success! "${targetBook.title}" checked out to ${scannedBorrowerId}. Due on ${dueDate.toISOString().split('T')[0]}.`);
+    setScannerFeedback(`Success! "${targetBook.title}" issued to ${finalBorrowerName} (${scannedBorrowerId}). Due on ${newRecord.dueDate}.`);
     setTimeout(() => {
       setIsScannerModalOpen(false);
       setScannerFeedback(null);
@@ -1320,50 +1326,79 @@ export const LibraryWorkspace: React.FC = () => {
         </div>
       )}
 
-      {/* MODAL 1: FAST RFID & BARCODE SCANNER SIMULATOR */}
+      {/* MODAL 1: LIBRARY CIRCULATION DESK - ISSUE BOOK TO STUDENT / FACULTY */}
       {isScannerModalOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-[#E5DFD7] space-y-4">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-[#E5DFD7] space-y-4 animate-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between border-b border-[#E5DFD7] pb-3">
               <div className="flex items-center gap-2">
-                <ScanLine className="w-5 h-5 text-[#682038]" />
-                <h3 className="font-bold text-base text-[#242424]">Fast RFID Circulation Scanner</h3>
+                <BookOpen className="w-5 h-5 text-[#682038]" />
+                <div>
+                  <h3 className="font-bold text-base text-[#242424]">Issue Book to Student / Faculty</h3>
+                  <p className="text-[11px] text-[#6E6862]">Circulation Desk • RFID Smartcard Loan Authorization</p>
+                </div>
               </div>
               <button
                 type="button"
                 onClick={() => setIsScannerModalOpen(false)}
-                className="p-1 rounded-lg hover:bg-[#FAF7F2] text-[#6E6862]"
+                className="p-1 rounded-lg hover:bg-[#FAF7F2] text-[#6E6862] cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <form onSubmit={handleRfidCheckout} className="space-y-4 text-xs">
+            <form onSubmit={handleRfidCheckout} className="space-y-3.5 text-xs">
               <div>
-                <label className="block font-semibold text-[#242424] mb-1">Book Accession Number</label>
+                <label className="block font-bold text-[#242424] mb-1">Select Book from Catalog *</label>
                 <select
                   value={scannedAccession}
                   onChange={(e) => setScannedAccession(e.target.value)}
-                  className="w-full p-2.5 rounded-xl bg-[#FAF7F2] border border-[#E5DFD7] font-mono text-xs"
+                  className="w-full p-2.5 rounded-xl bg-[#FAF7F2] border border-[#E5DFD7] font-semibold text-xs text-[#242424] focus:outline-none focus:ring-1 focus:ring-[#682038] cursor-pointer"
                 >
                   {books.map((b) => (
                     <option key={b.id} value={b.accessionNo}>
-                      {b.accessionNo} — {b.title} (Available: {b.availableCopies})
+                      {b.title} [{b.accessionNo}] &mdash; Copies: {b.availableCopies} available
                     </option>
                   ))}
                 </select>
               </div>
 
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-bold text-[#242424] mb-1">Student USN / Roll No *</label>
+                  <input
+                    type="text"
+                    value={scannedBorrowerId}
+                    onChange={(e) => setScannedBorrowerId(e.target.value)}
+                    placeholder="e.g. 2024CSE001"
+                    className="w-full p-2.5 rounded-xl bg-[#FAF7F2] border border-[#E5DFD7] font-mono font-bold text-[#682038] text-xs focus:outline-none focus:ring-1 focus:ring-[#682038]"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block font-bold text-[#242424] mb-1">Student Name</label>
+                  <input
+                    type="text"
+                    value={scannedBorrowerName}
+                    onChange={(e) => setScannedBorrowerName(e.target.value)}
+                    placeholder="e.g. Aarav Sharma"
+                    className="w-full p-2.5 rounded-xl bg-[#FAF7F2] border border-[#E5DFD7] text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-[#682038]"
+                  />
+                </div>
+              </div>
+
               <div>
-                <label className="block font-semibold text-[#242424] mb-1">Patron Smartcard (Roll / Emp ID)</label>
-                <input
-                  type="text"
-                  value={scannedBorrowerId}
-                  onChange={(e) => setScannedBorrowerId(e.target.value)}
-                  placeholder="e.g. 26CS03 or EMP-CSE-012"
-                  className="w-full p-2.5 rounded-xl bg-[#FAF7F2] border border-[#E5DFD7] font-mono text-xs"
-                  required
-                />
+                <label className="block font-bold text-[#242424] mb-1">Loan Period (Days) *</label>
+                <select
+                  value={loanPeriodDays}
+                  onChange={(e) => setLoanPeriodDays(Number(e.target.value))}
+                  className="w-full p-2.5 rounded-xl bg-[#FAF7F2] border border-[#E5DFD7] text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-[#682038] cursor-pointer"
+                >
+                  <option value={14}>14 Days (Standard Student Issue - UG / PG)</option>
+                  <option value={28}>28 Days (Honors / Research Scholar Loan)</option>
+                  <option value={60}>60 Days (Faculty Semester Reserve)</option>
+                  <option value={90}>90 Days (Book Bank Scheme for Meritorious Students)</option>
+                </select>
               </div>
 
               {scannerFeedback && (
@@ -1378,19 +1413,19 @@ export const LibraryWorkspace: React.FC = () => {
                 </div>
               )}
 
-              <div className="flex justify-end gap-2 pt-2">
+              <div className="flex justify-end gap-2 pt-2 border-t border-[#E5DFD7]">
                 <button
                   type="button"
                   onClick={() => setIsScannerModalOpen(false)}
-                  className="px-4 py-2 rounded-xl bg-[#FAF7F2] text-[#6E6862] font-semibold"
+                  className="px-4 py-2 rounded-xl bg-[#FAF7F2] text-[#6E6862] font-semibold hover:bg-[#E5DFD7]"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl bg-[#682038] hover:bg-[#54192D] text-white font-bold"
+                  className="px-5 py-2 rounded-xl bg-[#682038] hover:bg-[#54192D] text-white font-bold transition-all shadow-sm"
                 >
-                  Simulate RFID Scan &amp; Issue
+                  Issue Book &amp; Mint RFID Token
                 </button>
               </div>
             </form>
