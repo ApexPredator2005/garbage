@@ -596,6 +596,24 @@ This document chronicles the fundamental engineering and product decisions made 
 
 ---
 
+### [ADR-040] Institutional Responsibility Matrix (RACI), Parent Sign-In Gateway, Syllabus Revisions, Timetable Builder & Direct Admission Desk
+- **Classification:** Governance, Security & Functional (GOV/SEC/FUNC)
+- **Status:** Approved & Implemented
+- **Decision Owner:** Institutional Governance & Academic Administration
+- **Context:**
+  1. The user identified recurring ambiguities regarding role ownership across unstated institutional actions (e.g. who updates timetables, who revises syllabus, who registers walk-in admissions, who assigns fee structures).
+  2. There were no explicit interactive modals to manually update course syllabus units or build/edit timetable slots in real time.
+  3. The login screen lacked a dedicated option for Parents to sign in directly alongside Students and Staff.
+- **Decision:**
+  1. **Parent Login Portal Option:** Upgraded `LoginPage.tsx` with a 3-way toggle (`Student`, `Parent`, `Staff`). Added dedicated Parent authentication fields (`rajesh.verma@parent.jssate.edu`) linked to the single-parent multi-ward data architecture (`Rohan Verma` & `Ananya Verma`).
+  2. **Course Syllabus & Curriculum Revision Desk:** Defined that the **Head of Department (HOD)** and **Board of Studies (BOS) / Academic Dean** hold statutory authority over syllabus units, planned hours, topics, and regulation versioning. Integrated an interactive "Update Course Syllabus Units" modal in Pillar 1 of `AcademicsWorkspace.tsx`.
+  3. **Manual Timetable Slot Builder:** Defined that the **Timetable Coordinator** and **HOD** manage semester schedules and room constraints. Added an interactive "Manual Timetable Slot Builder" modal in Pillar 5 of `AcademicsWorkspace.tsx` with automated room/faculty clash detection.
+  4. **Direct Walk-In Admission Registration Desk:** Delineated multi-role responsibilities for new student onboarding: **Admissions Desk** enters applicant biodata & quota; **Registrar** mints official USN & assigns section; **Accountant/Bursar** establishes tuition fee demands in the general ledger. Integrated an interactive "New Walk-In Admission Entry" modal in Subtab 1 of `AdmissionsWorkspace.tsx`.
+  5. **Institutional RACI Responsibility Matrix:** Codified a comprehensive institutional governance matrix covering all administrative actions across all 8 modules (fee waivers, session unlocks, dummy coding, grace marks, payroll formulas, TC issuance, library OPAC acquisitions, placement drives).
+- **Rationale:** Guarantees absolute institutional clarity, eliminates operational ambiguities, and provides intuitive, role-badged interactive tooling for all institutional duties.
+
+---
+
 ## 6. Comprehensive Decision Summary Matrix
 
 | ID | Decision Title | Category | Status | Primary Rationale & Impact |
@@ -639,3 +657,4 @@ This document chronicles the fundamental engineering and product decisions made 
 | **ADR-037** | Full Specification Parity Across All 8 Core Modules | FUNC/ACCRED | Implemented | Comprehensive elevation of all modules: CRM, deterministic merit, interleaved seating, dummy coding, balanced vouchers, recruitment, PBAS, events, SSS, and audit logs. |
 | **ADR-038** | Attendance Role-Gating, Class Selectors & Student Fines | FUNC/SEC/UX | Implemented | Principal view-only audit mode (faculty marking only), live Program/Sem/Section cohort switcher, and itemized student fines ledger. |
 | **ADR-039** | Faculty Subject-Scoped Isolation & Admission USN Authority | SEC/GOV/UX | Implemented | Faculty data-scoping to assigned subjects/cohorts with access restriction barriers, persona switcher & Registrar USN governance. |
+| **ADR-040** | Institutional RACI Matrix, Parent Login, Syllabus & Timetable | GOV/SEC/FUNC | Implemented | Parent login portal option, HOD syllabus revision modal, manual timetable builder & walk-in admission desk with auto-USN. |

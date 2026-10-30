@@ -32,6 +32,7 @@ import {
   FileDown,
   Users,
   Printer,
+  Plus,
 } from 'lucide-react';
 
 interface QuotaBucket {
@@ -385,6 +386,79 @@ export const AdmissionsWorkspace: React.FC = () => {
   const [isSlidingRoundExecuting, setIsSlidingRoundExecuting] = useState(false);
   const [slidingToast, setSlidingToast] = useState<string | null>(null);
 
+  // New Admission / Spot Entry Modal State (Authorized for Admissions Desk & Registrar)
+  const [isNewAdmissionModalOpen, setIsNewAdmissionModalOpen] = useState(false);
+  const [newStudentName, setNewStudentName] = useState('');
+  const [newStudentProgram, setNewStudentProgram] = useState('B.Tech Computer Science');
+  const [newStudentSection, setNewStudentSection] = useState('Section A');
+  const [newStudentBatch, setNewStudentBatch] = useState('2026-2030');
+  const [newStudentQuota, setNewStudentQuota] = useState('OPEN');
+  const [newStudentUSN, setNewStudentUSN] = useState('2026CSE021');
+  const [newStudentAnnualFee, setNewStudentAnnualFee] = useState('125000');
+  const [newStudentDepositPaid, setNewStudentDepositPaid] = useState('75000');
+  const [newGuardianName, setNewGuardianName] = useState('');
+  const [newGuardianPhone, setNewGuardianPhone] = useState('+91 98450 11223');
+  const [admissionSuccessMsg, setAdmissionSuccessMsg] = useState<string | null>(null);
+
+  const handleGenerateUSN = (prog: string) => {
+    const prefix = prog.includes('Computer Science')
+      ? '2026CSE'
+      : prog.includes('Electronics')
+      ? '2026ECE'
+      : prog.includes('Mechanical')
+      ? '2026ME'
+      : '2026MBA';
+    const randSeq = Math.floor(10 + Math.random() * 90);
+    setNewStudentUSN(`${prefix}${randSeq}`);
+  };
+
+  const handleCreateNewAdmission = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newStudentName.trim() || !newStudentUSN.trim()) return;
+
+    const newId = `std-new-${Date.now()}`;
+    const newStudent: StudentRecord = {
+      id: newId,
+      name: newStudentName.trim(),
+      enrollmentNo: newStudentUSN.trim(),
+      rollNo: newStudentUSN.trim(),
+      program: newStudentProgram,
+      semester: 1,
+      section: newStudentSection,
+      status: 'ACTIVE',
+      exitClearance: {
+        transferCert: false,
+        characterCert: false,
+        migrationCert: false,
+        noDuesSlip: Number(newStudentDepositPaid) >= Number(newStudentAnnualFee),
+      },
+    };
+
+    const newFee: StudentFeeRecord = {
+      totalAmount: Number(newStudentAnnualFee),
+      paidAmount: Number(newStudentDepositPaid),
+      dueAmount: Math.max(0, Number(newStudentAnnualFee) - Number(newStudentDepositPaid)),
+      utrRef: `ADM-RCP-${Math.floor(100000 + Math.random() * 900000)}`,
+      bankName: 'College Accounts Counter',
+      clearedBy: Number(newStudentDepositPaid) >= Number(newStudentAnnualFee) ? 'Accounts Clearance' : undefined,
+    };
+
+    setStudents([newStudent, ...students]);
+    setStudentFees((prev) => ({ ...prev, [newId]: newFee }));
+    setQuotas((prev) =>
+      prev.map((q) =>
+        q.code === newStudentQuota ? { ...q, filled: q.filled + 1, vacant: Math.max(0, q.vacant - 1) } : q
+      )
+    );
+
+    setAdmissionSuccessMsg(`Student ${newStudentName} successfully enrolled with USN ${newStudentUSN}! Fee receipt generated.`);
+    setTimeout(() => {
+      setIsNewAdmissionModalOpen(false);
+      setAdmissionSuccessMsg(null);
+      setNewStudentName('');
+    }, 1800);
+  };
+
   // Alumni & DigiLocker State
   const [alumniList, setAlumniList] = useState<AlumniRecord[]>(INITIAL_ALUMNI);
   const [syncingId, setSyncingId] = useState<string | null>(null);
@@ -575,7 +649,7 @@ export const AdmissionsWorkspace: React.FC = () => {
       {/* SUB-TAB 1: STUDENT DIRECTORY & CLEARANCE RECORDS */}
       {subTab === 'registry' && (
         <div className="space-y-6">
-          <div className="flex items-center justify-between gap-3 bg-white p-4 rounded-xl border border-[#E5DFD7]">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-xl border border-[#E5DFD7]">
             <div className="relative flex-1 max-w-sm">
               <Search className="w-4 h-4 text-[#9B948D] absolute left-3 top-2.5" />
               <input
@@ -586,8 +660,18 @@ export const AdmissionsWorkspace: React.FC = () => {
                 className="pl-9 pr-4 py-1.5 bg-[#FAF7F2] border border-[#E5DFD7] rounded-xl text-xs font-medium focus:outline-none focus:border-[#682038] w-full"
               />
             </div>
-            <div className="text-xs text-[#6E6862]">
-              Enforces <strong>Statutory Graduation Clearance</strong> (4 verified certificates mandatory)
+            <div className="flex items-center gap-3">
+              <span className="hidden md:inline-block text-[11px] text-[#6E6862] bg-[#FAF7F2] px-2.5 py-1 rounded-lg border border-[#E5DFD7]">
+                Authority: <strong>Admissions Desk &amp; Registrar</strong>
+              </span>
+              <button
+                type="button"
+                onClick={() => setIsNewAdmissionModalOpen(true)}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#682038] hover:bg-[#54192D] text-white text-xs font-bold transition-all shadow-2xs cursor-pointer shrink-0"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>New Walk-In Admission Entry</span>
+              </button>
             </div>
           </div>
 
@@ -2241,6 +2325,220 @@ export const AdmissionsWorkspace: React.FC = () => {
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================
+          MODAL: NEW WALK-IN / SPOT ADMISSION REGISTRATION
+          (Authorized Role: Admissions Desk & Academic Registrar)
+         ======================================================== */}
+      {isNewAdmissionModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-xl w-full max-h-[90vh] flex flex-col p-6 shadow-2xl border border-[#E5DFD7] space-y-4 overflow-hidden animate-in zoom-in-95 duration-150">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between border-b border-[#E5DFD7] pb-3 shrink-0">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-[#682038] text-white flex items-center justify-center shrink-0">
+                  <GraduationCap className="w-5 h-5 text-amber-300" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-base font-bold text-[#242424]">New Admission Entry Desk</h3>
+                    <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#FAF7F2] text-[#8B5E3C] border border-[#E5DFD7]">
+                      Spot Allotment &amp; USN Minting
+                    </span>
+                  </div>
+                  <p className="text-xs text-[#6E6862]">
+                    Authorized Authority: <strong>Admissions Officer</strong> (Details &amp; Category) &amp; <strong>Registrar</strong> (USN &amp; Section Allotment).
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsNewAdmissionModalOpen(false)}
+                className="p-1 rounded-lg text-[#6E6862] hover:bg-[#F4ECE2] cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Form */}
+            <form onSubmit={handleCreateNewAdmission} className="overflow-y-auto space-y-3.5 pr-1 text-xs">
+              {admissionSuccessMsg && (
+                <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 font-semibold flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>{admissionSuccessMsg}</span>
+                </div>
+              )}
+
+              {/* Student Name */}
+              <div className="space-y-1">
+                <label className="font-bold text-[#242424]">Student Full Name *</label>
+                <input
+                  type="text"
+                  required
+                  value={newStudentName}
+                  onChange={(e) => setNewStudentName(e.target.value)}
+                  placeholder="e.g. Tanvi Kulkarni"
+                  className="w-full px-3 py-2 rounded-xl border border-[#E5DFD7] bg-[#FAF7F2] text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-[#682038]"
+                />
+              </div>
+
+              {/* Program & Class Section */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="font-bold text-[#242424]">Academic Program *</label>
+                  <select
+                    value={newStudentProgram}
+                    onChange={(e) => {
+                      setNewStudentProgram(e.target.value);
+                      handleGenerateUSN(e.target.value);
+                    }}
+                    className="w-full px-3 py-2 rounded-xl border border-[#E5DFD7] bg-[#FAF7F2] text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-[#682038] cursor-pointer"
+                  >
+                    <option value="B.Tech Computer Science">B.Tech Computer Science (CSE)</option>
+                    <option value="B.Tech Electronics">B.Tech Electronics &amp; Comm (ECE)</option>
+                    <option value="B.Tech Mechanical">B.Tech Mechanical Engg (ME)</option>
+                    <option value="MBA Analytics">MBA Business Analytics</option>
+                  </select>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="font-bold text-[#242424]">Class Section &amp; Batch *</label>
+                  <select
+                    value={newStudentSection}
+                    onChange={(e) => setNewStudentSection(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl border border-[#E5DFD7] bg-[#FAF7F2] text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-[#682038] cursor-pointer"
+                  >
+                    <option value="Section A">Section A (LH-301)</option>
+                    <option value="Section B">Section B (LH-302)</option>
+                    <option value="Section C">Section C (LH-303)</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Quota & USN Generation */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="font-bold text-[#242424]">Seat Matrix Quota *</label>
+                  <select
+                    value={newStudentQuota}
+                    onChange={(e) => setNewStudentQuota(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl border border-[#E5DFD7] bg-[#FAF7F2] text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-[#682038] cursor-pointer"
+                  >
+                    {quotas.map((q) => (
+                      <option key={q.code} value={q.code}>
+                        {q.name} ({q.vacant} Vacant)
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between">
+                    <label className="font-bold text-[#242424]">USN / Roll Number *</label>
+                    <button
+                      type="button"
+                      onClick={() => handleGenerateUSN(newStudentProgram)}
+                      className="text-[10px] text-[#682038] font-bold underline hover:text-[#54192D]"
+                    >
+                      Auto-Mint USN
+                    </button>
+                  </div>
+                  <input
+                    type="text"
+                    required
+                    value={newStudentUSN}
+                    onChange={(e) => setNewStudentUSN(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl border border-[#E5DFD7] bg-[#FAF7F2] font-mono text-xs font-bold text-[#682038] focus:outline-none focus:ring-1 focus:ring-[#682038]"
+                  />
+                </div>
+              </div>
+
+              {/* Fee Demand Structure (Bursar & Accountant Responsibilities) */}
+              <div className="p-3.5 rounded-2xl bg-[#FAF7F2] border border-[#E5DFD7] space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-xs text-[#682038] flex items-center gap-1.5">
+                    <DollarSign className="w-3.5 h-3.5 text-[#8B5E3C]" />
+                    <span>Tuition Fee Demand &amp; Initial Deposit (Accountant Action)</span>
+                  </span>
+                  <span className="text-[10px] font-mono bg-white px-2 py-0.5 rounded border border-[#E5DFD7] text-[#8B5E3C]">
+                    Double-Entry General Ledger
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-[10px] font-bold text-[#6E6862]">Total Annual Tuition (₹)</label>
+                    <input
+                      type="number"
+                      required
+                      value={newStudentAnnualFee}
+                      onChange={(e) => setNewStudentAnnualFee(e.target.value)}
+                      className="w-full px-3 py-1.5 rounded-lg border border-[#E5DFD7] bg-white font-mono text-xs font-bold text-[#242424]"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-bold text-[#6E6862]">Admission Deposit Paid (₹)</label>
+                    <input
+                      type="number"
+                      required
+                      value={newStudentDepositPaid}
+                      onChange={(e) => setNewStudentDepositPaid(e.target.value)}
+                      className="w-full px-3 py-1.5 rounded-lg border border-[#E5DFD7] bg-white font-mono text-xs font-bold text-emerald-700"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex justify-between items-center text-[11px] pt-1 border-t border-[#E5DFD7]">
+                  <span className="text-[#6E6862]">Net Balance Dues:</span>
+                  <span className="font-mono font-bold text-rose-700">
+                    ₹{Math.max(0, Number(newStudentAnnualFee) - Number(newStudentDepositPaid)).toLocaleString()}
+                  </span>
+                </div>
+              </div>
+
+              {/* Guardian Info */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="font-bold text-[#242424]">Parent / Guardian Name</label>
+                  <input
+                    type="text"
+                    value={newGuardianName}
+                    onChange={(e) => setNewGuardianName(e.target.value)}
+                    placeholder="e.g. Suresh Kulkarni"
+                    className="w-full px-3 py-2 rounded-xl border border-[#E5DFD7] bg-[#FAF7F2] text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-[#682038]"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="font-bold text-[#242424]">Parent Mobile (Email/In-App Notice)</label>
+                  <input
+                    type="text"
+                    value={newGuardianPhone}
+                    onChange={(e) => setNewGuardianPhone(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl border border-[#E5DFD7] bg-[#FAF7F2] font-mono text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-[#682038]"
+                  />
+                </div>
+              </div>
+
+              {/* Submit Buttons */}
+              <div className="pt-2 flex items-center justify-end gap-2 border-t border-[#E5DFD7]">
+                <button
+                  type="button"
+                  onClick={() => setIsNewAdmissionModalOpen(false)}
+                  className="px-4 py-2 rounded-xl text-xs font-bold text-[#6E6862] hover:bg-[#FAF7F2]"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 rounded-xl bg-[#682038] hover:bg-[#54192D] text-white text-xs font-bold shadow-sm transition-all"
+                >
+                  Enroll Student &amp; Mint USN
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

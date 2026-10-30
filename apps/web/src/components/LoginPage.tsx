@@ -20,6 +20,7 @@ import {
   ArrowRight,
   Check,
   FileText,
+  Users,
 } from 'lucide-react';
 
 interface LoginPageProps {
@@ -47,8 +48,8 @@ export const LoginPage: React.FC<LoginPageProps> = ({
   onOpenPublicVerify,
   initialTenantId = 't-1',
 }) => {
-  // STRICTLY ONLY TWO LOGIN OPTIONS: Student or Staff
-  const [portalType, setPortalType] = useState<'student' | 'staff'>('student');
+  // THREE LOGIN PORTAL OPTIONS: Student, Parent, or Staff
+  const [portalType, setPortalType] = useState<'student' | 'parent' | 'staff'>('student');
   const [selectedTenant, setSelectedTenant] = useState(initialTenantId);
 
   // Dynamic Staff Directory from persistent service
@@ -62,6 +63,10 @@ export const LoginPage: React.FC<LoginPageProps> = ({
   // Student Form State
   const [studentIdInput, setStudentIdInput] = useState('rohan.verma@student.jssate.edu');
   const [studentPassword, setStudentPassword] = useState('••••••••••••');
+
+  // Parent Form State
+  const [parentEmailInput, setParentEmailInput] = useState('rajesh.verma@parent.jssate.edu');
+  const [parentPassword, setParentPassword] = useState('••••••••••••');
 
   // Staff Form State
   const [selectedStaffRole, setSelectedStaffRole] = useState<RoleType>('PRINCIPAL');
@@ -132,6 +137,14 @@ export const LoginPage: React.FC<LoginPageProps> = ({
           name: 'Rohan Verma',
           email: studentIdInput,
           role: 'STUDENT',
+          tenantId: selectedTenant,
+        });
+      } else if (portalType === 'parent') {
+        // Direct parent login (Single-parent multi-ward portal)
+        onLogin({
+          name: 'Rajesh Verma (Parent)',
+          email: parentEmailInput,
+          role: 'PARENT',
           tenantId: selectedTenant,
         });
       } else {
@@ -247,8 +260,8 @@ export const LoginPage: React.FC<LoginPageProps> = ({
               </p>
             </div>
 
-            {/* DUAL ROLE TOGGLE (STRICTLY STUDENT OR STAFF ONLY) */}
-            <div className="bg-[#EFEAE1] p-1 rounded-full flex max-w-xs mx-auto mb-4 border border-[#DDD5C7] w-full">
+            {/* 3-WAY ROLE TOGGLE: STUDENT | PARENT | STAFF */}
+            <div className="bg-[#EFEAE1] p-1 rounded-full flex max-w-sm mx-auto mb-4 border border-[#DDD5C7] w-full">
               <button
                 type="button"
                 onClick={() => setPortalType('student')}
@@ -260,6 +273,18 @@ export const LoginPage: React.FC<LoginPageProps> = ({
               >
                 <GraduationCap className="w-3.5 h-3.5 text-[#682038]" />
                 <span>Student</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setPortalType('parent')}
+                className={`flex-1 py-2 rounded-full text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                  portalType === 'parent'
+                    ? 'bg-white text-[#242424] shadow-sm font-extrabold'
+                    : 'text-[#7A7267] hover:text-[#242424]'
+                }`}
+              >
+                <Users className="w-3.5 h-3.5 text-[#8B5E3C]" />
+                <span>Parent</span>
               </button>
               <button
                 type="button"
@@ -277,28 +302,60 @@ export const LoginPage: React.FC<LoginPageProps> = ({
 
             {/* Form Fields: Smooth Pill Contours & Inset Labels */}
             <form onSubmit={handleFormSubmit} className="space-y-3.5 max-w-md mx-auto w-full">
-              {/* Dynamic Identity Input (Student vs Staff) */}
+              {/* Dynamic Identity Input (Student vs Parent vs Staff) */}
               <div className="space-y-1">
                 <label className="block text-xs font-medium text-[#7A7267] ml-4">
-                  {portalType === 'student' ? 'Student Email / Roll number' : 'Official Institutional Email'}
+                  {portalType === 'student'
+                    ? 'Student Email / Roll number'
+                    : portalType === 'parent'
+                    ? 'Registered Parent / Guardian Email'
+                    : 'Official Institutional Email'}
                 </label>
                 <input
                   type="text"
                   required
-                  value={portalType === 'student' ? studentIdInput : staffEmailInput}
-                  onChange={(e) =>
+                  value={
                     portalType === 'student'
-                      ? setStudentIdInput(e.target.value)
-                      : setStaffEmailInput(e.target.value)
+                      ? studentIdInput
+                      : portalType === 'parent'
+                      ? parentEmailInput
+                      : staffEmailInput
                   }
+                  onChange={(e) => {
+                    if (portalType === 'student') setStudentIdInput(e.target.value);
+                    else if (portalType === 'parent') setParentEmailInput(e.target.value);
+                    else setStaffEmailInput(e.target.value);
+                  }}
                   placeholder={
                     portalType === 'student'
                       ? 'rohan.verma@student.jssate.edu'
+                      : portalType === 'parent'
+                      ? 'rajesh.verma@parent.jssate.edu'
                       : 'principal@jssate.edu'
                   }
                   className="w-full px-5 py-3.5 rounded-full bg-white border border-[#E5DFD7] text-xs font-medium text-[#242424] placeholder-[#A39B8F] focus:outline-none focus:border-[#F97316] focus:ring-2 focus:ring-[#F97316]/40 shadow-2xs transition-all"
                 />
               </div>
+
+              {/* Linked Ward Callout for Parent Portal */}
+              {portalType === 'parent' && (
+                <div className="bg-[#FAF7F2] p-3.5 rounded-2xl border border-[#E5DFD7] text-xs space-y-1.5 animate-in fade-in duration-200">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-[#682038] flex items-center gap-1.5">
+                      <Users className="w-3.5 h-3.5 text-[#8B5E3C]" />
+                      <span>Linked Student Ward</span>
+                    </span>
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold border border-emerald-200">
+                      Multi-Ward Active
+                    </span>
+                  </div>
+                  <div className="text-[11px] text-[#6E6862] leading-relaxed">
+                    Primary Ward: <strong className="text-[#242424]">Rohan Verma</strong> (USN: <code className="font-mono text-[#8B5E3C]">2024CS004</code> • B.Tech CSE Sem 4)
+                    <br />
+                    Secondary Ward: <strong className="text-[#242424]">Ananya Verma</strong> (USN: <code className="font-mono text-[#8B5E3C]">2026EC012</code> • B.Tech ECE Sem 1)
+                  </div>
+                </div>
+              )}
 
               {/* Staff Designation Select (Reveals dynamically when Staff is active) */}
               {portalType === 'staff' && (
@@ -343,12 +400,18 @@ export const LoginPage: React.FC<LoginPageProps> = ({
                   <input
                     type={showPassword ? 'text' : 'password'}
                     required
-                    value={portalType === 'student' ? studentPassword : staffPassword}
-                    onChange={(e) =>
+                    value={
                       portalType === 'student'
-                        ? setStudentPassword(e.target.value)
-                        : setStaffPassword(e.target.value)
+                        ? studentPassword
+                        : portalType === 'parent'
+                        ? parentPassword
+                        : staffPassword
                     }
+                    onChange={(e) => {
+                      if (portalType === 'student') setStudentPassword(e.target.value);
+                      else if (portalType === 'parent') setParentPassword(e.target.value);
+                      else setStaffPassword(e.target.value);
+                    }}
                     placeholder="••••••••••••••••••••"
                     className="w-full px-5 py-3.5 pr-12 rounded-full bg-white border border-[#E5DFD7] text-xs font-medium text-[#242424] placeholder-[#A39B8F] focus:outline-none focus:border-[#F97316] focus:ring-2 focus:ring-[#F97316]/40 shadow-2xs transition-all"
                   />
@@ -374,8 +437,10 @@ export const LoginPage: React.FC<LoginPageProps> = ({
                     {isSubmitting
                       ? 'Verifying Credentials...'
                       : portalType === 'student'
-                      ? 'Submit'
-                      : 'Submit'}
+                      ? 'Sign in as Student'
+                      : portalType === 'parent'
+                      ? 'Sign in as Parent'
+                      : 'Sign in as Staff'}
                   </span>
                 </button>
               </div>

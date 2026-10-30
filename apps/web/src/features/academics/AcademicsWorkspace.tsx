@@ -416,6 +416,150 @@ export const AcademicsWorkspace: React.FC<AcademicsWorkspaceProps> = ({ currentR
   const [newDiaryPeriod, setNewDiaryPeriod] = useState(1);
   const [newDiaryAttendance, setNewDiaryAttendance] = useState(58);
 
+  // Syllabus Update State (Authorized: HOD & Board of Studies / Academic Dean)
+  const [isEditSyllabusModalOpen, setIsEditSyllabusModalOpen] = useState(false);
+  const [editingCourse, setEditingCourse] = useState<AcademicCourse | null>(null);
+  const [syllabusUnitTitle, setSyllabusUnitTitle] = useState('');
+  const [syllabusUnitTopics, setSyllabusUnitTopics] = useState('');
+  const [syllabusPlannedHours, setSyllabusPlannedHours] = useState(8);
+  const [syllabusVersionCode, setSyllabusVersionCode] = useState('R-2026-CBCS');
+  const [syllabusSaveSuccess, setSyllabusSaveSuccess] = useState<string | null>(null);
+
+  // Timetable Slot Builder State (Authorized: Timetable Coordinator & HOD)
+  const [isAddSlotModalOpen, setIsAddSlotModalOpen] = useState(false);
+  const [editingSlotId, setEditingSlotId] = useState<string | null>(null);
+  const [slotDay, setSlotDay] = useState('Monday');
+  const [slotPeriod, setSlotPeriod] = useState(1);
+  const [slotTime, setSlotTime] = useState('09:00 - 10:00 AM');
+  const [slotCourseCode, setSlotCourseCode] = useState('CS401');
+  const [slotCourseTitle, setSlotCourseTitle] = useState('Design & Analysis of Algorithms');
+  const [slotFacultyName, setSlotFacultyName] = useState('Dr. Ramesh Kulkarni');
+  const [slotRoom, setSlotRoom] = useState('LH-201');
+  const [slotSaveSuccess, setSlotSaveSuccess] = useState<string | null>(null);
+
+  const handleOpenEditSyllabus = (course: AcademicCourse) => {
+    setEditingCourse(course);
+    setSyllabusUnitTitle(`Unit ${course.syllabusUnits.length + 1}: Emerging Architectures & Applied Paradigms`);
+    setSyllabusUnitTopics('Core theoretical framework, practical application benchmarks, and algorithmic analysis.');
+    setSyllabusPlannedHours(8);
+    setSyllabusVersionCode(course.regulationCode);
+    setSyllabusSaveSuccess(null);
+    setIsEditSyllabusModalOpen(true);
+  };
+
+  const handleSaveSyllabusUnit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingCourse) return;
+
+    const newUnit = {
+      unitNumber: editingCourse.syllabusUnits.length + 1,
+      title: syllabusUnitTitle,
+      hours: Number(syllabusPlannedHours),
+      content: syllabusUnitTopics,
+    };
+
+    const updatedCourses = courses.map((c) => {
+      if (c.id === editingCourse.id) {
+        return {
+          ...c,
+          regulationCode: syllabusVersionCode,
+          syllabusUnits: [...c.syllabusUnits, newUnit],
+        };
+      }
+      return c;
+    });
+
+    setCourses(updatedCourses);
+    setEditingCourse((prev) => (prev ? { ...prev, regulationCode: syllabusVersionCode, syllabusUnits: [...prev.syllabusUnits, newUnit] } : null));
+    if (selectedCourseForDetail?.id === editingCourse.id) {
+      setSelectedCourseForDetail((prev) => (prev ? { ...prev, regulationCode: syllabusVersionCode, syllabusUnits: [...prev.syllabusUnits, newUnit] } : null));
+    }
+
+    setSyllabusSaveSuccess(`Syllabus Unit ${newUnit.unitNumber} ("${newUnit.title}") successfully saved for ${editingCourse.code}!`);
+    setTimeout(() => {
+      setSyllabusSaveSuccess(null);
+      setIsEditSyllabusModalOpen(false);
+    }, 1500);
+  };
+
+  const handleOpenAddSlot = (slot?: TimetableSlotItem) => {
+    if (slot) {
+      setEditingSlotId(slot.id);
+      setSlotDay(slot.day);
+      setSlotPeriod(slot.period);
+      setSlotTime(slot.time);
+      setSlotCourseCode(slot.courseCode);
+      setSlotCourseTitle(slot.courseTitle);
+      setSlotFacultyName(slot.facultyName);
+      setSlotRoom(slot.room);
+    } else {
+      setEditingSlotId(null);
+      setSlotDay('Monday');
+      setSlotPeriod(slots.length + 1);
+      setSlotTime('02:00 - 03:00 PM');
+      setSlotCourseCode('CS401');
+      setSlotCourseTitle('Design & Analysis of Algorithms');
+      setSlotFacultyName('Dr. Ramesh Kulkarni');
+      setSlotRoom('LH-201');
+    }
+    setSlotSaveSuccess(null);
+    setIsAddSlotModalOpen(true);
+  };
+
+  const handleSaveSlot = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // Check clash: same room or faculty in same period
+    const hasClash = slots.some(
+      (s) =>
+        s.id !== editingSlotId &&
+        s.day === slotDay &&
+        s.period === slotPeriod &&
+        (s.room === slotRoom || s.facultyName === slotFacultyName)
+    );
+
+    if (editingSlotId) {
+      setSlots((prev) =>
+        prev.map((s) =>
+          s.id === editingSlotId
+            ? {
+                ...s,
+                day: slotDay,
+                period: slotPeriod,
+                time: slotTime,
+                courseCode: slotCourseCode,
+                courseTitle: slotCourseTitle,
+                facultyName: slotFacultyName,
+                room: slotRoom,
+                hasClash,
+              }
+            : s
+        )
+      );
+      setSlotSaveSuccess(`Timetable Period ${slotPeriod} updated successfully.`);
+    } else {
+      const newSlot: TimetableSlotItem = {
+        id: `slot-${Date.now()}`,
+        day: slotDay,
+        period: slotPeriod,
+        time: slotTime,
+        courseCode: slotCourseCode,
+        courseTitle: slotCourseTitle,
+        facultyName: slotFacultyName,
+        facultyId: 'fac-custom',
+        room: slotRoom,
+        hasClash,
+      };
+      setSlots((prev) => [...prev, newSlot]);
+      setSlotSaveSuccess(`New Timetable slot for Period ${slotPeriod} (${slotCourseCode}) added.`);
+    }
+
+    setTimeout(() => {
+      setSlotSaveSuccess(null);
+      setIsAddSlotModalOpen(false);
+    }, 1200);
+  };
+
   // Smart Substitution Assistant Handler
   const handleOpenSubstitutionAssistant = (slot: TimetableSlotItem) => {
     setSelectedSlotForSub(slot);
@@ -667,6 +811,29 @@ export const AcademicsWorkspace: React.FC<AcademicsWorkspaceProps> = ({ currentR
          ======================================================== */}
       {activeTab === 'courses' && (
         <div className="space-y-4">
+          <div className="bg-white rounded-2xl border border-[#E5DFD7] p-5 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="font-bold text-sm text-[#242424]">Autonomous Course Catalog &amp; OBE Syllabus Matrix</h3>
+                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#FAF7F2] text-[#8B5E3C] border border-[#E5DFD7]">
+                  Curriculum Authority: HOD &amp; Board of Studies (BOS)
+                </span>
+              </div>
+              <p className="text-xs text-[#6E6862]">
+                Official curriculum, syllabus units, credits, lecture-tutorial-practical (L-T-P) distribution, and CO-PO attainment matrices.
+              </p>
+            </div>
+            
+            <button
+              type="button"
+              onClick={() => handleOpenEditSyllabus(courses[0])}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#682038] hover:bg-[#54192D] text-white text-xs font-bold transition-all shadow-2xs self-start md:self-auto cursor-pointer"
+            >
+              <BookOpen className="w-3.5 h-3.5 text-amber-300" />
+              <span>Update Course Syllabus Units (HOD/BOS)</span>
+            </button>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {courses.map((c) => (
               <div
@@ -702,19 +869,34 @@ export const AcademicsWorkspace: React.FC<AcademicsWorkspaceProps> = ({ currentR
                       <span className="text-[#6E6862]">Course Outcomes Defined:</span>
                       <span className="font-bold text-emerald-800">{c.courseOutcomes.length} COs (NBA Tier-1)</span>
                     </div>
+                    <div className="flex justify-between">
+                      <span className="text-[#6E6862]">Syllabus Units Configured:</span>
+                      <span className="font-bold text-[#242424]">{c.syllabusUnits.length} Units</span>
+                    </div>
                   </div>
                 </div>
 
                 <div className="pt-4 border-t border-[#EFE9E1] flex items-center justify-between mt-4">
                   <span className="text-[11px] text-[#6E6862]">Regulation: <strong>{c.regulationCode}</strong></span>
-                  <button
-                    type="button"
-                    onClick={() => setSelectedCourseForDetail(c)}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#682038] hover:bg-[#54192D] text-white text-xs font-bold transition-colors"
-                  >
-                    <span>View Syllabus &amp; CO-PO Matrix</span>
-                    <ChevronRight className="w-3.5 h-3.5" />
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => handleOpenEditSyllabus(c)}
+                      className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-white border border-[#E5DFD7] hover:bg-[#FAF7F2] text-[#682038] text-xs font-bold transition-colors cursor-pointer"
+                      title="Update Syllabus (Authorized: HOD / Board of Studies)"
+                    >
+                      <BookOpen className="w-3 h-3 text-[#8B5E3C]" />
+                      <span>Update Syllabus</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedCourseForDetail(c)}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#682038] hover:bg-[#54192D] text-white text-xs font-bold transition-colors cursor-pointer"
+                    >
+                      <span>View CO-PO</span>
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
@@ -916,20 +1098,34 @@ export const AcademicsWorkspace: React.FC<AcademicsWorkspaceProps> = ({ currentR
       {activeTab === 'timetable' && (
         <div className="space-y-4">
           <div className="bg-white rounded-2xl border border-[#E5DFD7] shadow-sm overflow-hidden">
-            <div className="px-6 py-4 border-b border-[#E5DFD7] flex items-center justify-between bg-[#FAF7F2]">
-              <div className="flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-[#682038]" />
-                <h3 className="text-sm font-bold text-[#682038] uppercase tracking-wider">
-                  B.Tech CSE — Semester 4 (Section A) Schedule
-                </h3>
+            <div className="px-6 py-4 border-b border-[#E5DFD7] flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#FAF7F2]">
+              <div>
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-4 h-4 text-[#682038]" />
+                  <h3 className="text-sm font-bold text-[#682038] uppercase tracking-wider">
+                    B.Tech CSE — Semester 4 (Section A) Schedule
+                  </h3>
+                </div>
+                <p className="text-xs text-[#6E6862] mt-0.5">
+                  Authority: <strong>Timetable Coordinator &amp; HOD</strong> (Schedule generation, room constraints &amp; faculty clash checks).
+                </p>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
+                <button
+                  type="button"
+                  onClick={() => handleOpenAddSlot()}
+                  className="px-3 py-1.5 rounded-lg bg-white border border-[#E5DFD7] text-[#682038] hover:bg-[#FAF7F2] text-xs font-bold flex items-center gap-1.5 shadow-2xs cursor-pointer"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>Manual Slot Builder</span>
+                </button>
                 <button
                   type="button"
                   onClick={handleAutoGenerateTimetable}
-                  className="px-3 py-1 rounded-lg bg-[#682038] text-white text-xs font-bold"
+                  className="px-3.5 py-1.5 rounded-lg bg-[#682038] hover:bg-[#54192D] text-white text-xs font-bold flex items-center gap-1.5 shadow-sm cursor-pointer"
                 >
-                  Regenerate Schedule
+                  <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                  <span>Regenerate Schedule</span>
                 </button>
               </div>
             </div>
@@ -948,7 +1144,7 @@ export const AcademicsWorkspace: React.FC<AcademicsWorkspaceProps> = ({ currentR
                     <div className="flex items-center justify-between text-xs mb-2">
                       <span className="font-mono font-bold text-[#682038]">Period {slot.period}</span>
                       <span className="text-[11px] text-[#6E6862] flex items-center gap-1">
-                        <Clock className="w-3 h-3" /> {slot.time}
+                        <Clock className="w-3.5 h-3.5" /> {slot.time}
                       </span>
                     </div>
 
@@ -963,25 +1159,35 @@ export const AcademicsWorkspace: React.FC<AcademicsWorkspaceProps> = ({ currentR
                         </div>
                       </div>
 
-                      {slot.hasClash ? (
+                      <div className="flex items-center gap-1.5">
                         <button
                           type="button"
-                          onClick={() => handleOpenSubstitutionAssistant(slot)}
-                          className="px-2.5 py-1 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-bold text-[11px] shadow-sm flex items-center gap-1 transition-all"
+                          onClick={() => handleOpenAddSlot(slot)}
+                          className="p-1 rounded text-[#9B948D] hover:text-[#682038] hover:bg-[#E5DFD7]/50 cursor-pointer"
+                          title="Edit Schedule Slot (Timetable Coordinator)"
                         >
-                          <UserPlus className="w-3 h-3" />
-                          <span>Substitute</span>
+                          <BookMarked className="w-3.5 h-3.5" />
                         </button>
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={() => handleOpenSubstitutionAssistant(slot)}
-                          className="p-1 rounded text-[#9B948D] hover:text-[#682038] hover:bg-[#E5DFD7]/50"
-                          title="Request Substitution"
-                        >
-                          <UserPlus className="w-3.5 h-3.5" />
-                        </button>
-                      )}
+                        {slot.hasClash ? (
+                          <button
+                            type="button"
+                            onClick={() => handleOpenSubstitutionAssistant(slot)}
+                            className="px-2.5 py-1 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-bold text-[11px] shadow-sm flex items-center gap-1 transition-all cursor-pointer"
+                          >
+                            <UserPlus className="w-3 h-3" />
+                            <span>Substitute</span>
+                          </button>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => handleOpenSubstitutionAssistant(slot)}
+                            className="p-1 rounded text-[#9B948D] hover:text-[#682038] hover:bg-[#E5DFD7]/50 cursor-pointer"
+                            title="Request Substitution"
+                          >
+                            <UserPlus className="w-3 h-3" />
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -1603,6 +1809,264 @@ export const AcademicsWorkspace: React.FC<AcademicsWorkspaceProps> = ({ currentR
                 </div>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================
+          MODAL: EDIT & UPDATE SYLLABUS UNITS
+          (Authorized Role: HOD & Board of Studies / Academic Dean)
+         ======================================================== */}
+      {isEditSyllabusModalOpen && editingCourse && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-[#E5DFD7] space-y-4 animate-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between border-b border-[#E5DFD7] pb-3">
+              <div className="flex items-center gap-2">
+                <BookOpen className="w-5 h-5 text-[#682038]" />
+                <div>
+                  <h3 className="text-sm font-bold text-[#242424]">
+                    Update Syllabus: {editingCourse.code}
+                  </h3>
+                  <p className="text-[11px] text-[#6E6862]">
+                    Curriculum Authority: <strong>Head of Department (HOD) &amp; Board of Studies</strong>
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsEditSyllabusModalOpen(false)}
+                className="text-[#6E6862] hover:text-[#242424] cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveSyllabusUnit} className="space-y-3 text-xs">
+              {syllabusSaveSuccess && (
+                <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 font-semibold flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>{syllabusSaveSuccess}</span>
+                </div>
+              )}
+
+              <div className="space-y-1">
+                <label className="font-bold text-[#242424]">Target Course</label>
+                <div className="p-2.5 rounded-xl bg-[#FAF7F2] border border-[#E5DFD7] font-semibold text-[#682038]">
+                  {editingCourse.code} — {editingCourse.title} ({editingCourse.department})
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="font-bold text-[#242424]">Regulation Version *</label>
+                  <input
+                    type="text"
+                    required
+                    value={syllabusVersionCode}
+                    onChange={(e) => setSyllabusVersionCode(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl border border-[#E5DFD7] bg-[#FAF7F2] text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-[#682038]"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="font-bold text-[#242424]">Planned Lecture Hours *</label>
+                  <input
+                    type="number"
+                    required
+                    min={1}
+                    max={20}
+                    value={syllabusPlannedHours}
+                    onChange={(e) => setSyllabusPlannedHours(Number(e.target.value))}
+                    className="w-full px-3 py-2 rounded-xl border border-[#E5DFD7] bg-[#FAF7F2] text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-[#682038]"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className="font-bold text-[#242424]">Syllabus Unit Title *</label>
+                <input
+                  type="text"
+                  required
+                  value={syllabusUnitTitle}
+                  onChange={(e) => setSyllabusUnitTitle(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl border border-[#E5DFD7] bg-[#FAF7F2] text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-[#682038]"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="font-bold text-[#242424]">Key Topics (Comma-Separated) *</label>
+                <textarea
+                  rows={3}
+                  required
+                  value={syllabusUnitTopics}
+                  onChange={(e) => setSyllabusUnitTopics(e.target.value)}
+                  className="w-full p-2.5 rounded-xl border border-[#E5DFD7] bg-[#FAF7F2] text-xs font-medium focus:outline-none focus:ring-1 focus:ring-[#682038]"
+                />
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2 border-t border-[#E5DFD7]">
+                <button
+                  type="button"
+                  onClick={() => setIsEditSyllabusModalOpen(false)}
+                  className="px-4 py-2 rounded-xl bg-[#FAF7F2] text-[#6E6862] font-semibold hover:bg-[#E5DFD7]"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 rounded-xl bg-[#682038] hover:bg-[#54192D] text-white font-bold transition-all shadow-sm"
+                >
+                  Commit Syllabus Revision
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================
+          MODAL: MANUAL TIMETABLE SLOT BUILDER
+          (Authorized Role: Timetable Coordinator & HOD)
+         ======================================================== */}
+      {isAddSlotModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-[#E5DFD7] space-y-4 animate-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between border-b border-[#E5DFD7] pb-3">
+              <div className="flex items-center gap-2">
+                <Calendar className="w-5 h-5 text-[#682038]" />
+                <div>
+                  <h3 className="text-sm font-bold text-[#242424]">
+                    {editingSlotId ? 'Edit Timetable Schedule Slot' : 'Manual Timetable Slot Builder'}
+                  </h3>
+                  <p className="text-[11px] text-[#6E6862]">
+                    Scheduling Authority: <strong>Timetable Coordinator &amp; Academic Dean</strong>
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsAddSlotModalOpen(false)}
+                className="text-[#6E6862] hover:text-[#242424] cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveSlot} className="space-y-3 text-xs">
+              {slotSaveSuccess && (
+                <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 font-semibold flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>{slotSaveSuccess}</span>
+                </div>
+              )}
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="font-bold text-[#242424]">Day of Week *</label>
+                  <select
+                    value={slotDay}
+                    onChange={(e) => setSlotDay(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl border border-[#E5DFD7] bg-[#FAF7F2] text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-[#682038] cursor-pointer"
+                  >
+                    <option value="Monday">Monday</option>
+                    <option value="Tuesday">Tuesday</option>
+                    <option value="Wednesday">Wednesday</option>
+                    <option value="Thursday">Thursday</option>
+                    <option value="Friday">Friday</option>
+                    <option value="Saturday">Saturday</option>
+                  </select>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="font-bold text-[#242424]">Period Number *</label>
+                  <select
+                    value={slotPeriod}
+                    onChange={(e) => setSlotPeriod(Number(e.target.value))}
+                    className="w-full px-3 py-2 rounded-xl border border-[#E5DFD7] bg-[#FAF7F2] text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-[#682038] cursor-pointer"
+                  >
+                    {[1, 2, 3, 4, 5, 6].map((p) => (
+                      <option key={p} value={p}>
+                        Period {p}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="font-bold text-[#242424]">Time Slot Window *</label>
+                  <input
+                    type="text"
+                    required
+                    value={slotTime}
+                    onChange={(e) => setSlotTime(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl border border-[#E5DFD7] bg-[#FAF7F2] text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-[#682038]"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="font-bold text-[#242424]">Lecture Hall / Lab *</label>
+                  <input
+                    type="text"
+                    required
+                    value={slotRoom}
+                    onChange={(e) => setSlotRoom(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl border border-[#E5DFD7] bg-[#FAF7F2] text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-[#682038]"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="font-bold text-[#242424]">Course Code *</label>
+                  <input
+                    type="text"
+                    required
+                    value={slotCourseCode}
+                    onChange={(e) => setSlotCourseCode(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl border border-[#E5DFD7] bg-[#FAF7F2] font-mono text-xs font-bold text-[#682038] focus:outline-none focus:ring-1 focus:ring-[#682038]"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="font-bold text-[#242424]">Assigned Faculty *</label>
+                  <input
+                    type="text"
+                    required
+                    value={slotFacultyName}
+                    onChange={(e) => setSlotFacultyName(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl border border-[#E5DFD7] bg-[#FAF7F2] text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-[#682038]"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className="font-bold text-[#242424]">Course Title *</label>
+                <input
+                  type="text"
+                  required
+                  value={slotCourseTitle}
+                  onChange={(e) => setSlotCourseTitle(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl border border-[#E5DFD7] bg-[#FAF7F2] text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-[#682038]"
+                />
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2 border-t border-[#E5DFD7]">
+                <button
+                  type="button"
+                  onClick={() => setIsAddSlotModalOpen(false)}
+                  className="px-4 py-2 rounded-xl bg-[#FAF7F2] text-[#6E6862] font-semibold hover:bg-[#E5DFD7]"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 rounded-xl bg-[#682038] hover:bg-[#54192D] text-white font-bold transition-all shadow-sm"
+                >
+                  Save Timetable Slot
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
