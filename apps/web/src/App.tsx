@@ -386,7 +386,7 @@ export const App: React.FC = () => {
             <>
               {activeTab === 'admissions' && <AdmissionsWorkspace />}
               {activeTab === 'attendance' && <AttendanceWorkspace currentRole={currentRole} />}
-              {activeTab === 'academics' && <AcademicsWorkspace />}
+              {activeTab === 'academics' && <AcademicsWorkspace currentRole={currentRole} />}
               {activeTab === 'exams' && <ExamsWorkspace />}
               {activeTab === 'fees' && <FeesWorkspace />}
               {activeTab === 'payroll' && <HrPayrollWorkspace />}

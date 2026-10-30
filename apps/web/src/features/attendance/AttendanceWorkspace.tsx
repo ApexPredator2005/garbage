@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { RoleType } from '../../types';
 import {
   Users,
@@ -21,6 +21,7 @@ import {
   ChevronRight,
   AlertCircle,
   ArrowUpRight,
+  ArrowRight,
   ShieldAlert,
   Send,
   Mail,
@@ -374,6 +375,87 @@ const INITIAL_STAFF_PUNCHES: StaffDailyPunch[] = [
   { id: 'sp-4', employeeName: 'Mr. Pradeep Joshi', employeeCode: 'STAFF-BUR-001', department: 'Bursar & Accounts', inTime: '08:20 AM', outTime: '05:15 PM', status: 'ON_TIME', source: 'BIOMETRIC_DEVICE' },
 ];
 
+interface FacultyAllocation {
+  code: string;
+  name: string;
+  program: string;
+  semester: string;
+  section: string;
+  hall: string;
+  slot: string;
+}
+
+interface FacultyProfile {
+  id: string;
+  code: string;
+  name: string;
+  department: string;
+  assignedOfferings: FacultyAllocation[];
+}
+
+const FACULTY_DIRECTORY: FacultyProfile[] = [
+  {
+    id: 'fac-cse-001',
+    code: 'FAC-CSE-001',
+    name: 'Dr. Aris Thorne',
+    department: 'Department of Computer Science & Engineering',
+    assignedOfferings: [
+      {
+        code: 'CS601',
+        name: 'Distributed Systems & Cloud Architecture',
+        program: 'B.Tech CSE',
+        semester: 'Sem 6',
+        section: 'Section A',
+        hall: 'LH-301',
+        slot: '10:15 AM - 11:10 AM',
+      },
+      {
+        code: 'CS401',
+        name: 'Data Structures & Algorithms II',
+        program: 'B.Tech CSE',
+        semester: 'Sem 4',
+        section: 'Section A',
+        hall: 'LH-204',
+        slot: '09:15 AM - 10:10 AM',
+      },
+    ],
+  },
+  {
+    id: 'fac-ece-005',
+    code: 'FAC-ECE-005',
+    name: 'Prof. Sunita Patil',
+    department: 'Department of Electronics & Communication',
+    assignedOfferings: [
+      {
+        code: 'EC601',
+        name: 'Digital Signal Processing & Filter Design',
+        program: 'B.Tech ECE',
+        semester: 'Sem 6',
+        section: 'Section A',
+        hall: 'LH-302',
+        slot: '11:15 AM - 12:10 PM',
+      },
+    ],
+  },
+  {
+    id: 'fac-me-002',
+    code: 'FAC-ME-002',
+    name: 'Dr. Rajesh Rao',
+    department: 'Department of Mechanical Engineering',
+    assignedOfferings: [
+      {
+        code: 'ME601',
+        name: 'Finite Element Analysis & CAD/CAM',
+        program: 'B.Tech ME',
+        semester: 'Sem 6',
+        section: 'Section A',
+        hall: 'LH-208',
+        slot: '02:00 PM - 02:55 PM',
+      },
+    ],
+  },
+];
+
 const AVAILABLE_PROGRAMS = [
   { id: 'B.Tech CSE', label: 'B.Tech Computer Science & Engg (CSE)' },
   { id: 'B.Tech ECE', label: 'B.Tech Electronics & Comm (ECE)' },
@@ -383,7 +465,9 @@ const AVAILABLE_PROGRAMS = [
 
 export const AttendanceWorkspace: React.FC<AttendanceWorkspaceProps> = ({ currentRole = 'FACULTY' }) => {
   const isPrincipalReadOnly = currentRole === 'PRINCIPAL';
+  const isFacultyScoped = currentRole === 'FACULTY';
 
+  const [activeFaculty, setActiveFaculty] = useState<FacultyProfile>(FACULTY_DIRECTORY[0]);
   const [subTab, setSubTab] = useState<'matrix' | 'condonation' | 'biometric' | 'radar' | 'student_leaves' | 'staff_attendance'>('matrix');
   const [cohortMap, setCohortMap] = useState<Record<string, StudentAttendance[]>>(INITIAL_COHORTS);
   const [condonations, setCondonations] = useState<CondonationRequest[]>(INITIAL_CONDONATIONS);
@@ -411,6 +495,16 @@ export const AttendanceWorkspace: React.FC<AttendanceWorkspaceProps> = ({ curren
     setTimeout(() => setToastMessage(null), 4000);
   };
 
+  // Check faculty allocations for current selected cohort
+  const facultyAllocationsForCurrentCohort = useMemo(() => {
+    if (!isFacultyScoped) return [];
+    return activeFaculty.assignedOfferings.filter(
+      (o) => o.program === selectedProgram && o.semester === selectedSemester && o.section === selectedSection
+    );
+  }, [isFacultyScoped, activeFaculty, selectedProgram, selectedSemester, selectedSection]);
+
+  const hasTeachingAllocation = !isFacultyScoped || facultyAllocationsForCurrentCohort.length > 0;
+
   const availableSemesters = useMemo(() => {
     if (selectedProgram === 'MBA') {
       return ['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4'];
@@ -419,6 +513,21 @@ export const AttendanceWorkspace: React.FC<AttendanceWorkspaceProps> = ({ curren
   }, [selectedProgram]);
 
   const availableSubjects: CourseOffering[] = useMemo(() => {
+    if (isFacultyScoped) {
+      // Faculty is strictly restricted to their assigned courses only
+      const allocs = activeFaculty.assignedOfferings.filter(
+        (o) => o.program === selectedProgram && o.semester === selectedSemester && o.section === selectedSection
+      );
+      return allocs.map((a) => ({
+        code: a.code,
+        name: a.name,
+        faculty: activeFaculty.name,
+        facultyCode: activeFaculty.code,
+        hall: a.hall,
+        slot: a.slot,
+      }));
+    }
+
     const progCatalog = COURSE_CATALOG[selectedProgram];
     if (progCatalog && progCatalog[selectedSemester]) {
       return progCatalog[selectedSemester];
@@ -443,11 +552,51 @@ export const AttendanceWorkspace: React.FC<AttendanceWorkspaceProps> = ({ curren
         slot: '11:30 AM - 12:25 PM',
       },
     ];
-  }, [selectedProgram, selectedSemester]);
+  }, [isFacultyScoped, activeFaculty, selectedProgram, selectedSemester, selectedSection]);
 
   const currentOffering = useMemo(() => {
-    return availableSubjects.find((s) => s.code === selectedSubjectCode) || availableSubjects[0];
+    return (
+      availableSubjects.find((s) => s.code === selectedSubjectCode) ||
+      availableSubjects[0] || {
+        code: 'N/A',
+        name: 'No Assigned Course in Cohort',
+        faculty: activeFaculty.name,
+        facultyCode: activeFaculty.code,
+        hall: 'N/A',
+        slot: 'N/A',
+      }
+    );
+  }, [availableSubjects, selectedSubjectCode, activeFaculty]);
+
+  // Auto-align selected subject with available subjects
+  useEffect(() => {
+    if (availableSubjects.length > 0 && !availableSubjects.some((s) => s.code === selectedSubjectCode)) {
+      setSelectedSubjectCode(availableSubjects[0].code);
+    }
   }, [availableSubjects, selectedSubjectCode]);
+
+  // Scoped Parent Warnings for Faculty
+  const facultyScopedParentWarnings = useMemo(() => {
+    if (!isFacultyScoped) return parentWarnings;
+    const facultyPrograms = new Set(activeFaculty.assignedOfferings.map((o) => o.program));
+    return parentWarnings.filter((w) => facultyPrograms.has(w.program));
+  }, [parentWarnings, isFacultyScoped, activeFaculty]);
+
+  const displayedParentWarnings = useMemo(() => {
+    if (radarFilter === 'AMBER_78') {
+      return facultyScopedParentWarnings.filter((w) => w.zone === 'AMBER_WARNING_78');
+    }
+    if (radarFilter === 'BARRED_75') {
+      return facultyScopedParentWarnings.filter((w) => w.zone === 'CRITICAL_BARRED_75');
+    }
+    return facultyScopedParentWarnings;
+  }, [facultyScopedParentWarnings, radarFilter]);
+
+  // Scoped Staff Punches for Faculty
+  const displayedStaffPunches = useMemo(() => {
+    if (!isFacultyScoped) return INITIAL_STAFF_PUNCHES;
+    return INITIAL_STAFF_PUNCHES.filter((p) => p.employeeCode === activeFaculty.code);
+  }, [isFacultyScoped, activeFaculty]);
 
   const handleProgramChange = (prog: string) => {
     setSelectedProgram(prog);
@@ -757,6 +906,93 @@ export const AttendanceWorkspace: React.FC<AttendanceWorkspaceProps> = ({ curren
                 </p>
               </div>
             </div>
+          ) : isFacultyScoped ? (
+            <div className="bg-[#FAF7F2] border border-[#D5B3BC] rounded-2xl p-4 space-y-3 shadow-xs">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-[#682038] text-white flex items-center justify-center shrink-0">
+                    <ShieldCheck className="w-5 h-5 text-amber-300" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-bold text-sm text-[#242424]">
+                        Subject Faculty Session: {activeFaculty.name}
+                      </span>
+                      <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[#682038]/10 text-[#682038] border border-[#682038]/20">
+                        {activeFaculty.code}
+                      </span>
+                      <span className="text-xs text-[#6E6862]">
+                        {activeFaculty.department}
+                      </span>
+                    </div>
+                    <p className="text-xs text-[#6E6862] mt-0.5">
+                      Strict Subject-Level RBAC Scoping Active (§4.1): You are authorized exclusively to view and record attendance for subjects allocated to you. Unallocated cohorts and subjects are strictly isolated.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 shrink-0 self-start sm:self-auto">
+                  <span className="text-[11px] font-semibold text-[#6E6862]">Switch Faculty Persona:</span>
+                  <select
+                    value={activeFaculty.id}
+                    onChange={(e) => {
+                      const selectedFac = FACULTY_DIRECTORY.find((f) => f.id === e.target.value);
+                      if (selectedFac) {
+                        setActiveFaculty(selectedFac);
+                        const first = selectedFac.assignedOfferings[0];
+                        if (first) {
+                          setSelectedProgram(first.program);
+                          setSelectedSemester(first.semester);
+                          setSelectedSection(first.section);
+                          setSelectedSubjectCode(first.code);
+                        }
+                        showToast(`Switched faculty persona to ${selectedFac.name} (${selectedFac.department})`);
+                      }
+                    }}
+                    className="text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-[#E5DFD7] bg-white text-[#242424] focus:outline-none focus:ring-1 focus:ring-[#682038]"
+                  >
+                    {FACULTY_DIRECTORY.map((f) => (
+                      <option key={f.id} value={f.id}>
+                        {f.name} ({f.department.split(' ')[0]})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {/* Assigned Subjects Summary Pills */}
+              <div className="flex items-center gap-2 flex-wrap pt-1 border-t border-[#E5DFD7]">
+                <span className="text-[11px] font-bold text-[#8B5E3C]">Your Teaching Allotments:</span>
+                {activeFaculty.assignedOfferings.map((alloc) => {
+                  const isCurrent =
+                    alloc.program === selectedProgram &&
+                    alloc.semester === selectedSemester &&
+                    alloc.section === selectedSection &&
+                    alloc.code === currentOffering.code;
+                  return (
+                    <button
+                      key={`${alloc.code}_${alloc.program}_${alloc.semester}_${alloc.section}`}
+                      onClick={() => {
+                        setSelectedProgram(alloc.program);
+                        setSelectedSemester(alloc.semester);
+                        setSelectedSection(alloc.section);
+                        setSelectedSubjectCode(alloc.code);
+                      }}
+                      className={`text-[11px] px-2.5 py-1 rounded-lg border font-medium transition-all flex items-center gap-1.5 ${
+                        isCurrent
+                          ? 'bg-[#682038] text-white border-[#682038]'
+                          : 'bg-white text-[#6E6862] border-[#E5DFD7] hover:bg-[#FAF7F2]'
+                      }`}
+                    >
+                      <BookOpen className="w-3 h-3" />
+                      <span>
+                        {alloc.code}: {alloc.name} ({alloc.program} {alloc.semester} - {alloc.section})
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
           ) : (
             <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-emerald-900">
               <span className="flex items-center gap-2">
@@ -858,17 +1094,63 @@ export const AttendanceWorkspace: React.FC<AttendanceWorkspaceProps> = ({ curren
                 <select
                   value={currentOffering.code}
                   onChange={(e) => setSelectedSubjectCode(e.target.value)}
-                  className="w-full text-xs font-semibold px-3 py-2 rounded-xl border border-[#E5DFD7] bg-[#FAF7F2] text-[#242424] focus:outline-none focus:ring-1 focus:ring-[#682038] transition-all cursor-pointer"
+                  disabled={availableSubjects.length === 0}
+                  className="w-full text-xs font-semibold px-3 py-2 rounded-xl border border-[#E5DFD7] bg-[#FAF7F2] text-[#242424] focus:outline-none focus:ring-1 focus:ring-[#682038] transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                 >
-                  {availableSubjects.map((sub) => (
-                    <option key={sub.code} value={sub.code}>
-                      {sub.code}: {sub.name}
-                    </option>
-                  ))}
+                  {availableSubjects.length === 0 ? (
+                    <option value="N/A">⚠️ No courses allocated to you in this cohort</option>
+                  ) : (
+                    availableSubjects.map((sub) => (
+                      <option key={sub.code} value={sub.code}>
+                        {sub.code}: {sub.name}
+                      </option>
+                    ))
+                  )}
                 </select>
               </div>
             </div>
           </div>
+
+          {!hasTeachingAllocation ? (
+            <div className="bg-white border-2 border-dashed border-rose-200 rounded-2xl p-8 text-center space-y-4 shadow-sm animate-in fade-in duration-200">
+              <div className="w-16 h-16 rounded-full bg-rose-50 border border-rose-200 flex items-center justify-center mx-auto text-rose-700">
+                <Lock className="w-8 h-8" />
+              </div>
+              <div className="max-w-md mx-auto space-y-2">
+                <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800 border border-rose-200 uppercase tracking-wider">
+                  RBAC Data Isolation Policy §4.1
+                </span>
+                <h3 className="text-base font-bold text-[#242424]">
+                  Access Restricted: Subject Not Allocated To You
+                </h3>
+                <p className="text-xs text-[#6E6862] leading-relaxed">
+                  As <strong>{activeFaculty.name} ({activeFaculty.code})</strong>, you do not have teaching or evaluation allocation for <strong>{selectedProgram} {selectedSemester} - {selectedSection}</strong>.
+                  <br />
+                  Under university academic governance rules, faculty members are strictly authorized to view and record attendance only for course cohorts assigned to them. Attendance records, session marks, and debarment registers outside your teaching load are cryptographically shielded.
+                </p>
+              </div>
+              <div className="pt-2">
+                <button
+                  onClick={() => {
+                    const first = activeFaculty.assignedOfferings[0];
+                    if (first) {
+                      setSelectedProgram(first.program);
+                      setSelectedSemester(first.semester);
+                      setSelectedSection(first.section);
+                      setSelectedSubjectCode(first.code);
+                    }
+                  }}
+                  className="px-4 py-2 rounded-xl bg-[#682038] hover:bg-[#54192D] text-white text-xs font-bold transition-all shadow-sm inline-flex items-center gap-2"
+                >
+                  <ArrowRight className="w-3.5 h-3.5" />
+                  <span>
+                    Jump to Your Assigned Subject ({activeFaculty.assignedOfferings[0]?.code}: {activeFaculty.assignedOfferings[0]?.name})
+                  </span>
+                </button>
+              </div>
+            </div>
+          ) : (
+            <>
 
           {/* Controls & Stat Cards */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -1181,11 +1463,13 @@ export const AttendanceWorkspace: React.FC<AttendanceWorkspaceProps> = ({ curren
               </table>
             </div>
           </div>
-        </div>
+        </>
       )}
+    </div>
+  )}
 
-      {/* SUB-TAB 2: CONDONATION APPLICATION DESK */}
-      {subTab === 'condonation' && (
+  {/* SUB-TAB 2: CONDONATION APPLICATION DESK */}
+  {subTab === 'condonation' && (
         <div className="space-y-6">
           <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5 flex items-start gap-3">
             <AlertCircle className="w-5 h-5 text-amber-700 shrink-0 mt-0.5" />
@@ -1393,7 +1677,7 @@ export const AttendanceWorkspace: React.FC<AttendanceWorkspaceProps> = ({ curren
             <div className="flex items-center gap-2 shrink-0">
               <button
                 onClick={handleBulkDispatchAmberWarnings}
-                disabled={dispatchingId === 'bulk' || parentWarnings.filter((w) => w.zone === 'AMBER_WARNING_78' && !w.warningDispatched).length === 0}
+                disabled={dispatchingId === 'bulk' || facultyScopedParentWarnings.filter((w) => w.zone === 'AMBER_WARNING_78' && !w.warningDispatched).length === 0}
                 className="px-4 py-2 rounded-xl bg-[#682038] hover:bg-[#54192D] text-white text-xs font-bold shadow-sm disabled:opacity-50 flex items-center gap-2 transition-all"
               >
                 {dispatchingId === 'bulk' ? (
@@ -1404,12 +1688,24 @@ export const AttendanceWorkspace: React.FC<AttendanceWorkspaceProps> = ({ curren
                 ) : (
                   <>
                     <Send className="w-3.5 h-3.5" />
-                    <span>Dispatch All Amber Warnings ({parentWarnings.filter((w) => w.zone === 'AMBER_WARNING_78' && !w.warningDispatched).length})</span>
+                    <span>Dispatch All Amber Warnings ({facultyScopedParentWarnings.filter((w) => w.zone === 'AMBER_WARNING_78' && !w.warningDispatched).length})</span>
                   </>
                 )}
               </button>
             </div>
           </div>
+
+          {/* Scoped Information Banner for Faculty */}
+          {isFacultyScoped && (
+            <div className="bg-[#FAF7F2] border border-[#E5DFD7] rounded-xl px-4 py-2.5 text-xs text-[#6E6862] flex items-center justify-between">
+              <span>
+                <strong>Faculty Scoped Defaulter View (§4.1):</strong> Showing radar alerts only for students in programs you teach (<strong>{[...new Set(activeFaculty.assignedOfferings.map((o) => o.program))].join(', ')}</strong>).
+              </span>
+              <span className="font-mono text-[10px] bg-white px-2 py-0.5 rounded border border-[#E5DFD7] font-semibold text-[#8B5E3C]">
+                Department Filtered
+              </span>
+            </div>
+          )}
 
           {/* Metric KPI Cards */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -1417,7 +1713,7 @@ export const AttendanceWorkspace: React.FC<AttendanceWorkspaceProps> = ({ curren
               <span className="text-xs font-semibold text-amber-900">78% Buffer Warning Zone</span>
               <div className="flex items-baseline justify-between">
                 <span className="text-2xl font-bold font-mono text-amber-700">
-                  {parentWarnings.filter((w) => w.zone === 'AMBER_WARNING_78').length}
+                  {facultyScopedParentWarnings.filter((w) => w.zone === 'AMBER_WARNING_78').length}
                 </span>
                 <span className="text-[11px] font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded">
                   1–2 Absences Left
@@ -1430,7 +1726,7 @@ export const AttendanceWorkspace: React.FC<AttendanceWorkspaceProps> = ({ curren
               <span className="text-xs font-semibold text-rose-900">Hard Debarred (&lt;75%)</span>
               <div className="flex items-baseline justify-between">
                 <span className="text-2xl font-bold font-mono text-rose-700">
-                  {parentWarnings.filter((w) => w.zone === 'CRITICAL_BARRED_75').length}
+                  {facultyScopedParentWarnings.filter((w) => w.zone === 'CRITICAL_BARRED_75').length}
                 </span>
                 <span className="text-[11px] font-bold text-rose-800 bg-rose-100 px-2 py-0.5 rounded">
                   Hall Ticket Barred
@@ -1475,7 +1771,7 @@ export const AttendanceWorkspace: React.FC<AttendanceWorkspaceProps> = ({ curren
                     : 'text-[#6E6862] hover:bg-[#FAF7F2]'
                 }`}
               >
-                All Defaulters ({parentWarnings.length})
+                All Defaulters ({facultyScopedParentWarnings.length})
               </button>
               <button
                 onClick={() => setRadarFilter('AMBER_78')}
@@ -1485,7 +1781,7 @@ export const AttendanceWorkspace: React.FC<AttendanceWorkspaceProps> = ({ curren
                     : 'text-amber-800 bg-amber-50 hover:bg-amber-100'
                 }`}
               >
-                Amber 78% Buffer ({parentWarnings.filter((w) => w.zone === 'AMBER_WARNING_78').length})
+                Amber 78% Buffer ({facultyScopedParentWarnings.filter((w) => w.zone === 'AMBER_WARNING_78').length})
               </button>
               <button
                 onClick={() => setRadarFilter('BARRED_75')}
@@ -1495,7 +1791,7 @@ export const AttendanceWorkspace: React.FC<AttendanceWorkspaceProps> = ({ curren
                     : 'text-rose-800 bg-rose-50 hover:bg-rose-100'
                 }`}
               >
-                Barred &lt;75% ({parentWarnings.filter((w) => w.zone === 'CRITICAL_BARRED_75').length})
+                Barred &lt;75% ({facultyScopedParentWarnings.filter((w) => w.zone === 'CRITICAL_BARRED_75').length})
               </button>
             </div>
 
@@ -1520,13 +1816,14 @@ export const AttendanceWorkspace: React.FC<AttendanceWorkspaceProps> = ({ curren
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#E5DFD7]">
-                  {parentWarnings
-                    .filter((w) => {
-                      if (radarFilter === 'AMBER_78') return w.zone === 'AMBER_WARNING_78';
-                      if (radarFilter === 'BARRED_75') return w.zone === 'CRITICAL_BARRED_75';
-                      return true;
-                    })
-                    .map((item) => (
+                  {displayedParentWarnings.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} className="py-8 text-center text-xs text-[#6E6862]">
+                        No attendance defaulters matching filter in your assigned cohorts.
+                      </td>
+                    </tr>
+                  ) : (
+                    displayedParentWarnings.map((item) => (
                       <tr key={item.id} className="hover:bg-[#FAF7F2]/40 transition-colors">
                         <td className="py-3.5 px-4">
                           <div className="font-bold text-[#242424]">{item.name}</div>
@@ -1643,7 +1940,8 @@ export const AttendanceWorkspace: React.FC<AttendanceWorkspaceProps> = ({ curren
                           </div>
                         </td>
                       </tr>
-                    ))}
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>
@@ -1761,6 +2059,17 @@ export const AttendanceWorkspace: React.FC<AttendanceWorkspaceProps> = ({ curren
               </button>
             </div>
 
+            {isFacultyScoped && (
+              <div className="mx-6 mt-4 p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 flex items-center justify-between">
+                <span>
+                  <strong>Employee Privacy Filter (§4.1):</strong> As faculty member <strong>{activeFaculty.name} ({activeFaculty.code})</strong>, you have access exclusively to your personal daily turnstile timestamps. Other staff logs are shielded per statutory privacy bylaws.
+                </span>
+                <span className="font-mono text-[10px] bg-white px-2 py-0.5 rounded border border-emerald-300 font-bold text-emerald-700">
+                  Self Punch Only
+                </span>
+              </div>
+            )}
+
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead className="bg-[#FAF7F2] text-[#6E6862] font-semibold border-b border-[#E5DFD7]">
@@ -1774,7 +2083,7 @@ export const AttendanceWorkspace: React.FC<AttendanceWorkspaceProps> = ({ curren
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#EFE9E1]">
-                  {INITIAL_STAFF_PUNCHES.map((p) => (
+                  {displayedStaffPunches.map((p) => (
                     <tr key={p.id} className="hover:bg-[#FAF7F2]/60">
                       <td className="px-6 py-4">
                         <div className="font-bold text-[#242424] text-sm">{p.employeeName}</div>

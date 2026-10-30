@@ -577,6 +577,25 @@ This document chronicles the fundamental engineering and product decisions made 
 
 ---
 
+### [ADR-039] Faculty Subject-Scoped RBAC Access Isolation & Admission USN Authority Formalization
+- **Classification:** Security, Governance & UX (SEC/GOV/UX)
+- **Status:** Approved & Implemented
+- **Decision Owner:** Product Architecture & Academic Security Team
+- **Context:**
+  1. **Faculty Data Isolation:** University academic security regulations mandate that faculty members must only be authorized to view and modify attendance, course materials, lesson diaries, and academic records for subjects explicitly allocated to them. Unassigned subjects, cohorts, and other staff members' biometric punch records must be cryptographically and visually isolated.
+  2. **Admission Authority & USN Minting:** Clear procedural delineation was required regarding who possesses statutory authority to enter new student admission records, generate the University Seat Number (USN) / Permanent Enrollment Number, and commit enrollments to the Master Registry.
+- **Decision:**
+  1. **Admission USN Authority Formalization:** Formally established that the **Academic Registrar** (`REGISTRAR` role) holds primary statutory authority over Module 01 (Admissions & SIS). While Admission Verification Officers vet initial candidate applications, the official USN/Roll Number is minted/imported exclusively by the Registrar's Office upon verification against affiliating university or state admission quotas.
+  2. **Faculty Subject-Scoped Attendance Filtering:** Implemented strict subject-level RBAC scoping in `AttendanceWorkspace.tsx` when `currentRole === 'FACULTY'`:
+     - Dropdown filters strictly limit course options to subjects assigned to the logged-in faculty member (`activeFaculty.assignedOfferings`).
+     - If an unallocated cohort/section is navigated to, an **Access Restricted Barrier** is displayed citing RBAC Isolation Policy §4.1, preventing unauthorized visibility of other instructors' student rosters and marking matrices.
+     - Added an interactive **Faculty Persona Switcher** (`Dr. Aris Thorne [CSE]`, `Prof. Sunita Patil [ECE]`, `Dr. Rajesh Rao [ME]`) allowing immediate evaluation and verification of role-isolation across distinct academic departments.
+     - Scoped Subtab 4 (78% Parent Radar) and Subtab 6 (Staff Daily Turnstile Punches) so faculty only view defaulter alerts in their assigned programs and their own personal biometric turnstile timestamps.
+  3. **Academics Workspace Scoping:** Extended `currentRole` context to `AcademicsWorkspace.tsx` to ensure course diaries, learning materials, and assignment queues reflect assigned course allocations.
+- **Rationale:** Prevents unauthorized cross-department data exposure, enforces statutory university compliance for role-based evaluations, and guarantees strict audit privacy across the faculty body.
+
+---
+
 ## 6. Comprehensive Decision Summary Matrix
 
 | ID | Decision Title | Category | Status | Primary Rationale & Impact |
@@ -619,3 +638,4 @@ This document chronicles the fundamental engineering and product decisions made 
 | **ADR-036** | Complete Module 03 (Academics, Timetable, Teaching & LMS) | FUNC/ACCRED | Implemented | Full 9-pillar suite: Structure, CO-PO OBE, CBCS reg, Workload balance, Timetable solver, 90-day Calendar, Course Diary, Mentoring, LMS. |
 | **ADR-037** | Full Specification Parity Across All 8 Core Modules | FUNC/ACCRED | Implemented | Comprehensive elevation of all modules: CRM, deterministic merit, interleaved seating, dummy coding, balanced vouchers, recruitment, PBAS, events, SSS, and audit logs. |
 | **ADR-038** | Attendance Role-Gating, Class Selectors & Student Fines | FUNC/SEC/UX | Implemented | Principal view-only audit mode (faculty marking only), live Program/Sem/Section cohort switcher, and itemized student fines ledger. |
+| **ADR-039** | Faculty Subject-Scoped Isolation & Admission USN Authority | SEC/GOV/UX | Implemented | Faculty data-scoping to assigned subjects/cohorts with access restriction barriers, persona switcher & Registrar USN governance. |

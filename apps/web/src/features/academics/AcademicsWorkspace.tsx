@@ -53,6 +53,7 @@ import {
   AssignmentItem,
   QuizItem,
   VirtualClassSession,
+  RoleType,
 } from '../../types';
 
 // ==========================================
@@ -366,7 +367,12 @@ const INITIAL_SLOTS: TimetableSlotItem[] = [
 // 02. MAIN WORKSPACE COMPONENT
 // ==========================================
 
-export const AcademicsWorkspace: React.FC = () => {
+export interface AcademicsWorkspaceProps {
+  currentRole?: RoleType;
+}
+
+export const AcademicsWorkspace: React.FC<AcademicsWorkspaceProps> = ({ currentRole = 'FACULTY' }) => {
+  const isFacultyScoped = currentRole === 'FACULTY';
   // 9 Sub-Tabs according to Devloft CMS Module 03 Specification
   const [activeTab, setActiveTab] = useState<
     | 'courses'
@@ -531,6 +537,21 @@ export const AcademicsWorkspace: React.FC = () => {
           </button>
         </div>
       </div>
+
+      {/* Faculty Scoped Session Banner */}
+      {isFacultyScoped && (
+        <div className="bg-[#FAF7F2] border border-[#D5B3BC] rounded-xl px-4 py-2.5 text-xs text-[#6E6862] flex items-center justify-between shadow-2xs">
+          <div className="flex items-center gap-2">
+            <ShieldCheck className="w-4 h-4 text-[#682038] shrink-0" />
+            <span>
+              <strong>Faculty Subject-Scoped Session (§4.1):</strong> You are authenticated as instructor for <strong>CS401 (Design &amp; Analysis of Algorithms)</strong> &amp; <strong>CS402L (Algorithms Lab)</strong>. Lesson plans, teaching diaries, study materials, and student submissions are automatically isolated to your teaching allocations.
+            </span>
+          </div>
+          <span className="font-mono text-[10px] bg-white px-2 py-0.5 rounded border border-[#E5DFD7] text-[#682038] font-bold shrink-0">
+            Assigned: CS401 / CS402L
+          </span>
+        </div>
+      )}
 
       {/* 9-TAB NAVIGATION STRIP */}
       <div className="flex items-center gap-2 border-b border-[#E5DFD7] pb-2 overflow-x-auto">
