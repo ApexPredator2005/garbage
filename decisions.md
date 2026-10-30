@@ -508,6 +508,34 @@ This document chronicles the fundamental engineering and product decisions made 
 
 ---
 
+### [ADR-036] Comprehensive Module 03 (Academics, Timetable, Teaching & Learning Space) Implementation across All 9 Pillars
+- **Classification:** Functional Domain, Accreditation & Academic Operations (FUNC / ACCRED / LMS)
+- **Status:** Approved & Implemented
+- **Decision Owner:** Employer Devloft Specification Directive & Stakeholder Requirement
+- **Context:** The employer's technical specification (*Devloft Technologies — College Campus Management System, 21 October 2026, Module 03: Academics, Timetable and Learning*) and stakeholder evaluation mandated complete coverage across nine academic operational pillars:
+  1. Structure (Institution, Department, Program, Batch, Semester, Section, Regulations, Syllabus Versions).
+  2. Courses (Catalog with credits, L-T-P hours, prerequisites, Course Outcomes, syllabus units, NBA OBE CO-PO mapping).
+  3. Registration (Semester course registration, CBCS credit limits, seat caps, add & drop, advisor approvals).
+  4. Allocation (Faculty-to-course allocation, AICTE workload balancing, lab cohort batch splitting A1/A2/A3).
+  5. Timetable (Manual builder, automatic generation under constraints, clash solver, substitutions, change notifications).
+  6. Calendar (Academic calendar, statutory 90 instructional working days tracker, gazetted holidays, CIE/SEE exam milestones).
+  7. Teaching records (Lesson plans, faculty daily course diary, unit-wise syllabus coverage percentage).
+  8. Mentoring (Proctor assignment at 1:20 ratio, meeting log book, counseling remarks, attendance risk warnings).
+  9. Learning space / LMS (Study materials, assignment submissions & rubric grading, auto-graded MCQ quizzes, Google Meet / Zoom virtual class links).
+- **Decision:** Architected, built, and mounted all 9 pillars end-to-end across `apps/web/src/features/academics/AcademicsWorkspace.tsx`, shared TypeScript models (`apps/web/src/types.ts`), and the NestJS backend API (`apps/api/src/modules/academics/`):
+  - **Pillar 1 (Structure & Regulations):** Versioned degree regulation cards (R-2026-CBCS Autonomous vs R-2022 Affiliated) with total degree credits (160c) and semester bounds (18–26 credits).
+  - **Pillar 2 (Courses & CO-PO OBE):** 5-unit syllabus modal, Bloom's cognitive taxonomy levels, and full 12-outcome NBA OBE CO-PO correlation matrix table with 1 (Low), 2 (Medium), 3 (High) correlation indicators.
+  - **Pillar 3 (CBCS Registration):** Student course shopping cart with real-time elective seat capacity tracking and advisor approval workflow.
+  - **Pillar 4 (Faculty Allocation & Workload):** AICTE weekly workload radar (Professors: 14h, Associate: 16h, Assistant: 18h) with over/under-allocation health indicators and lab batch subdivisions (A1, A2).
+  - **Pillar 5 (Timetable & Clash Solver):** Constraint satisfaction engine simulation detecting teacher, room, and batch collisions with 1-click auto-generation, schedule publishing, and preserved Smart Substitution Assistant.
+  - **Pillar 6 (Academic Calendar):** Statutory 90-day instructional progress tracker (`82 / 90 days scheduled`) with CIE internal assessment and holiday dates.
+  - **Pillar 7 (Teaching Records & Course Diary):** Unit-wise lesson planner and daily course diary logger with topic and attendance headcount commits.
+  - **Pillar 8 (Proctorial Mentoring):** 1:20 mentee cohort overview with early-warning attendance risk tags and proctorial meeting minutes.
+  - **Pillar 9 (LMS Learning Space):** Lecture slides/PDF repository, assignment submission tracker, interactive auto-graded MCQ quiz with instant score calculation, and direct Google Meet/Zoom video class integration.
+- **Rationale:** Delivers 100% compliance with the Devloft 21 October 2026 specification, covers all previously missing operational capabilities, and provides an end-to-end verified academic governance suite.
+
+---
+
 ## 6. Comprehensive Decision Summary Matrix
 
 | ID | Decision Title | Category | Status | Primary Rationale & Impact |
@@ -547,3 +575,4 @@ This document chronicles the fundamental engineering and product decisions made 
 | **ADR-033** | Higher-Ed Expansion: Placement (T&P) & Library OPAC | FUNC/ACCRED | Implemented | 6-stage placement recruitment pipeline + DDC/MARC-21 OPAC catalog with RFID circulation desk. |
 | **ADR-034** | Dual Standalone Deployment Architecture | DEPLOY/ARCH | Implemented | Independent isolated deployments for Web App (/app/) and Spec Suite (/docs/) via Gateway Portal (/). |
 | **ADR-035** | Privileged Spec Gating & Library / T&P Workspaces Elevation | SEC/FUNC | Implemented | Spec doc locked strictly to Super Admin + 6-tab Library LMS/OPAC & 6-tab Placement T&P hub. |
+| **ADR-036** | Complete Module 03 (Academics, Timetable, Teaching & LMS) | FUNC/ACCRED | Implemented | Full 9-pillar suite: Structure, CO-PO OBE, CBCS reg, Workload balance, Timetable solver, 90-day Calendar, Course Diary, Mentoring, LMS. |
