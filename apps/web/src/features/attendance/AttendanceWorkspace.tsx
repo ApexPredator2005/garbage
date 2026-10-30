@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { RoleType } from '../../types';
 import {
   Users,
   CheckCircle2,
@@ -27,7 +28,12 @@ import {
   Bell,
   Sparkles,
   Phone,
+  BookOpen,
 } from 'lucide-react';
+
+export interface AttendanceWorkspaceProps {
+  currentRole?: RoleType;
+}
 
 type AttendanceStatus = 'PRESENT' | 'ABSENT' | 'LATE' | 'ON_DUTY';
 
@@ -158,78 +164,96 @@ const INITIAL_PARENT_WARNINGS: ParentWarningItem[] = [
   },
 ];
 
-const INITIAL_STUDENTS: StudentAttendance[] = [
-  {
-    id: 's-101',
-    rollNo: '2023CSE041',
-    name: 'Rahul Sharma',
-    program: 'B.Tech CSE',
-    semester: 'Sem 6',
-    attendedClasses: 52,
-    totalClasses: 60,
-    currentPeriodStatus: 'PRESENT',
+const COURSE_CATALOG: Record<string, Record<string, CourseOffering[]>> = {
+  'B.Tech CSE': {
+    'Sem 6': [
+      { code: 'CS601', name: 'Distributed Systems', faculty: 'Dr. Aris Thorne', facultyCode: 'FAC-CSE-001', hall: 'CS-Lab 04', slot: '10:15 AM - 11:10 AM' },
+      { code: 'CS602', name: 'Compiler Design', faculty: 'Prof. Ramesh K.', facultyCode: 'FAC-CSE-003', hall: 'LH-201', slot: '09:15 AM - 10:10 AM' },
+      { code: 'CS603', name: 'Machine Learning', faculty: 'Dr. Sunita Patil', facultyCode: 'FAC-CSE-007', hall: 'AI-Lab 01', slot: '11:30 AM - 12:25 PM' },
+      { code: 'CS604', name: 'Cloud Computing & DevOps', faculty: 'Prof. Anand Joshi', facultyCode: 'FAC-CSE-009', hall: 'Cloud-Lab', slot: '01:30 PM - 02:25 PM' },
+    ],
+    'Sem 4': [
+      { code: 'CS401', name: 'Data Structures & Algorithms II', faculty: 'Dr. Aris Thorne', facultyCode: 'FAC-CSE-001', hall: 'CS-Lab 02', slot: '09:15 AM - 10:10 AM' },
+      { code: 'CS402', name: 'Operating Systems Internals', faculty: 'Prof. Ramesh K.', facultyCode: 'FAC-CSE-003', hall: 'LH-204', slot: '10:15 AM - 11:10 AM' },
+      { code: 'CS403', name: 'Computer Organization & Arch', faculty: 'Dr. Sarah Jenkins', facultyCode: 'FAC-ECE-001', hall: 'LH-205', slot: '11:30 AM - 12:25 PM' },
+    ],
   },
-  {
-    id: 's-102',
-    rollNo: '2023CSE042',
-    name: 'Sneha Patel',
-    program: 'B.Tech CSE',
-    semester: 'Sem 6',
-    attendedClasses: 41,
-    totalClasses: 60, // 68.3% defaulter
-    currentPeriodStatus: 'ABSENT',
+  'B.Tech ECE': {
+    'Sem 4': [
+      { code: 'EC401', name: 'Microprocessors & Microcontrollers', faculty: 'Dr. Rajesh Rao', facultyCode: 'FAC-ECE-002', hall: 'LH-302', slot: '09:00 AM - 10:00 AM' },
+      { code: 'EC402', name: 'Digital Signal Processing', faculty: 'Prof. Sunita Patil', facultyCode: 'FAC-ECE-005', hall: 'LH-302', slot: '10:00 AM - 11:00 AM' },
+      { code: 'EC403', name: 'Linear Integrated Circuits', faculty: 'Dr. Anand Joshi', facultyCode: 'FAC-ECE-008', hall: 'Lab-ECE-2', slot: '11:15 AM - 12:15 PM' },
+      { code: 'EC404', name: 'Electromagnetic Waves', faculty: 'Dr. Meera Iyer', facultyCode: 'FAC-ECE-011', hall: 'LH-302', slot: '01:00 PM - 02:00 PM' },
+    ],
+    'Sem 6': [
+      { code: 'EC601', name: 'VLSI Design & Verification', faculty: 'Dr. Sarah Jenkins', facultyCode: 'FAC-ECE-001', hall: 'VLSI-Lab', slot: '10:15 AM - 11:10 AM' },
+      { code: 'EC602', name: 'Wireless Sensor Networks', faculty: 'Dr. Rajesh Rao', facultyCode: 'FAC-ECE-002', hall: 'LH-304', slot: '11:30 AM - 12:25 PM' },
+    ],
   },
-  {
-    id: 's-103',
-    rollNo: '2023CSE043',
-    name: 'Vikramaditya Verma',
-    program: 'B.Tech CSE',
-    semester: 'Sem 6',
-    attendedClasses: 56,
-    totalClasses: 60,
-    currentPeriodStatus: 'PRESENT',
+  'B.Tech ME': {
+    'Sem 6': [
+      { code: 'ME601', name: 'Heat & Mass Transfer', faculty: 'Dr. Vikram Malhotra', facultyCode: 'FAC-ME-001', hall: 'Thermal-Lab', slot: '09:15 AM - 10:10 AM' },
+      { code: 'ME602', name: 'Design of Machine Elements', faculty: 'Prof. Suresh Reddy', facultyCode: 'FAC-ME-004', hall: 'CAD-Lab', slot: '10:15 AM - 11:10 AM' },
+    ],
   },
-  {
-    id: 's-104',
-    rollNo: '2023CSE044',
-    name: 'Ananya Iyer',
-    program: 'B.Tech CSE',
-    semester: 'Sem 6',
-    attendedClasses: 43,
-    totalClasses: 60, // 71.6% defaulter
-    currentPeriodStatus: 'PRESENT',
+  'MBA': {
+    'Sem 2': [
+      { code: 'MBA201', name: 'Financial Management & Valuation', faculty: 'Prof. Deepak Verma', facultyCode: 'FAC-MBA-001', hall: 'Mgmt-Aud-1', slot: '09:30 AM - 11:00 AM' },
+      { code: 'MBA202', name: 'Business Analytics & Predictive Models', faculty: 'Dr. Rohini Sen', facultyCode: 'FAC-MBA-003', hall: 'BigData-Lab', slot: '11:15 AM - 12:45 PM' },
+    ],
   },
-  {
-    id: 's-105',
-    rollNo: '2023CSE045',
-    name: 'Karthik Menon',
-    program: 'B.Tech CSE',
-    semester: 'Sem 6',
-    attendedClasses: 48,
-    totalClasses: 60,
-    currentPeriodStatus: 'ON_DUTY',
-  },
-  {
-    id: 's-106',
-    rollNo: '2023CSE046',
-    name: 'Pooja Deshmukh',
-    program: 'B.Tech CSE',
-    semester: 'Sem 6',
-    attendedClasses: 58,
-    totalClasses: 60,
-    currentPeriodStatus: 'PRESENT',
-  },
-  {
-    id: 's-107',
-    rollNo: '2023CSE047',
-    name: 'Zaid Al-Mansoor',
-    program: 'B.Tech CSE',
-    semester: 'Sem 6',
-    attendedClasses: 49,
-    totalClasses: 60,
-    currentPeriodStatus: 'LATE',
-  },
-];
+};
+
+interface CourseOffering {
+  code: string;
+  name: string;
+  faculty: string;
+  facultyCode: string;
+  hall: string;
+  slot: string;
+}
+
+const INITIAL_COHORTS: Record<string, StudentAttendance[]> = {
+  'B.Tech CSE_Sem 6_Section A': [
+    { id: 's-101', rollNo: '2023CSE041', name: 'Rahul Sharma', program: 'B.Tech CSE', semester: 'Sem 6', attendedClasses: 52, totalClasses: 60, currentPeriodStatus: 'PRESENT' },
+    { id: 's-102', rollNo: '2023CSE042', name: 'Sneha Patel', program: 'B.Tech CSE', semester: 'Sem 6', attendedClasses: 41, totalClasses: 60, currentPeriodStatus: 'ABSENT', isCondoned: true },
+    { id: 's-103', rollNo: '2023CSE043', name: 'Vikramaditya Verma', program: 'B.Tech CSE', semester: 'Sem 6', attendedClasses: 56, totalClasses: 60, currentPeriodStatus: 'PRESENT' },
+    { id: 's-104', rollNo: '2023CSE044', name: 'Ananya Iyer', program: 'B.Tech CSE', semester: 'Sem 6', attendedClasses: 43, totalClasses: 60, currentPeriodStatus: 'PRESENT' },
+    { id: 's-105', rollNo: '2023CSE045', name: 'Karthik Menon', program: 'B.Tech CSE', semester: 'Sem 6', attendedClasses: 48, totalClasses: 60, currentPeriodStatus: 'ON_DUTY' },
+    { id: 's-106', rollNo: '2023CSE046', name: 'Pooja Deshmukh', program: 'B.Tech CSE', semester: 'Sem 6', attendedClasses: 58, totalClasses: 60, currentPeriodStatus: 'PRESENT' },
+    { id: 's-107', rollNo: '2023CSE047', name: 'Zaid Al-Mansoor', program: 'B.Tech CSE', semester: 'Sem 6', attendedClasses: 49, totalClasses: 60, currentPeriodStatus: 'LATE' },
+  ],
+  'B.Tech CSE_Sem 6_Section B': [
+    { id: 's-108', rollNo: '2023CSE048', name: 'Tanvi Joshi', program: 'B.Tech CSE', semester: 'Sem 6', attendedClasses: 55, totalClasses: 60, currentPeriodStatus: 'PRESENT' },
+    { id: 's-109', rollNo: '2023CSE049', name: 'Abhinav Gupta', program: 'B.Tech CSE', semester: 'Sem 6', attendedClasses: 51, totalClasses: 60, currentPeriodStatus: 'PRESENT' },
+    { id: 's-110', rollNo: '2023CSE050', name: 'Neha Kulkarni', program: 'B.Tech CSE', semester: 'Sem 6', attendedClasses: 42, totalClasses: 60, currentPeriodStatus: 'ABSENT' },
+    { id: 's-111', rollNo: '2023CSE051', name: 'Devansh Singhal', program: 'B.Tech CSE', semester: 'Sem 6', attendedClasses: 54, totalClasses: 60, currentPeriodStatus: 'PRESENT' },
+    { id: 's-112', rollNo: '2023CSE052', name: 'Priya Swaminathan', program: 'B.Tech CSE', semester: 'Sem 6', attendedClasses: 57, totalClasses: 60, currentPeriodStatus: 'PRESENT' },
+    { id: 's-113', rollNo: '2023CSE053', name: 'Aditya Bhat', program: 'B.Tech CSE', semester: 'Sem 6', attendedClasses: 47, totalClasses: 60, currentPeriodStatus: 'LATE' },
+  ],
+  'B.Tech ECE_Sem 4_Section B': [
+    { id: 's-201', rollNo: '26EC15', name: 'Rohan Verma', program: 'B.Tech ECE', semester: 'Sem 4', attendedClasses: 26, totalClasses: 38, currentPeriodStatus: 'ABSENT' },
+    { id: 's-202', rollNo: '26EC16', name: 'Aditi Rao', program: 'B.Tech ECE', semester: 'Sem 4', attendedClasses: 35, totalClasses: 38, currentPeriodStatus: 'PRESENT' },
+    { id: 's-203', rollNo: '26EC17', name: 'Rohan Kulkarni', program: 'B.Tech ECE', semester: 'Sem 4', attendedClasses: 25, totalClasses: 38, currentPeriodStatus: 'ABSENT' },
+    { id: 's-204', rollNo: '26EC18', name: 'Priya Nambiar', program: 'B.Tech ECE', semester: 'Sem 4', attendedClasses: 36, totalClasses: 38, currentPeriodStatus: 'PRESENT' },
+    { id: 's-205', rollNo: '26EC19', name: 'Tarun Teja', program: 'B.Tech ECE', semester: 'Sem 4', attendedClasses: 33, totalClasses: 38, currentPeriodStatus: 'PRESENT' },
+    { id: 's-206', rollNo: '26EC20', name: 'Divya S.', program: 'B.Tech ECE', semester: 'Sem 4', attendedClasses: 37, totalClasses: 38, currentPeriodStatus: 'PRESENT' },
+  ],
+  'B.Tech ME_Sem 6_Section A': [
+    { id: 's-301', rollNo: '2023ME011', name: 'Arjun Mehta', program: 'B.Tech ME', semester: 'Sem 6', attendedClasses: 53, totalClasses: 60, currentPeriodStatus: 'PRESENT' },
+    { id: 's-302', rollNo: '2023ME012', name: 'Sandeep Patil', program: 'B.Tech ME', semester: 'Sem 6', attendedClasses: 50, totalClasses: 60, currentPeriodStatus: 'PRESENT' },
+    { id: 's-303', rollNo: '2023ME013', name: 'Nitin Rawat', program: 'B.Tech ME', semester: 'Sem 6', attendedClasses: 40, totalClasses: 60, currentPeriodStatus: 'ABSENT' },
+    { id: 's-304', rollNo: '2023ME014', name: 'Harish Patel', program: 'B.Tech ME', semester: 'Sem 6', attendedClasses: 55, totalClasses: 60, currentPeriodStatus: 'PRESENT' },
+    { id: 's-305', rollNo: '2023ME015', name: 'Gaurav Sen', program: 'B.Tech ME', semester: 'Sem 6', attendedClasses: 48, totalClasses: 60, currentPeriodStatus: 'LATE' },
+  ],
+  'MBA_Sem 2_Section A': [
+    { id: 's-401', rollNo: '2025MBA001', name: 'Kunal Singhania', program: 'MBA', semester: 'Sem 2', attendedClasses: 38, totalClasses: 45, currentPeriodStatus: 'PRESENT' },
+    { id: 's-402', rollNo: '2025MBA002', name: 'Shreya Bansal', program: 'MBA', semester: 'Sem 2', attendedClasses: 42, totalClasses: 45, currentPeriodStatus: 'PRESENT' },
+    { id: 's-403', rollNo: '2025MBA003', name: 'Rajiv Kapoor', program: 'MBA', semester: 'Sem 2', attendedClasses: 39, totalClasses: 45, currentPeriodStatus: 'PRESENT' },
+    { id: 's-404', rollNo: '2025MBA004', name: 'Meenakshi Sundaram', program: 'MBA', semester: 'Sem 2', attendedClasses: 31, totalClasses: 45, currentPeriodStatus: 'ABSENT' },
+    { id: 's-405', rollNo: '2025MBA005', name: 'Siddharth Malhotra', program: 'MBA', semester: 'Sem 2', attendedClasses: 40, totalClasses: 45, currentPeriodStatus: 'PRESENT' },
+  ],
+};
 
 const INITIAL_CONDONATIONS: CondonationRequest[] = [
   {
@@ -350,13 +374,28 @@ const INITIAL_STAFF_PUNCHES: StaffDailyPunch[] = [
   { id: 'sp-4', employeeName: 'Mr. Pradeep Joshi', employeeCode: 'STAFF-BUR-001', department: 'Bursar & Accounts', inTime: '08:20 AM', outTime: '05:15 PM', status: 'ON_TIME', source: 'BIOMETRIC_DEVICE' },
 ];
 
-export const AttendanceWorkspace: React.FC = () => {
+const AVAILABLE_PROGRAMS = [
+  { id: 'B.Tech CSE', label: 'B.Tech Computer Science & Engg (CSE)' },
+  { id: 'B.Tech ECE', label: 'B.Tech Electronics & Comm (ECE)' },
+  { id: 'B.Tech ME', label: 'B.Tech Mechanical Engg (ME)' },
+  { id: 'MBA', label: 'MBA Business Analytics' },
+];
+
+export const AttendanceWorkspace: React.FC<AttendanceWorkspaceProps> = ({ currentRole = 'FACULTY' }) => {
+  const isPrincipalReadOnly = currentRole === 'PRINCIPAL';
+
   const [subTab, setSubTab] = useState<'matrix' | 'condonation' | 'biometric' | 'radar' | 'student_leaves' | 'staff_attendance'>('matrix');
-  const [students, setStudents] = useState<StudentAttendance[]>(INITIAL_STUDENTS);
+  const [cohortMap, setCohortMap] = useState<Record<string, StudentAttendance[]>>(INITIAL_COHORTS);
   const [condonations, setCondonations] = useState<CondonationRequest[]>(INITIAL_CONDONATIONS);
   const [parentWarnings, setParentWarnings] = useState<ParentWarningItem[]>(INITIAL_PARENT_WARNINGS);
+
+  // Class and Section Filters
+  const [selectedProgram, setSelectedProgram] = useState<string>('B.Tech CSE');
+  const [selectedSemester, setSelectedSemester] = useState<string>('Sem 6');
+  const [selectedSection, setSelectedSection] = useState<string>('Section A');
+  const [selectedSubjectCode, setSelectedSubjectCode] = useState<string>('CS601');
   const [selectedPeriod, setSelectedPeriod] = useState<number>(2);
-  const [selectedSubject, setSelectedSubject] = useState('CS601 Distributed Systems');
+
   const [isSessionLocked, setIsSessionLocked] = useState(false);
   const [isUnlockModalOpen, setIsUnlockModalOpen] = useState(false);
   const [unlockReason, setUnlockReason] = useState('');
@@ -371,6 +410,86 @@ export const AttendanceWorkspace: React.FC = () => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 4000);
   };
+
+  const availableSemesters = useMemo(() => {
+    if (selectedProgram === 'MBA') {
+      return ['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4'];
+    }
+    return ['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4', 'Sem 5', 'Sem 6', 'Sem 7', 'Sem 8'];
+  }, [selectedProgram]);
+
+  const availableSubjects: CourseOffering[] = useMemo(() => {
+    const progCatalog = COURSE_CATALOG[selectedProgram];
+    if (progCatalog && progCatalog[selectedSemester]) {
+      return progCatalog[selectedSemester];
+    }
+    const prefix = selectedProgram.includes('CSE') ? 'CS' : selectedProgram.includes('ECE') ? 'EC' : selectedProgram.includes('ME') ? 'ME' : 'MB';
+    const semNum = selectedSemester.replace('Sem ', '');
+    return [
+      {
+        code: `${prefix}${semNum}01`,
+        name: `${selectedProgram} Core Foundations`,
+        faculty: 'Dr. Aris Thorne',
+        facultyCode: 'FAC-001',
+        hall: 'LH-301',
+        slot: '10:15 AM - 11:10 AM',
+      },
+      {
+        code: `${prefix}${semNum}02`,
+        name: `${selectedProgram} Applied Lab & Seminar`,
+        faculty: 'Prof. Sunita Patil',
+        facultyCode: 'FAC-002',
+        hall: 'LH-302',
+        slot: '11:30 AM - 12:25 PM',
+      },
+    ];
+  }, [selectedProgram, selectedSemester]);
+
+  const currentOffering = useMemo(() => {
+    return availableSubjects.find((s) => s.code === selectedSubjectCode) || availableSubjects[0];
+  }, [availableSubjects, selectedSubjectCode]);
+
+  const handleProgramChange = (prog: string) => {
+    setSelectedProgram(prog);
+    let nextSem = selectedSemester;
+    if (prog === 'MBA' && parseInt(selectedSemester.replace('Sem ', ''), 10) > 4) {
+      nextSem = 'Sem 2';
+      setSelectedSemester('Sem 2');
+    }
+    const progCatalog = COURSE_CATALOG[prog];
+    if (progCatalog && progCatalog[nextSem] && progCatalog[nextSem].length > 0) {
+      setSelectedSubjectCode(progCatalog[nextSem][0].code);
+    }
+  };
+
+  const handleSemesterChange = (sem: string) => {
+    setSelectedSemester(sem);
+    const progCatalog = COURSE_CATALOG[selectedProgram];
+    if (progCatalog && progCatalog[sem] && progCatalog[sem].length > 0) {
+      setSelectedSubjectCode(progCatalog[sem][0].code);
+    }
+  };
+
+  const currentCohortKey = `${selectedProgram}_${selectedSemester}_${selectedSection}`;
+
+  const currentCohortStudents = useMemo(() => {
+    if (cohortMap[currentCohortKey]) {
+      return cohortMap[currentCohortKey];
+    }
+    const prefix = selectedProgram.includes('CSE') ? 'CSE' : selectedProgram.includes('ECE') ? 'ECE' : selectedProgram.includes('ME') ? 'ME' : 'MBA';
+    const semNum = selectedSemester.replace('Sem ', '');
+    const secLetter = selectedSection.replace('Section ', '');
+    return [
+      { id: `gen-${prefix}-${semNum}-${secLetter}-1`, rollNo: `2024${prefix}${secLetter}01`, name: 'Aarav Patel', program: selectedProgram, semester: selectedSemester, attendedClasses: 52, totalClasses: 60, currentPeriodStatus: 'PRESENT' as AttendanceStatus },
+      { id: `gen-${prefix}-${semNum}-${secLetter}-2`, rollNo: `2024${prefix}${secLetter}02`, name: 'Isha Deshmukh', program: selectedProgram, semester: selectedSemester, attendedClasses: 42, totalClasses: 60, currentPeriodStatus: 'ABSENT' as AttendanceStatus },
+      { id: `gen-${prefix}-${semNum}-${secLetter}-3`, rollNo: `2024${prefix}${secLetter}03`, name: 'Nikhil Rathi', program: selectedProgram, semester: selectedSemester, attendedClasses: 57, totalClasses: 60, currentPeriodStatus: 'PRESENT' as AttendanceStatus },
+      { id: `gen-${prefix}-${semNum}-${secLetter}-4`, rollNo: `2024${prefix}${secLetter}04`, name: 'Megha Nair', program: selectedProgram, semester: selectedSemester, attendedClasses: 44, totalClasses: 60, currentPeriodStatus: 'PRESENT' as AttendanceStatus },
+      { id: `gen-${prefix}-${semNum}-${secLetter}-5`, rollNo: `2024${prefix}${secLetter}05`, name: 'Siddharth Pillai', program: selectedProgram, semester: selectedSemester, attendedClasses: 49, totalClasses: 60, currentPeriodStatus: 'LATE' as AttendanceStatus },
+      { id: `gen-${prefix}-${semNum}-${secLetter}-6`, rollNo: `2024${prefix}${secLetter}06`, name: 'Kavita Joshi', program: selectedProgram, semester: selectedSemester, attendedClasses: 56, totalClasses: 60, currentPeriodStatus: 'PRESENT' as AttendanceStatus },
+    ];
+  }, [cohortMap, currentCohortKey, selectedProgram, selectedSemester, selectedSection]);
+
+  const students = cohortMap[currentCohortKey] || currentCohortStudents;
 
   const handleDispatchParentWarning = (warningId: string) => {
     setDispatchingId(warningId);
@@ -409,15 +528,20 @@ export const AttendanceWorkspace: React.FC = () => {
   ).length;
   const absentCount = students.filter((s) => s.currentPeriodStatus === 'ABSENT').length;
   const lateCount = students.filter((s) => s.currentPeriodStatus === 'LATE').length;
-  const periodPercentage = Math.round((presentCount / totalStudents) * 100);
+  const periodPercentage = totalStudents > 0 ? Math.round((presentCount / totalStudents) * 100) : 0;
+  const defaultersCount = students.filter((s) => Math.round((s.attendedClasses / s.totalClasses) * 100) < 75).length;
 
   // Status toggle handler
   const handleStatusChange = (id: string, newStatus: AttendanceStatus) => {
     if (isSessionLocked) return;
-    setStudents((prev) =>
-      prev.map((s) => {
+    if (isPrincipalReadOnly) {
+      showToast(`Principal View-Only Audit Mode: Attendance marking is strictly restricted to the assigned subject teacher (${currentOffering.faculty}).`);
+      return;
+    }
+    setCohortMap((prevMap) => {
+      const list = prevMap[currentCohortKey] || currentCohortStudents;
+      const updated = list.map((s) => {
         if (s.id !== id) return s;
-        // recalculate attended count if changing to/from PRESENT
         const wasPresent = s.currentPeriodStatus === 'PRESENT' || s.currentPeriodStatus === 'ON_DUTY';
         const isNowPresent = newStatus === 'PRESENT' || newStatus === 'ON_DUTY';
         let attendedDelta = 0;
@@ -429,31 +553,50 @@ export const AttendanceWorkspace: React.FC = () => {
           currentPeriodStatus: newStatus,
           attendedClasses: Math.max(0, s.attendedClasses + attendedDelta),
         };
-      })
-    );
+      });
+      return {
+        ...prevMap,
+        [currentCohortKey]: updated,
+      };
+    });
   };
 
   // Mark all present
   const handleMarkAllPresent = () => {
     if (isSessionLocked) return;
-    setStudents((prev) =>
-      prev.map((s) => ({
+    if (isPrincipalReadOnly) {
+      showToast(`Principal View-Only: Batch attendance marking restricted to course instructor (${currentOffering.faculty}).`);
+      return;
+    }
+    setCohortMap((prevMap) => {
+      const list = prevMap[currentCohortKey] || currentCohortStudents;
+      const updated = list.map((s) => ({
         ...s,
-        currentPeriodStatus: 'PRESENT',
+        currentPeriodStatus: 'PRESENT' as AttendanceStatus,
         attendedClasses:
           s.currentPeriodStatus === 'PRESENT' || s.currentPeriodStatus === 'ON_DUTY'
             ? s.attendedClasses
             : s.attendedClasses + 1,
-      }))
-    );
+      }));
+      return {
+        ...prevMap,
+        [currentCohortKey]: updated,
+      };
+    });
   };
 
   // Flush attendance batch
   const handleFlushAttendance = () => {
+    if (isSessionLocked || isFlushing) return;
+    if (isPrincipalReadOnly) {
+      showToast('Principal View-Only: Attendance ledger commits are restricted to assigned subject faculty.');
+      return;
+    }
     setIsFlushing(true);
     setTimeout(() => {
       setIsFlushing(false);
       setLastFlushTime(new Date().toLocaleTimeString());
+      showToast(`Session attendance for ${currentOffering.code} (${selectedProgram} ${selectedSemester} - ${selectedSection}) successfully flushed to PostgreSQL ledger.`);
     }, 600);
   };
 
@@ -462,17 +605,22 @@ export const AttendanceWorkspace: React.FC = () => {
     setCondonations((prev) =>
       prev.map((c) => (c.id === cndId ? { ...c, status: 'APPROVED' } : c))
     );
-    // dynamically condone student attendance
-    setStudents((prev) =>
-      prev.map((s) => {
-        if (s.id !== studentId) return s;
-        return {
-          ...s,
-          attendedClasses: s.attendedClasses + claimedDays,
-          isCondoned: true,
-        };
-      })
-    );
+    // dynamically condone student attendance across cohorts
+    setCohortMap((prevMap) => {
+      const newMap: Record<string, StudentAttendance[]> = {};
+      for (const key of Object.keys(prevMap)) {
+        newMap[key] = prevMap[key].map((s) => {
+          if (s.id !== studentId) return s;
+          return {
+            ...s,
+            attendedClasses: s.attendedClasses + claimedDays,
+            isCondoned: true,
+          };
+        });
+      }
+      return newMap;
+    });
+    showToast(`Medical condonation approved (+${claimedDays} sessions credited). Student unbarred from hall ticket.`);
   };
 
   return (
@@ -586,13 +734,149 @@ export const AttendanceWorkspace: React.FC = () => {
       {/* SUB-TAB 1: PERIOD ATTENDANCE MATRIX */}
       {subTab === 'matrix' && (
         <div className="space-y-6">
+          {/* Executive Role Governance Banner */}
+          {isPrincipalReadOnly ? (
+            <div className="bg-amber-50/90 border border-amber-300 rounded-2xl p-4 flex items-start gap-3 shadow-xs">
+              <div className="w-9 h-9 rounded-xl bg-amber-100 border border-amber-200 flex items-center justify-center shrink-0 mt-0.5">
+                <ShieldCheck className="w-5 h-5 text-amber-800" />
+              </div>
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="font-bold text-amber-950 text-sm">
+                    Principal Executive Audit Mode (Strict Read-Only)
+                  </span>
+                  <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-200 text-amber-900 border border-amber-300">
+                    Institutional Governance Bylaw §7.2
+                  </span>
+                  <span className="text-xs text-amber-800">
+                    Assigned Course Evaluator: <strong className="font-bold text-amber-950">{currentOffering.faculty}</strong> ({currentOffering.facultyCode})
+                  </span>
+                </div>
+                <p className="text-xs text-amber-900/90 leading-relaxed">
+                  As College Principal, you have university-wide authority to inspect real-time attendance matrices, review biometric turnstile sync logs, audit condonation requests, and monitor examination eligibility across all classes. In accordance with university academic regulations, <strong>attendance marking, register adjustments, and session locks are strictly reserved for the designated subject faculty ({currentOffering.faculty})</strong>. All marking buttons are disabled in this executive oversight session.
+                </p>
+              </div>
+            </div>
+          ) : (
+            <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-emerald-900">
+              <span className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span>
+                  <strong>Subject Faculty Session Active:</strong> You are authenticated as <strong>{currentOffering.faculty}</strong> ({currentOffering.facultyCode}) with evaluation authority for <strong>{currentOffering.code} - {currentOffering.name}</strong> ({selectedProgram} {selectedSemester}, {selectedSection}).
+                </span>
+              </span>
+              <span className="font-mono text-[10px] font-bold bg-white px-2 py-0.5 rounded border border-emerald-300 text-emerald-700 self-start sm:self-auto">
+                Authorized Evaluator
+              </span>
+            </div>
+          )}
+
+          {/* Class, Semester & Section Selector Bar */}
+          <div className="bg-white p-4 rounded-2xl border border-[#E5DFD7] shadow-xs space-y-3">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 pb-3 border-b border-[#E5DFD7]">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold uppercase tracking-wider text-[#682038]">
+                    Academic Cohort &amp; Section Selector
+                  </span>
+                  <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#FAF7F2] text-[#8B5E3C] border border-[#E5DFD7]">
+                    Live Register Switcher
+                  </span>
+                </div>
+                <p className="text-xs text-[#6E6862] mt-0.5">
+                  Select program, semester, class section, and course to review or record period-wise attendance.
+                </p>
+              </div>
+
+              {/* Status Pill */}
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-[#6E6862] bg-[#FAF7F2] px-3 py-1 rounded-lg border border-[#E5DFD7]">
+                  Active Register: <strong className="text-[#242424]">{selectedProgram} {selectedSemester} - {selectedSection}</strong>
+                </span>
+              </div>
+            </div>
+
+            {/* Selector Dropdowns */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              {/* 1. Program */}
+              <div className="space-y-1">
+                <label className="text-[11px] font-bold text-[#6E6862] uppercase tracking-wider">
+                  Academic Program
+                </label>
+                <select
+                  value={selectedProgram}
+                  onChange={(e) => handleProgramChange(e.target.value)}
+                  className="w-full text-xs font-semibold px-3 py-2 rounded-xl border border-[#E5DFD7] bg-[#FAF7F2] text-[#242424] focus:outline-none focus:ring-1 focus:ring-[#682038] transition-all cursor-pointer"
+                >
+                  {AVAILABLE_PROGRAMS.map((prog) => (
+                    <option key={prog.id} value={prog.id}>
+                      {prog.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* 2. Semester */}
+              <div className="space-y-1">
+                <label className="text-[11px] font-bold text-[#6E6862] uppercase tracking-wider">
+                  Semester
+                </label>
+                <select
+                  value={selectedSemester}
+                  onChange={(e) => handleSemesterChange(e.target.value)}
+                  className="w-full text-xs font-semibold px-3 py-2 rounded-xl border border-[#E5DFD7] bg-[#FAF7F2] text-[#242424] focus:outline-none focus:ring-1 focus:ring-[#682038] transition-all cursor-pointer"
+                >
+                  {availableSemesters.map((sem) => (
+                    <option key={sem} value={sem}>
+                      {sem}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* 3. Section */}
+              <div className="space-y-1">
+                <label className="text-[11px] font-bold text-[#6E6862] uppercase tracking-wider">
+                  Class Section
+                </label>
+                <select
+                  value={selectedSection}
+                  onChange={(e) => setSelectedSection(e.target.value)}
+                  className="w-full text-xs font-semibold px-3 py-2 rounded-xl border border-[#E5DFD7] bg-[#FAF7F2] text-[#242424] focus:outline-none focus:ring-1 focus:ring-[#682038] transition-all cursor-pointer"
+                >
+                  <option value="Section A">Section A (LH-301 / East Wing)</option>
+                  <option value="Section B">Section B (LH-302 / West Wing)</option>
+                  <option value="Section C">Section C (LH-303 / Main Wing)</option>
+                </select>
+              </div>
+
+              {/* 4. Subject */}
+              <div className="space-y-1">
+                <label className="text-[11px] font-bold text-[#6E6862] uppercase tracking-wider">
+                  Course Subject
+                </label>
+                <select
+                  value={currentOffering.code}
+                  onChange={(e) => setSelectedSubjectCode(e.target.value)}
+                  className="w-full text-xs font-semibold px-3 py-2 rounded-xl border border-[#E5DFD7] bg-[#FAF7F2] text-[#242424] focus:outline-none focus:ring-1 focus:ring-[#682038] transition-all cursor-pointer"
+                >
+                  {availableSubjects.map((sub) => (
+                    <option key={sub.code} value={sub.code}>
+                      {sub.code}: {sub.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </div>
+
           {/* Controls & Stat Cards */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="bg-white p-4 rounded-xl border border-[#E5DFD7] shadow-sm space-y-1">
               <span className="text-xs font-medium text-[#6E6862]">Enrolled Students</span>
               <div className="flex items-baseline justify-between">
                 <span className="text-2xl font-bold font-mono text-[#242424]">{totalStudents}</span>
-                <span className="text-xs text-[#8B5E3C] font-semibold">CSE Sem 6 - Sec A</span>
+                <span className="text-xs text-[#8B5E3C] font-semibold">{selectedProgram} {selectedSemester} - {selectedSection}</span>
               </div>
             </div>
 
@@ -620,10 +904,10 @@ export const AttendanceWorkspace: React.FC = () => {
               <span className="text-xs font-medium text-[#6E6862]">Hall Ticket Defaulters (&lt;75%)</span>
               <div className="flex items-baseline justify-between">
                 <span className="text-2xl font-bold font-mono text-rose-700">
-                  {students.filter((s) => Math.round((s.attendedClasses / s.totalClasses) * 100) < 75).length}
+                  {defaultersCount}
                 </span>
-                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-100 text-rose-800">
-                  Barred from Hall Ticket
+                <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${defaultersCount > 0 ? 'bg-rose-100 text-rose-800' : 'bg-emerald-100 text-emerald-800'}`}>
+                  {defaultersCount > 0 ? `${defaultersCount} Barred from Hall Ticket` : 'All Eligible'}
                 </span>
               </div>
             </div>
@@ -653,28 +937,30 @@ export const AttendanceWorkspace: React.FC = () => {
 
               <div className="h-4 w-[1px] bg-[#E5DFD7] hidden md:block" />
 
-              <div className="text-xs text-[#6E6862] flex items-center gap-2">
-                <span className="font-semibold text-[#242424]">{selectedSubject}</span>
-                <span>• Hall: CS-Lab 04</span>
-                <span>• 10:15 AM - 11:10 AM</span>
+              <div className="text-xs text-[#6E6862] flex items-center gap-2 flex-wrap">
+                <span className="font-semibold text-[#242424]">{currentOffering.code} - {currentOffering.name}</span>
+                <span>• Hall: {currentOffering.hall}</span>
+                <span>• {currentOffering.slot}</span>
+                <span>• Teacher: <strong className="text-[#242424]">{currentOffering.faculty}</strong></span>
               </div>
             </div>
 
             <div className="flex items-center gap-2 flex-wrap">
               <button
-                onClick={() => setIsSessionLocked(!isSessionLocked)}
+                onClick={() => !isPrincipalReadOnly && setIsSessionLocked(!isSessionLocked)}
+                disabled={isPrincipalReadOnly}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold border transition-all ${
                   isSessionLocked
                     ? 'bg-rose-50 text-rose-800 border-rose-200 hover:bg-rose-100'
                     : 'bg-[#FAF7F2] text-[#6E6862] border-[#E5DFD7] hover:bg-[#F4ECE2]'
-                }`}
-                title="Toggle session lock to simulate 24-hour expiration"
+                } ${isPrincipalReadOnly ? 'opacity-50 cursor-not-allowed' : ''}`}
+                title={isPrincipalReadOnly ? 'Principal View-Only: Session locking restricted to assigned course faculty' : 'Toggle session lock to simulate 24-hour expiration'}
               >
                 {isSessionLocked ? <Lock className="w-3.5 h-3.5" /> : <Unlock className="w-3.5 h-3.5" />}
                 <span>{isSessionLocked ? 'Locked (>24h)' : 'Simulate 24h Lock'}</span>
               </button>
 
-              {isSessionLocked && (
+              {isSessionLocked && !isPrincipalReadOnly && (
                 <button
                   onClick={() => setIsUnlockModalOpen(true)}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold shadow-sm transition-all"
@@ -686,8 +972,15 @@ export const AttendanceWorkspace: React.FC = () => {
 
               <button
                 onClick={handleMarkAllPresent}
-                disabled={isSessionLocked}
-                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#FAF7F2] hover:bg-[#F4ECE2] text-[#682038] text-xs font-bold border border-[#E5DFD7] disabled:opacity-50 transition-all"
+                disabled={isSessionLocked || isPrincipalReadOnly}
+                title={
+                  isPrincipalReadOnly
+                    ? `Principal View-Only: Batch attendance restricted to course instructor (${currentOffering.faculty})`
+                    : isSessionLocked
+                    ? 'Session locked'
+                    : 'Mark all enrolled students present'
+                }
+                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#FAF7F2] hover:bg-[#F4ECE2] text-[#682038] text-xs font-bold border border-[#E5DFD7] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
               >
                 <Check className="w-3.5 h-3.5 text-emerald-600" />
                 <span>Mark All Present</span>
@@ -695,8 +988,13 @@ export const AttendanceWorkspace: React.FC = () => {
 
               <button
                 onClick={handleFlushAttendance}
-                disabled={isSessionLocked || isFlushing}
-                className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-[#682038] hover:bg-[#54192D] text-white text-xs font-bold shadow-sm disabled:opacity-50 transition-all"
+                disabled={isSessionLocked || isFlushing || isPrincipalReadOnly}
+                title={
+                  isPrincipalReadOnly
+                    ? `Principal View-Only: Ledger flush restricted to course instructor (${currentOffering.faculty})`
+                    : 'Commit attendance records to PostgreSQL'
+                }
+                className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-[#682038] hover:bg-[#54192D] text-white text-xs font-bold shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all"
               >
                 <RefreshCw className={`w-3.5 h-3.5 ${isFlushing ? 'animate-spin' : ''}`} />
                 <span>{isFlushing ? 'Flushing...' : 'Flush to Ledger'}</span>
@@ -723,7 +1021,7 @@ export const AttendanceWorkspace: React.FC = () => {
               <div className="flex items-center gap-2">
                 <Users className="w-4 h-4 text-[#8B5E3C]" />
                 <h3 className="text-xs font-bold text-[#242424] uppercase tracking-wider">
-                  Period Attendance Roster & Eligibility Gating
+                  Period Attendance Roster &amp; Eligibility Gating
                 </h3>
               </div>
               <span className="text-xs text-[#6E6862]">
@@ -804,45 +1102,73 @@ export const AttendanceWorkspace: React.FC = () => {
                           <div className="flex items-center justify-center gap-1.5">
                             <button
                               onClick={() => handleStatusChange(student.id, 'PRESENT')}
-                              disabled={isSessionLocked}
+                              disabled={isSessionLocked || isPrincipalReadOnly}
+                              title={
+                                isPrincipalReadOnly
+                                  ? `Principal View-Only: Marking restricted to assigned teacher (${currentOffering.faculty})`
+                                  : isSessionLocked
+                                  ? 'Session locked (>24h elapsed)'
+                                  : 'Mark Present'
+                              }
                               className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all ${
                                 student.currentPeriodStatus === 'PRESENT'
                                   ? 'bg-emerald-600 text-white shadow-sm'
                                   : 'bg-[#FAF7F2] text-[#6E6862] hover:bg-emerald-50 hover:text-emerald-700'
-                              }`}
+                              } ${isPrincipalReadOnly ? 'opacity-60 cursor-not-allowed' : ''}`}
                             >
                               Present
                             </button>
                             <button
                               onClick={() => handleStatusChange(student.id, 'ABSENT')}
-                              disabled={isSessionLocked}
+                              disabled={isSessionLocked || isPrincipalReadOnly}
+                              title={
+                                isPrincipalReadOnly
+                                  ? `Principal View-Only: Marking restricted to assigned teacher (${currentOffering.faculty})`
+                                  : isSessionLocked
+                                  ? 'Session locked (>24h elapsed)'
+                                  : 'Mark Absent'
+                              }
                               className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all ${
                                 student.currentPeriodStatus === 'ABSENT'
                                   ? 'bg-rose-600 text-white shadow-sm'
                                   : 'bg-[#FAF7F2] text-[#6E6862] hover:bg-rose-50 hover:text-rose-700'
-                              }`}
+                              } ${isPrincipalReadOnly ? 'opacity-60 cursor-not-allowed' : ''}`}
                             >
                               Absent
                             </button>
                             <button
                               onClick={() => handleStatusChange(student.id, 'LATE')}
-                              disabled={isSessionLocked}
+                              disabled={isSessionLocked || isPrincipalReadOnly}
+                              title={
+                                isPrincipalReadOnly
+                                  ? `Principal View-Only: Marking restricted to assigned teacher (${currentOffering.faculty})`
+                                  : isSessionLocked
+                                  ? 'Session locked (>24h elapsed)'
+                                  : 'Mark Late'
+                              }
                               className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all ${
                                 student.currentPeriodStatus === 'LATE'
                                   ? 'bg-amber-500 text-white shadow-sm'
                                   : 'bg-[#FAF7F2] text-[#6E6862] hover:bg-amber-50 hover:text-amber-700'
-                              }`}
+                              } ${isPrincipalReadOnly ? 'opacity-60 cursor-not-allowed' : ''}`}
                             >
                               Late
                             </button>
                             <button
                               onClick={() => handleStatusChange(student.id, 'ON_DUTY')}
-                              disabled={isSessionLocked}
+                              disabled={isSessionLocked || isPrincipalReadOnly}
+                              title={
+                                isPrincipalReadOnly
+                                  ? `Principal View-Only: Marking restricted to assigned teacher (${currentOffering.faculty})`
+                                  : isSessionLocked
+                                  ? 'Session locked (>24h elapsed)'
+                                  : 'Mark On Duty'
+                              }
                               className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all ${
                                 student.currentPeriodStatus === 'ON_DUTY'
                                   ? 'bg-[#682038] text-white shadow-sm'
                                   : 'bg-[#FAF7F2] text-[#6E6862] hover:bg-[#F4ECE2]'
-                              }`}
+                              } ${isPrincipalReadOnly ? 'opacity-60 cursor-not-allowed' : ''}`}
                             >
                               OD
                             </button>

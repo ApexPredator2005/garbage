@@ -561,6 +561,22 @@ This document chronicles the fundamental engineering and product decisions made 
 
 ---
 
+### [ADR-038] Attendance Role-Gating (Principal Audit vs Faculty Evaluator), Dynamic Class/Section Selectors & Student Fines Ledger
+- **Classification:** Functional, Security & UX (FUNC/SEC/UX)
+- **Status:** Approved & Implemented
+- **Decision Owner:** Product & Academic Governance Team
+- **Context:**
+  1. University academic regulations mandate that while the Principal has institution-wide audit oversight, attendance marking, period register adjustments, and session locks must be strictly restricted to the designated subject faculty.
+  2. The attendance workspace previously lacked dynamic controls to switch academic programs, semesters, class sections, and course offerings.
+  3. Statutory fines (attendance shortage condonation penalties, central library overdue fines, and late registration surcharges) were aggregated as an opaque lump sum, requiring transparent, itemized visibility and payment tracking inside the student portal.
+- **Decision:**
+  1. **Strict RBAC Attendance Gating:** Implemented `isPrincipalReadOnly` mode in `AttendanceWorkspace.tsx` when `currentRole === 'PRINCIPAL'`. Displays an executive audit oversight banner citing University Academic Regulation §7.2, and disables all status toggles (`Present`, `Absent`, `Late`, `OD`), `Mark All Present`, and `Flush to Ledger` with explanatory tooltips, while keeping them fully interactive for subject teachers (`FACULTY`).
+  2. **Interactive Academic Cohort & Section Switcher:** Introduced a 4-tier selector bar for Program (`B.Tech CSE`, `B.Tech ECE`, `B.Tech ME`, `MBA`), Semester (`Sem 1` to `Sem 8`), Section (`Section A`, `Section B`, `Section C`), and Course Offerings, dynamically updating student rosters, assigned instructor credentials, room locations, and attendance statistics in real-time.
+  3. **Itemized Student Fines & Condonation Ledger:** Enhanced `StudentPortalWorkspace.tsx` with a dedicated "Statutory Institutional Fines & Penalties Ledger" detailing attendance shortage condonation fees (₹2,500), central library overdue returns (₹150), and registration late fees (₹500), paired with prominent shortage warnings in the attendance tab and an integrated fine payment simulator.
+- **Rationale:** Enforces institutional governance compliance, provides seamless class cohort navigation for faculty and administrators, and empowers students with transparent visibility and settlement of academic fines.
+
+---
+
 ## 6. Comprehensive Decision Summary Matrix
 
 | ID | Decision Title | Category | Status | Primary Rationale & Impact |
@@ -602,3 +618,4 @@ This document chronicles the fundamental engineering and product decisions made 
 | **ADR-035** | Privileged Spec Gating & Library / T&P Workspaces Elevation | SEC/FUNC | Implemented | Spec doc locked strictly to Super Admin + 6-tab Library LMS/OPAC & 6-tab Placement T&P hub. |
 | **ADR-036** | Complete Module 03 (Academics, Timetable, Teaching & LMS) | FUNC/ACCRED | Implemented | Full 9-pillar suite: Structure, CO-PO OBE, CBCS reg, Workload balance, Timetable solver, 90-day Calendar, Course Diary, Mentoring, LMS. |
 | **ADR-037** | Full Specification Parity Across All 8 Core Modules | FUNC/ACCRED | Implemented | Comprehensive elevation of all modules: CRM, deterministic merit, interleaved seating, dummy coding, balanced vouchers, recruitment, PBAS, events, SSS, and audit logs. |
+| **ADR-038** | Attendance Role-Gating, Class Selectors & Student Fines | FUNC/SEC/UX | Implemented | Principal view-only audit mode (faculty marking only), live Program/Sem/Section cohort switcher, and itemized student fines ledger. |
