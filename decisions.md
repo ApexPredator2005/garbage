@@ -536,6 +536,31 @@ This document chronicles the fundamental engineering and product decisions made 
 
 ---
 
+### [ADR-037] Full Specification Conformance & Complete Elevation Across All 8 Core Modules
+- **Classification:** Functional Domain, Accreditation & Academic Operations (FUNC / ACCRED / FIN / HR / SIS / EXAM)
+- **Status:** Approved & Implemented
+- **Decision Owner:** Employer Devloft Specification Directive & Stakeholder Requirement
+- **Context:** Following the delivery of Module 03 (Academics), an audit against the official *Devloft Technologies Campus Management System Technical Specification (Dated 21 October 2026)* revealed that while several prototypes existed, the remaining modules required full feature elevation to achieve 100% specification parity:
+  - **Module 01 (Admissions & SIS):** Needed Enquiry CRM, deterministic multi-round merit ordering, ID card designer, and certificates lifecycle.
+  - **Module 02 (Attendance):** Needed student leave/OD exemption workflows and staff daily punch reconciliation.
+  - **Module 04 (Exams):** Needed assessment schemes, anti-cheating seating plans, hall ticket gating, anonymous dummy script coding, and OBE attainment.
+  - **Module 05 (Fees):** Needed fee head setup, cashier shift day-close, balanced double-entry vouchers, and departmental budgets.
+  - **Module 06 (HR & Payroll):** Needed recruitment pipeline, leave policy engine, faculty PBAS appraisal, and employee separation F&F settlement.
+  - **Module 07 (Communication):** Needed campus events & RSVP, NAAC SSS feedback surveys, and queued email outbox telemetry.
+  - **Module 08 (Reports):** Needed predictive at-risk student triage radar, immutable audit logs, and scheduled report cron jobs.
+- **Decision:** Architected, implemented, and deployed full feature elevation across all modules:
+  1. **Admissions & SIS (7 Subtabs):** Master Registry & Exit Barrier, Quota Seat Matrix, Enquiry & Lead Tracking CRM, Applications & Deterministic Merit Engine (PCM $\rightarrow$ Math $\rightarrow$ DOB tie-breaker), Student ID Card Designer & Batch Print, Certificates Lifecycle (Bonafide, TC, Migration, Conduct), Alumni DigiLocker Vault.
+  2. **Attendance (6 Subtabs):** Period Attendance Matrix, Dean's Medical Condonation Desk, Biometric Device Turnstiles, 78% Buffer Parent Radar, Student Leave & On-Duty Exemption Workflow, Staff Daily Punch Reconciler.
+  3. **Academics & Learning (9 Pillars):** Structure & Regulations, Courses & 12-PO NBA OBE Matrix, CBCS Registration, Faculty Workload Radar, Timetable CSP Solver & Substitutions, 90-Day Calendar, Course Diary & Session Logger, Proctorial Mentoring, LMS Learning Space with Google Meet / Zoom links.
+  4. **Examination & Results (6 Subtabs):** Assessment Schemes & UGC 10-Point Grade Bands, Timetable & Interleaved Anti-Cheating Seating Plan, Automated Eligibility Guard (75% attendance + 0 fee dues) & E-Admit Cards, Controller-Restricted Anonymous Dummy Coding Enclave, Marks Entry & Dual-Signoff Moderation (+0-5 grace slider), Results Snapshot, Revaluation Desk & NBA CO Attainment.
+  5. **Fees & Accounting (6 Subtabs):** COA-Mapped Fee Heads & Bulk Demands, Collection Desk & Cashier Shift Day-Close, Bursar Manual UTR Bank Verification with Atomic Redis Idempotency Visualizer, Concessions & No-Dues Desk, Double-Entry General Ledger & Balanced Vouchers ($\sum \text{Debit} \equiv \sum \text{Credit}$), Departmental Budgets Variance & Fixed Assets.
+  6. **HR & Payroll (7 Subtabs):** Monthly 3-Stage Payroll Engine (Draft $\rightarrow$ Approved $\rightarrow$ Locked), Staff Service Books & Credentials, Faculty & Staff Recruitment Pipeline, Leave Policy & LOP Salary Engine, UGC/AICTE CAS PBAS / API Appraisal Desk, Employee Separation & Full-and-Final Settlement (4-department clearance), Role Succession & Handover Audit Register.
+  7. **Communication (6 Subtabs):** SLA Helpdesk & Grievance Queues, Targeted Notice Board with In-App Read Receipts, Campus Events & RSVP Engine, NAAC Criterion 2.7 SSS Surveys & Faculty Feedback, Queued Email Outbox & Zero-Cost Telemetry (Zero-SMS policy), Multi-Party Approval Stepper.
+  8. **Reports & Analytics (6 Subtabs):** Executive KPI Dashboards, Regulatory Returns (NAAC SSR, NBA SAR, NIRF Parameter, AISHE DCF-II), Predictive Early-Warning At-Risk Student Radar, Cryptographically Verifiable Institutional Immutable Audit Trail, Scheduled Institutional Report Dispatcher (Cron Scheduler), Curated Anti-Injection SQL Query Builder.
+- **Rationale:** Brings the entire Campus Management System to 100% functional completeness against the Devloft Technical Specification dated 21 October 2026, fully verified across web and API layers.
+
+---
+
 ## 6. Comprehensive Decision Summary Matrix
 
 | ID | Decision Title | Category | Status | Primary Rationale & Impact |
@@ -576,3 +601,4 @@ This document chronicles the fundamental engineering and product decisions made 
 | **ADR-034** | Dual Standalone Deployment Architecture | DEPLOY/ARCH | Implemented | Independent isolated deployments for Web App (/app/) and Spec Suite (/docs/) via Gateway Portal (/). |
 | **ADR-035** | Privileged Spec Gating & Library / T&P Workspaces Elevation | SEC/FUNC | Implemented | Spec doc locked strictly to Super Admin + 6-tab Library LMS/OPAC & 6-tab Placement T&P hub. |
 | **ADR-036** | Complete Module 03 (Academics, Timetable, Teaching & LMS) | FUNC/ACCRED | Implemented | Full 9-pillar suite: Structure, CO-PO OBE, CBCS reg, Workload balance, Timetable solver, 90-day Calendar, Course Diary, Mentoring, LMS. |
+| **ADR-037** | Full Specification Parity Across All 8 Core Modules | FUNC/ACCRED | Implemented | Comprehensive elevation of all modules: CRM, deterministic merit, interleaved seating, dummy coding, balanced vouchers, recruitment, PBAS, events, SSS, and audit logs. |

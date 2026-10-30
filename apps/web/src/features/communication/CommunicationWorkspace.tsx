@@ -22,7 +22,64 @@ import {
   ArrowUpRight,
   ShieldAlert,
   Inbox,
+  Calendar,
+  Users,
+  Award,
+  Sparkles,
 } from 'lucide-react';
+
+interface CampusEventItem {
+  id: string;
+  title: string;
+  category: 'SYMPOSIUM' | 'HACKATHON' | 'WORKSHOP' | 'CONVOCATION';
+  date: string;
+  venue: string;
+  organizer: string;
+  maxCapacity: number;
+  confirmedRsvps: number;
+  isRsvpOpen: boolean;
+}
+
+interface SurveyFeedbackItem {
+  id: string;
+  title: string;
+  type: 'NAAC_SSS' | 'FACULTY_FEEDBACK' | 'FACILITY_AUDIT';
+  targetAudience: string;
+  minThreshold: number;
+  responsesCount: number;
+  averageRating: number;
+  status: 'ACTIVE' | 'CLOSED';
+}
+
+interface OutboxEmailItem {
+  id: string;
+  domainEvent: string;
+  templateCode: string;
+  recipientEmail: string;
+  recipientRole: string;
+  dispatchedAt: string;
+  latencyMs: number;
+  status: 'DELIVERED' | 'QUEUED';
+}
+
+const INITIAL_EVENTS: CampusEventItem[] = [
+  { id: 'ev-1', title: 'National Hackathon & DeepTech Expo 2026', category: 'HACKATHON', date: '2026-11-20', venue: 'Campus Main Auditorium & AI Labs', organizer: 'Dept. of CSE & ACM Student Chapter', maxCapacity: 200, confirmedRsvps: 168, isRsvpOpen: true },
+  { id: 'ev-2', title: 'IEEE Distinguished Lecture: Silicon Photonics & Quantum IO', category: 'SYMPOSIUM', date: '2026-11-12', venue: 'LH-301 Seminar Complex', organizer: 'Dept. of ECE & IEEE Photonics Society', maxCapacity: 100, confirmedRsvps: 84, isRsvpOpen: true },
+  { id: 'ev-3', title: 'Class of 2026 Pre-Convocation Briefing & Rehearsal', category: 'CONVOCATION', date: '2026-11-28', venue: 'Open Air Amphitheatre', organizer: 'Office of the Registrar', maxCapacity: 500, confirmedRsvps: 412, isRsvpOpen: true },
+];
+
+const INITIAL_SURVEYS: SurveyFeedbackItem[] = [
+  { id: 'sv-1', title: 'NAAC Student Satisfaction Survey (SSS) - AY 2025-26', type: 'NAAC_SSS', targetAudience: 'All Enrolled UG & PG Students', minThreshold: 100, responsesCount: 248, averageRating: 4.62, status: 'ACTIVE' },
+  { id: 'sv-2', title: 'CS401 Algorithms Faculty Anonymous Feedback Form', type: 'FACULTY_FEEDBACK', targetAudience: 'CSE Semester 4 Students', minThreshold: 30, responsesCount: 58, averageRating: 4.78, status: 'ACTIVE' },
+  { id: 'sv-3', title: 'Campus Digital Infrastructure & Hostels Satisfaction', type: 'FACILITY_AUDIT', targetAudience: 'Resident Students & Day Scholars', minThreshold: 150, responsesCount: 312, averageRating: 4.35, status: 'CLOSED' },
+];
+
+const INITIAL_OUTBOX: OutboxEmailItem[] = [
+  { id: 'em-1', domainEvent: 'fee.demand.created', templateCode: 'SEM_FEE_DEMAND_V2', recipientEmail: 'aarav.sharma@campus.edu', recipientRole: 'Student', dispatchedAt: '2026-10-29 09:15:02', latencyMs: 180, status: 'DELIVERED' },
+  { id: 'em-2', domainEvent: 'marks.published', templateCode: 'CIE_RESULT_RELEASE', recipientEmail: 'aditi.rao@campus.edu', recipientRole: 'Student', dispatchedAt: '2026-10-29 11:30:14', latencyMs: 210, status: 'DELIVERED' },
+  { id: 'em-3', domainEvent: 'ticket.assigned', templateCode: 'SLA_TICKET_ALERT', recipientEmail: 'lab.admin@campus.edu', recipientRole: 'Technician', dispatchedAt: '2026-10-29 14:05:00', latencyMs: 145, status: 'DELIVERED' },
+  { id: 'em-4', domainEvent: 'hall_ticket.generated', templateCode: 'EXAM_E_ADMIT_CARD', recipientEmail: 'vikram.verma@campus.edu', recipientRole: 'Student', dispatchedAt: '2026-10-29 16:45:22', latencyMs: 165, status: 'DELIVERED' },
+];
 
 interface NoticeItem {
   id: string;
@@ -196,7 +253,7 @@ const INITIAL_WORKFLOWS: ApprovalWorkflowItem[] = [
 ];
 
 export const CommunicationWorkspace: React.FC = () => {
-  const [subTab, setSubTab] = useState<'notices' | 'helpdesk' | 'approvals'>('helpdesk');
+  const [subTab, setSubTab] = useState<'notices' | 'helpdesk' | 'approvals' | 'events_rsvp' | 'surveys_feedback' | 'email_outbox'>('helpdesk');
   const [notices, setNotices] = useState<NoticeItem[]>(INITIAL_NOTICES);
   const [tickets, setTickets] = useState<HelpdeskTicket[]>(INITIAL_TICKETS);
   const [workflows, setWorkflows] = useState<ApprovalWorkflowItem[]>(INITIAL_WORKFLOWS);
@@ -277,17 +334,17 @@ export const CommunicationWorkspace: React.FC = () => {
         </div>
 
         {/* Sub-tab Navigation */}
-        <div className="flex items-center gap-2 bg-[#FAF7F2] p-1.5 rounded-xl border border-[#E5DFD7]">
+        <div className="flex items-center gap-2 bg-[#FAF7F2] p-1.5 rounded-xl border border-[#E5DFD7] overflow-x-auto">
           <button
             onClick={() => setSubTab('helpdesk')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${
               subTab === 'helpdesk'
                 ? 'bg-[#682038] text-white shadow-sm'
                 : 'text-[#6E6862] hover:bg-[#F4ECE2]'
             }`}
           >
             <Clock className="w-3.5 h-3.5" />
-            <span>SLA Helpdesk</span>
+            <span>1. SLA Helpdesk</span>
             {tickets.filter((t) => t.status !== 'RESOLVED').length > 0 && (
               <span className="w-4 h-4 rounded-full bg-amber-500 text-white text-[10px] flex items-center justify-center">
                 {tickets.filter((t) => t.status !== 'RESOLVED').length}
@@ -297,26 +354,62 @@ export const CommunicationWorkspace: React.FC = () => {
 
           <button
             onClick={() => setSubTab('notices')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${
               subTab === 'notices'
                 ? 'bg-[#682038] text-white shadow-sm'
                 : 'text-[#6E6862] hover:bg-[#F4ECE2]'
             }`}
           >
             <Bell className="w-3.5 h-3.5" />
-            <span>Notice Board</span>
+            <span>2. Notice Board</span>
+          </button>
+
+          <button
+            onClick={() => setSubTab('events_rsvp')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${
+              subTab === 'events_rsvp'
+                ? 'bg-[#682038] text-white shadow-sm'
+                : 'text-[#6E6862] hover:bg-[#F4ECE2]'
+            }`}
+          >
+            <Calendar className="w-3.5 h-3.5" />
+            <span>3. Events &amp; RSVP</span>
+          </button>
+
+          <button
+            onClick={() => setSubTab('surveys_feedback')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${
+              subTab === 'surveys_feedback'
+                ? 'bg-[#682038] text-white shadow-sm'
+                : 'text-[#6E6862] hover:bg-[#F4ECE2]'
+            }`}
+          >
+            <Award className="w-3.5 h-3.5" />
+            <span>4. SSS Surveys &amp; Feedback</span>
+          </button>
+
+          <button
+            onClick={() => setSubTab('email_outbox')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${
+              subTab === 'email_outbox'
+                ? 'bg-[#682038] text-white shadow-sm'
+                : 'text-[#6E6862] hover:bg-[#F4ECE2]'
+            }`}
+          >
+            <Mail className="w-3.5 h-3.5" />
+            <span>5. Queued Outbox</span>
           </button>
 
           <button
             onClick={() => setSubTab('approvals')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${
               subTab === 'approvals'
                 ? 'bg-[#682038] text-white shadow-sm'
                 : 'text-[#6E6862] hover:bg-[#F4ECE2]'
             }`}
           >
             <ShieldCheck className="w-3.5 h-3.5" />
-            <span>Approval Stepper</span>
+            <span>6. Approval Stepper</span>
           </button>
         </div>
       </div>
@@ -589,7 +682,236 @@ export const CommunicationWorkspace: React.FC = () => {
         </div>
       )}
 
-      {/* SUB-TAB 3: MULTI-STEP APPROVAL WORKFLOW STEPPER */}
+      {/* SUB-TAB 3: CAMPUS EVENTS & RSVP ENGINE */}
+      {subTab === 'events_rsvp' && (
+        <div className="space-y-6">
+          <div className="bg-white rounded-2xl border border-[#E5DFD7] shadow-sm overflow-hidden">
+            <div className="px-6 py-4 border-b border-[#E5DFD7] flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#FAF7F2]">
+              <div>
+                <h3 className="text-sm font-bold text-[#682038] uppercase tracking-wider">
+                  Campus Events, Academic Symposia &amp; RSVP Engine
+                </h3>
+                <p className="text-xs text-[#6E6862]">
+                  Manages hackathons, guest lectures, convocations with automated seat count caps and reminders.
+                </p>
+              </div>
+              <button
+                onClick={() => alert('New Campus Event Registration form opened.')}
+                className="px-3.5 py-1.5 rounded-lg bg-[#682038] hover:bg-[#54192D] text-white text-xs font-bold self-start"
+              >
+                + Schedule Event
+              </button>
+            </div>
+
+            <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-5">
+              {INITIAL_EVENTS.map((ev) => (
+                <div key={ev.id} className="p-5 rounded-2xl bg-[#FAF7F2] border border-[#E5DFD7] space-y-3 flex flex-col justify-between shadow-sm">
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="px-2 py-0.5 rounded bg-white font-mono text-[10px] font-bold text-[#682038] border border-[#E5DFD7]">
+                        {ev.category}
+                      </span>
+                      <span className="text-[11px] font-mono text-[#6E6862]">{ev.date}</span>
+                    </div>
+                    <h4 className="font-bold text-sm text-[#242424] leading-snug">{ev.title}</h4>
+                    <div className="text-xs text-[#6E6862] space-y-1">
+                      <div>Venue: <strong className="text-[#242424]">{ev.venue}</strong></div>
+                      <div>Host: {ev.organizer}</div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2 pt-3 border-t border-[#E5DFD7]">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-[#6E6862]">Confirmed RSVPs</span>
+                      <span className="font-mono font-bold text-[#242424]">{ev.confirmedRsvps} / {ev.maxCapacity}</span>
+                    </div>
+                    <div className="w-full bg-[#E5DFD7] h-1.5 rounded-full overflow-hidden">
+                      <div
+                        className="bg-[#682038] h-full rounded-full"
+                        style={{ width: `${(ev.confirmedRsvps / ev.maxCapacity) * 100}%` }}
+                      ></div>
+                    </div>
+                    <button
+                      onClick={() => alert(`RSVP recorded for ${ev.title}. Calendar reminder sent.`)}
+                      className="w-full py-1.5 rounded-xl bg-white hover:bg-[#682038] text-[#682038] hover:text-white border border-[#E5DFD7] text-xs font-bold transition-all"
+                    >
+                      Confirm In-App RSVP
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* SUB-TAB 4: SSS SURVEYS & FACULTY FEEDBACK */}
+      {subTab === 'surveys_feedback' && (
+        <div className="space-y-6">
+          <div className="bg-[#FAF7F2] p-5 rounded-2xl border border-[#D5B3BC] shadow-sm">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-[#682038] text-white flex items-center justify-center">
+                  <Award className="w-5 h-5 text-amber-300" />
+                </div>
+                <div>
+                  <h3 className="text-xs font-bold text-[#242424] uppercase tracking-wider">
+                    NAAC Criterion 2.7: Student Satisfaction Survey (SSS) Engine
+                  </h3>
+                  <p className="text-[11px] text-[#6E6862]">
+                    Anonymous Likert 1-5 feedback surveys. Results unlocked only when minimum participation threshold is fulfilled to preserve respondent privacy.
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => alert('New Survey Creator opened.')}
+                className="px-3.5 py-1.5 rounded-lg bg-[#682038] hover:bg-[#54192D] text-white text-xs font-bold shrink-0"
+              >
+                + Launch New Survey
+              </button>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-2xl border border-[#E5DFD7] shadow-sm overflow-hidden">
+            <div className="px-6 py-4 border-b border-[#E5DFD7] flex items-center justify-between bg-[#FAF7F2]">
+              <h3 className="text-sm font-bold text-[#682038] uppercase tracking-wider">
+                Active &amp; Concluded Institutional Survey Desk
+              </h3>
+              <span className="text-xs text-[#6E6862]">Privacy Protected (Zero User Identifiers Saved)</span>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-[#FAF7F2] text-[#6E6862] font-semibold border-b border-[#E5DFD7]">
+                  <tr>
+                    <th className="px-6 py-3.5">Survey Title</th>
+                    <th className="px-6 py-3.5">Type</th>
+                    <th className="px-6 py-3.5">Target Cohort</th>
+                    <th className="px-6 py-3.5 text-center">Responses / Threshold</th>
+                    <th className="px-6 py-3.5 text-center">Mean Score (Max 5.0)</th>
+                    <th className="px-6 py-3.5 text-right">Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#EFE9E1]">
+                  {INITIAL_SURVEYS.map((sv) => (
+                    <tr key={sv.id} className="hover:bg-[#FAF7F2]/60">
+                      <td className="px-6 py-4 font-bold text-[#242424] text-sm">
+                        {sv.title}
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className="px-2 py-0.5 rounded bg-[#FAF7F2] border border-[#E5DFD7] font-mono text-[10px] font-bold text-[#682038]">
+                          {sv.type}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-[#6E6862]">
+                        {sv.targetAudience}
+                      </td>
+                      <td className="px-6 py-4 text-center font-mono font-bold text-[#242424]">
+                        {sv.responsesCount} / {sv.minThreshold} (Met)
+                      </td>
+                      <td className="px-6 py-4 text-center font-mono font-bold text-sm text-[#16A34A]">
+                        {sv.averageRating.toFixed(2)} ★
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <span
+                          className={`inline-flex px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                            sv.status === 'ACTIVE'
+                              ? 'bg-emerald-100 text-emerald-800'
+                              : 'bg-slate-100 text-slate-800'
+                          }`}
+                        >
+                          {sv.status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* SUB-TAB 5: QUEUED EMAIL OUTBOX & ZERO-COST TELEMETRY */}
+      {subTab === 'email_outbox' && (
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="p-4 rounded-xl bg-white border border-[#E5DFD7] shadow-sm">
+              <span className="text-[11px] font-bold text-[#8B5E3C] uppercase block">Emails Dispatched Today</span>
+              <div className="text-2xl font-bold font-mono text-[#242424] mt-1">1,482 Emails</div>
+              <p className="text-[11px] text-[#6E6862] mt-0.5">Via institutional Postfix/SES pool</p>
+            </div>
+            <div className="p-4 rounded-xl bg-white border border-[#E5DFD7] shadow-sm">
+              <span className="text-[11px] font-bold text-[#16A34A] uppercase block">Delivery Success Rate</span>
+              <div className="text-2xl font-bold font-mono text-[#16A34A] mt-1">99.8%</div>
+              <p className="text-[11px] text-[#6E6862] mt-0.5">0 bounces, 0 spam reports</p>
+            </div>
+            <div className="p-4 rounded-xl bg-white border border-[#E5DFD7] shadow-sm">
+              <span className="text-[11px] font-bold text-[#682038] uppercase block">Average Latency</span>
+              <div className="text-2xl font-bold font-mono text-[#682038] mt-1">175 ms</div>
+              <p className="text-[11px] text-[#6E6862] mt-0.5">Redis BullMQ background worker</p>
+            </div>
+            <div className="p-4 rounded-xl bg-white border border-[#E5DFD7] shadow-sm">
+              <span className="text-[11px] font-bold text-emerald-700 uppercase block">Marginal Gateway Cost</span>
+              <div className="text-2xl font-bold font-mono text-emerald-700 mt-1">₹0.00</div>
+              <p className="text-[11px] text-[#6E6862] mt-0.5">Strict Zero-SMS Architecture</p>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-2xl border border-[#E5DFD7] shadow-sm overflow-hidden">
+            <div className="px-6 py-4 border-b border-[#E5DFD7] flex items-center justify-between bg-[#FAF7F2]">
+              <h3 className="text-sm font-bold text-[#682038] uppercase tracking-wider">
+                Transactional Domain Events &amp; Email Outbox Telemetry
+              </h3>
+              <span className="text-xs text-[#6E6862]">Automatic Retry with Exponential Backoff</span>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-[#FAF7F2] text-[#6E6862] font-semibold border-b border-[#E5DFD7]">
+                  <tr>
+                    <th className="px-6 py-3.5">Triggering Domain Event</th>
+                    <th className="px-6 py-3.5">Email Template Code</th>
+                    <th className="px-6 py-3.5">Recipient Details</th>
+                    <th className="px-6 py-3.5">Dispatched At</th>
+                    <th className="px-6 py-3.5 text-center">Latency</th>
+                    <th className="px-6 py-3.5 text-right">Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#EFE9E1]">
+                  {INITIAL_OUTBOX.map((item) => (
+                    <tr key={item.id} className="hover:bg-[#FAF7F2]/60">
+                      <td className="px-6 py-4 font-mono font-bold text-[#682038]">
+                        {item.domainEvent}
+                      </td>
+                      <td className="px-6 py-4 font-mono text-xs text-[#242424]">
+                        {item.templateCode}
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="font-semibold text-[#242424]">{item.recipientEmail}</div>
+                        <div className="text-[10px] text-[#6E6862]">{item.recipientRole}</div>
+                      </td>
+                      <td className="px-6 py-4 font-mono text-[#6E6862]">
+                        {item.dispatchedAt}
+                      </td>
+                      <td className="px-6 py-4 text-center font-mono font-bold text-xs text-emerald-700">
+                        {item.latencyMs} ms
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <span className="inline-flex px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">
+                          {item.status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* SUB-TAB 6: MULTI-STEP APPROVAL WORKFLOW STEPPER */}
       {subTab === 'approvals' && (
         <div className="space-y-6">
           <div className="bg-white rounded-2xl border border-[#E5DFD7] p-6 shadow-sm space-y-4">

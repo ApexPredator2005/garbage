@@ -21,7 +21,69 @@ import {
   ArrowUpRight,
   PieChart,
   Activity,
+  AlertTriangle,
+  Clock,
+  Calendar,
+  History,
+  Printer,
+  Send,
 } from 'lucide-react';
+
+interface AtRiskStudent {
+  id: string;
+  rollNo: string;
+  name: string;
+  program: string;
+  semester: string;
+  attendancePct: number;
+  cieAvg: number;
+  feeDues: number;
+  riskLevel: 'CRITICAL' | 'HIGH' | 'MODERATE';
+  mentorName: string;
+  intervention: string;
+}
+
+interface ImmutableAuditRow {
+  id: string;
+  actor: string;
+  actorRole: string;
+  entity: string;
+  action: 'MODERATE' | 'CREDIT_RECONCILE' | 'STATUS_CHANGE' | 'LOCK_RUN' | 'DELETE_PREVENTED';
+  details: string;
+  timestamp: string;
+  ipAddress: string;
+  hash: string;
+}
+
+interface ScheduledReportConfig {
+  id: string;
+  title: string;
+  cronExpr: string;
+  scheduleHuman: string;
+  format: 'EXCEL' | 'PDF' | 'CSV' | 'ZIP_PACKAGE';
+  recipients: string;
+  lastRunStatus: string;
+  status: 'ACTIVE_CRON' | 'PAUSED';
+}
+
+const INITIAL_AT_RISK: AtRiskStudent[] = [
+  { id: 'risk-1', rollNo: '2024ECE019', name: 'Tanya Sengupta', program: 'B.Tech ECE', semester: 'Sem 4', attendancePct: 68.2, cieAvg: 42.0, feeDues: 12000, riskLevel: 'CRITICAL', mentorName: 'Prof. Ramesh K.', intervention: 'Dean Counseling Summoned & Hall Ticket Flagged' },
+  { id: 'risk-2', rollNo: '2024CSE003', name: 'Rohan Kulkarni', program: 'B.Tech CSE', semester: 'Sem 4', attendancePct: 71.4, cieAvg: 48.5, feeDues: 0, riskLevel: 'HIGH', mentorName: 'Dr. Sunita Rao', intervention: 'Statutory 75% Attendance Shortage Notice Issued' },
+  { id: 'risk-3', rollNo: '2024CSE004', name: 'Meera Nair', program: 'B.Tech CSE', semester: 'Sem 4', attendancePct: 94.0, cieAvg: 84.0, feeDues: 18500, riskLevel: 'MODERATE', mentorName: 'Dr. Aris Thorne', intervention: 'Bursar Automated Tuition Due Alert Sent' },
+];
+
+const INITIAL_AUDIT_LOGS: ImmutableAuditRow[] = [
+  { id: 'aud-1', actor: 'Dr. Aris Thorne', actorRole: 'HOD Computer Science', entity: 'marks_cs401', action: 'MODERATE', details: 'Applied +2 grace normalization curve to 64 answer scripts', timestamp: '2026-10-29 14:22:18', ipAddress: '192.168.10.45', hash: 'SHA256:7f99a...b2' },
+  { id: 'aud-2', actor: 'Mr. Pradeep Joshi', actorRole: 'Head Cashier / Bursar', entity: 'fee_demand_2024CSE001', action: 'CREDIT_RECONCILE', details: 'Reconciled manual bank UTR20261026987114 for ₹72,000', timestamp: '2026-10-29 11:15:02', ipAddress: '192.168.10.12', hash: 'SHA256:3a18c...e4' },
+  { id: 'aud-3', actor: 'Dr. S. K. Mahajan', actorRole: 'Registrar', entity: 'student_status_2024CSE015', action: 'STATUS_CHANGE', details: 'Promoted to Semester 4 under R-2026 CBCS Regulation', timestamp: '2026-10-28 16:40:11', ipAddress: '192.168.10.02', hash: 'SHA256:8b44d...f9' },
+  { id: 'aud-4', actor: 'Mr. Anand Sharma', actorRole: 'HR Officer', entity: 'payroll_run_202610', action: 'LOCK_RUN', details: 'Approved & Locked October 2026 Payroll Run (184 Staff)', timestamp: '2026-10-28 18:00:55', ipAddress: '192.168.10.18', hash: 'SHA256:1e29f...c8' },
+];
+
+const INITIAL_SCHEDULED_REPORTS: ScheduledReportConfig[] = [
+  { id: 'sch-1', title: 'Weekly Attendance Defaulters & Shortage Roster', cronExpr: '0 8 * * 1', scheduleHuman: 'Every Monday at 08:00 AM', format: 'EXCEL', recipients: 'Principal, Academic Deans & HODs', lastRunStatus: 'Success (2026-10-27 08:00)', status: 'ACTIVE_CRON' },
+  { id: 'sch-2', title: 'Monthly Tuition Arrears Aging & Ledger Reconciliation', cronExpr: '0 9 1 * *', scheduleHuman: '1st of every month at 09:00 AM', format: 'PDF', recipients: 'Bursar & Governing Board Finance Committee', lastRunStatus: 'Success (2026-10-01 09:00)', status: 'ACTIVE_CRON' },
+  { id: 'sch-3', title: 'Statutory NAAC SSR Criterion Data Package Export', cronExpr: '0 0 1 */3 *', scheduleHuman: 'Quarterly on 1st day at midnight', format: 'ZIP_PACKAGE', recipients: 'Internal Quality Assurance Cell (IQAC)', lastRunStatus: 'Success (2026-10-01 00:00)', status: 'ACTIVE_CRON' },
+];
 
 interface RegulatoryReport {
   id: string;
@@ -142,7 +204,7 @@ const SAMPLE_QUERY_RESULTS = [
 ];
 
 export const ReportsWorkspace: React.FC = () => {
-  const [subTab, setSubTab] = useState<'kpi' | 'regulatory' | 'query_builder'>('kpi');
+  const [subTab, setSubTab] = useState<'kpi' | 'regulatory' | 'at_risk_radar' | 'audit_reports' | 'scheduled_exports' | 'query_builder'>('kpi');
   const [generatingReportId, setGeneratingReportId] = useState<string | null>(null);
   const [downloadSuccessReport, setDownloadSuccessReport] = useState<string | null>(null);
 
@@ -210,41 +272,77 @@ export const ReportsWorkspace: React.FC = () => {
         </div>
 
         {/* Sub-tab Navigation */}
-        <div className="flex items-center gap-2 bg-[#FAF7F2] p-1.5 rounded-xl border border-[#E5DFD7]">
+        <div className="flex items-center gap-2 bg-[#FAF7F2] p-1.5 rounded-xl border border-[#E5DFD7] overflow-x-auto">
           <button
             onClick={() => setSubTab('kpi')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${
               subTab === 'kpi'
                 ? 'bg-[#682038] text-white shadow-sm'
                 : 'text-[#6E6862] hover:bg-[#F4ECE2]'
             }`}
           >
             <BarChart3 className="w-3.5 h-3.5" />
-            <span>Executive KPIs</span>
+            <span>1. Executive KPIs</span>
           </button>
 
           <button
             onClick={() => setSubTab('regulatory')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${
               subTab === 'regulatory'
                 ? 'bg-[#682038] text-white shadow-sm'
                 : 'text-[#6E6862] hover:bg-[#F4ECE2]'
             }`}
           >
             <FileSpreadsheet className="w-3.5 h-3.5" />
-            <span>Regulatory Returns</span>
+            <span>2. Regulatory Returns</span>
+          </button>
+
+          <button
+            onClick={() => setSubTab('at_risk_radar')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${
+              subTab === 'at_risk_radar'
+                ? 'bg-[#682038] text-white shadow-sm'
+                : 'text-[#6E6862] hover:bg-[#F4ECE2]'
+            }`}
+          >
+            <AlertTriangle className="w-3.5 h-3.5 text-amber-500" />
+            <span>3. At-Risk Student Radar</span>
+          </button>
+
+          <button
+            onClick={() => setSubTab('audit_reports')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${
+              subTab === 'audit_reports'
+                ? 'bg-[#682038] text-white shadow-sm'
+                : 'text-[#6E6862] hover:bg-[#F4ECE2]'
+            }`}
+          >
+            <History className="w-3.5 h-3.5 text-blue-500" />
+            <span>4. Immutable Audit Logs</span>
+          </button>
+
+          <button
+            onClick={() => setSubTab('scheduled_exports')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${
+              subTab === 'scheduled_exports'
+                ? 'bg-[#682038] text-white shadow-sm'
+                : 'text-[#6E6862] hover:bg-[#F4ECE2]'
+            }`}
+          >
+            <Clock className="w-3.5 h-3.5" />
+            <span>5. Scheduled Reports</span>
           </button>
 
           <button
             onClick={() => setSubTab('query_builder')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${
               subTab === 'query_builder'
                 ? 'bg-[#682038] text-white shadow-sm'
                 : 'text-[#6E6862] hover:bg-[#F4ECE2]'
             }`}
           >
             <Database className="w-3.5 h-3.5" />
-            <span>Curated SQL Builder</span>
+            <span>6. Curated SQL Builder</span>
           </button>
         </div>
       </div>
@@ -423,7 +521,239 @@ export const ReportsWorkspace: React.FC = () => {
         </div>
       )}
 
-      {/* SUB-TAB 3: CURATED SQL QUERY BUILDER (ANTI-INJECTION) */}
+      {/* SUB-TAB 3: AT-RISK STUDENT RADAR (EARLY INTERVENTION) */}
+      {subTab === 'at_risk_radar' && (
+        <div className="space-y-6">
+          <div className="bg-[#FAF7F2] p-5 rounded-2xl border border-[#D5B3BC] shadow-sm">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-[#682038] text-white flex items-center justify-center">
+                  <AlertTriangle className="w-5 h-5 text-amber-300" />
+                </div>
+                <div>
+                  <h3 className="text-xs font-bold text-[#242424] uppercase tracking-wider">
+                    Predictive Early-Warning &amp; Student Triage Radar
+                  </h3>
+                  <p className="text-[11px] text-[#6E6862]">
+                    Synthesizes attendance deficits (&lt;75%), falling internal CIE marks (&lt;50%), and unpaid fee demands to identify students needing proctorial intervention before semester barrier locks.
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => alert('Dispatching automated early-intervention notifications to mentors and parents...')}
+                className="px-3.5 py-1.5 rounded-lg bg-[#682038] hover:bg-[#54192D] text-white text-xs font-bold flex items-center gap-1.5 shrink-0"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                <span>Run Cohort Risk Triage</span>
+              </button>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-2xl border border-[#E5DFD7] shadow-sm overflow-hidden">
+            <div className="px-6 py-4 border-b border-[#E5DFD7] flex items-center justify-between bg-[#FAF7F2]">
+              <h3 className="text-sm font-bold text-[#682038] uppercase tracking-wider">
+                Flagged At-Risk Students Registry ({INITIAL_AT_RISK.length} Active Flags)
+              </h3>
+              <span className="text-xs text-[#6E6862]">Automated Mentor Escalation Enabled</span>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-[#FAF7F2] text-[#6E6862] font-semibold border-b border-[#E5DFD7]">
+                  <tr>
+                    <th className="px-6 py-3.5">Student Details</th>
+                    <th className="px-6 py-3.5 text-center">Attendance %</th>
+                    <th className="px-6 py-3.5 text-center">CIE Marks Avg</th>
+                    <th className="px-6 py-3.5 text-center">Tuition Dues</th>
+                    <th className="px-6 py-3.5">Assigned Faculty Mentor</th>
+                    <th className="px-6 py-3.5 text-right">Risk Severity</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#EFE9E1]">
+                  {INITIAL_AT_RISK.map((s) => (
+                    <tr key={s.id} className="hover:bg-[#FAF7F2]/60">
+                      <td className="px-6 py-4">
+                        <div className="font-bold text-[#242424] text-sm">{s.name}</div>
+                        <div className="font-mono text-[11px] text-[#682038]">{s.rollNo} &bull; {s.program}</div>
+                        <div className="text-[10px] text-[#8B5E3C] mt-0.5">{s.intervention}</div>
+                      </td>
+                      <td className="px-6 py-4 text-center font-mono">
+                        <span className={`font-bold ${s.attendancePct < 75 ? 'text-red-700' : 'text-emerald-700'}`}>
+                          {s.attendancePct}%
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-center font-mono">
+                        <span className={`font-bold ${s.cieAvg < 50 ? 'text-red-700' : 'text-emerald-700'}`}>
+                          {s.cieAvg}%
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-center font-mono font-bold">
+                        {s.feeDues > 0 ? (
+                          <span className="text-red-700">₹{s.feeDues.toLocaleString()}</span>
+                        ) : (
+                          <span className="text-emerald-700">₹0</span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 text-[#242424]">
+                        {s.mentorName}
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <span
+                          className={`inline-flex px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                            s.riskLevel === 'CRITICAL'
+                              ? 'bg-red-100 text-red-800'
+                              : s.riskLevel === 'HIGH'
+                              ? 'bg-amber-100 text-amber-800'
+                              : 'bg-blue-100 text-blue-800'
+                          }`}
+                        >
+                          {s.riskLevel}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* SUB-TAB 4: INSTITUTIONAL IMMUTABLE AUDIT LOGS */}
+      {subTab === 'audit_reports' && (
+        <div className="space-y-6">
+          <div className="bg-white rounded-2xl border border-[#E5DFD7] shadow-sm overflow-hidden">
+            <div className="px-6 py-4 border-b border-[#E5DFD7] flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#FAF7F2]">
+              <div>
+                <h3 className="text-sm font-bold text-[#682038] uppercase tracking-wider">
+                  Cryptographically Verifiable Institutional Audit Trail
+                </h3>
+                <p className="text-xs text-[#6E6862]">
+                  Append-only immutable record capturing administrative mutations across Marks, Fees, Attendance, and Payroll.
+                </p>
+              </div>
+              <button
+                onClick={() => alert('Exporting full audit trail ledger (CSV)...')}
+                className="px-3.5 py-1.5 rounded-lg border border-[#E5DFD7] text-[#682038] hover:bg-[#FAF7F2] text-xs font-bold flex items-center gap-1.5 self-start"
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span>Export Audit CSV</span>
+              </button>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-[#FAF7F2] text-[#6E6862] font-semibold border-b border-[#E5DFD7]">
+                  <tr>
+                    <th className="px-6 py-3.5">Actor &amp; Authority</th>
+                    <th className="px-6 py-3.5">Target Entity</th>
+                    <th className="px-6 py-3.5">Action Executed</th>
+                    <th className="px-6 py-3.5">Audit Commentary / Diff</th>
+                    <th className="px-6 py-3.5">Timestamp &amp; IP</th>
+                    <th className="px-6 py-3.5 text-right">Integrity Hash</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#EFE9E1]">
+                  {INITIAL_AUDIT_LOGS.map((log) => (
+                    <tr key={log.id} className="hover:bg-[#FAF7F2]/60">
+                      <td className="px-6 py-4">
+                        <div className="font-bold text-[#242424] text-sm">{log.actor}</div>
+                        <div className="text-[10px] text-[#8B5E3C]">{log.actorRole}</div>
+                      </td>
+                      <td className="px-6 py-4 font-mono font-bold text-[#242424]">
+                        {log.entity}
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className="px-2 py-0.5 rounded bg-[#FAF7F2] border border-[#E5DFD7] font-mono text-[10px] font-bold text-[#682038]">
+                          {log.action}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-[#242424] max-w-xs">
+                        {log.details}
+                      </td>
+                      <td className="px-6 py-4 font-mono text-[#6E6862]">
+                        <div>{log.timestamp}</div>
+                        <div className="text-[10px] text-[#A39B8F]">{log.ipAddress}</div>
+                      </td>
+                      <td className="px-6 py-4 text-right font-mono text-[10px] text-[#682038]">
+                        {log.hash}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* SUB-TAB 5: SCHEDULED REPORTS & AUTOMATED EXPORTS */}
+      {subTab === 'scheduled_exports' && (
+        <div className="space-y-6">
+          <div className="bg-white rounded-2xl border border-[#E5DFD7] shadow-sm overflow-hidden">
+            <div className="px-6 py-4 border-b border-[#E5DFD7] flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#FAF7F2]">
+              <div>
+                <h3 className="text-sm font-bold text-[#682038] uppercase tracking-wider">
+                  Automated Institutional Report Dispatcher (Cron Scheduler)
+                </h3>
+                <p className="text-xs text-[#6E6862]">
+                  Periodic background generation and email dispatch to statutory authorities, Deans, and Auditors.
+                </p>
+              </div>
+              <button
+                onClick={() => alert('New Report Cron Schedule creator opened.')}
+                className="px-3.5 py-1.5 rounded-lg bg-[#682038] hover:bg-[#54192D] text-white text-xs font-bold self-start"
+              >
+                + Schedule New Job
+              </button>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-[#FAF7F2] text-[#6E6862] font-semibold border-b border-[#E5DFD7]">
+                  <tr>
+                    <th className="px-6 py-3.5">Report Title</th>
+                    <th className="px-6 py-3.5">Cron Schedule</th>
+                    <th className="px-6 py-3.5">Delivery Format</th>
+                    <th className="px-6 py-3.5">Recipients</th>
+                    <th className="px-6 py-3.5">Last Run State</th>
+                    <th className="px-6 py-3.5 text-right">Schedule Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#EFE9E1]">
+                  {INITIAL_SCHEDULED_REPORTS.map((sch) => (
+                    <tr key={sch.id} className="hover:bg-[#FAF7F2]/60">
+                      <td className="px-6 py-4 font-bold text-[#242424] text-sm">
+                        {sch.title}
+                      </td>
+                      <td className="px-6 py-4 font-mono">
+                        <div className="font-bold text-[#682038]">{sch.cronExpr}</div>
+                        <div className="text-[10px] text-[#6E6862]">{sch.scheduleHuman}</div>
+                      </td>
+                      <td className="px-6 py-4 font-semibold text-[#242424]">
+                        {sch.format}
+                      </td>
+                      <td className="px-6 py-4 text-[#6E6862]">
+                        {sch.recipients}
+                      </td>
+                      <td className="px-6 py-4 font-mono text-emerald-700 font-bold">
+                        {sch.lastRunStatus}
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <span className="inline-flex px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">
+                          {sch.status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* SUB-TAB 6: CURATED SQL QUERY BUILDER (ANTI-INJECTION) */}
       {subTab === 'query_builder' && (
         <div className="space-y-6">
           {/* Security Banner */}

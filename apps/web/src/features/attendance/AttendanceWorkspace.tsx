@@ -313,8 +313,45 @@ const BIOMETRIC_LOGS: BiometricPunchLog[] = [
   },
 ];
 
+interface StudentLeaveItem {
+  id: string;
+  studentName: string;
+  rollNo: string;
+  leaveType: 'MEDICAL' | 'ON_DUTY_EVENT' | 'PERSONAL';
+  startDate: string;
+  endDate: string;
+  periodsMissed: number;
+  reason: string;
+  documentAttached: string;
+  status: 'APPROVED' | 'PENDING_FACULTY';
+}
+
+interface StaffDailyPunch {
+  id: string;
+  employeeName: string;
+  employeeCode: string;
+  department: string;
+  inTime: string;
+  outTime: string;
+  status: 'ON_TIME' | 'LATE_IN' | 'HALF_DAY' | 'ON_DUTY';
+  source: 'BIOMETRIC_DEVICE' | 'RFID_TURNSTILE' | 'MANUAL_DEAN';
+}
+
+const INITIAL_STUDENT_LEAVES: StudentLeaveItem[] = [
+  { id: 'sl-1', studentName: 'Rohan Kulkarni', rollNo: '2024CSE003', leaveType: 'MEDICAL', startDate: '2026-10-20', endDate: '2026-10-22', periodsMissed: 8, reason: 'Hospitalization for acute gastroenteritis', documentAttached: 'medical_cert_rohan.pdf', status: 'APPROVED' },
+  { id: 'sl-2', studentName: 'Aditi Rao', rollNo: '2024CSE002', leaveType: 'ON_DUTY_EVENT', startDate: '2026-10-25', endDate: '2026-10-26', periodsMissed: 6, reason: 'ACM Inter-College Programming Contest Finalist', documentAttached: 'contest_invitation.pdf', status: 'APPROVED' },
+  { id: 'sl-3', studentName: 'Priya Nambiar', rollNo: '2024ECE014', leaveType: 'PERSONAL', startDate: '2026-11-02', endDate: '2026-11-03', periodsMissed: 6, reason: 'Sister wedding in hometown', documentAttached: 'wedding_invitation.pdf', status: 'PENDING_FACULTY' },
+];
+
+const INITIAL_STAFF_PUNCHES: StaffDailyPunch[] = [
+  { id: 'sp-1', employeeName: 'Dr. Aris Thorne', employeeCode: 'FAC-CSE-001', department: 'Computer Science', inTime: '08:24 AM', outTime: '05:12 PM', status: 'ON_TIME', source: 'BIOMETRIC_DEVICE' },
+  { id: 'sp-2', employeeName: 'Prof. Ramesh K.', employeeCode: 'FAC-CSE-003', department: 'Computer Science', inTime: '08:44 AM', outTime: '05:05 PM', status: 'LATE_IN', source: 'BIOMETRIC_DEVICE' },
+  { id: 'sp-3', employeeName: 'Dr. Sarah Jenkins', employeeCode: 'FAC-ECE-001', department: 'Electronics & Comm.', inTime: '08:15 AM', outTime: '05:30 PM', status: 'ON_TIME', source: 'RFID_TURNSTILE' },
+  { id: 'sp-4', employeeName: 'Mr. Pradeep Joshi', employeeCode: 'STAFF-BUR-001', department: 'Bursar & Accounts', inTime: '08:20 AM', outTime: '05:15 PM', status: 'ON_TIME', source: 'BIOMETRIC_DEVICE' },
+];
+
 export const AttendanceWorkspace: React.FC = () => {
-  const [subTab, setSubTab] = useState<'matrix' | 'condonation' | 'biometric' | 'radar'>('matrix');
+  const [subTab, setSubTab] = useState<'matrix' | 'condonation' | 'biometric' | 'radar' | 'student_leaves' | 'staff_attendance'>('matrix');
   const [students, setStudents] = useState<StudentAttendance[]>(INITIAL_STUDENTS);
   const [condonations, setCondonations] = useState<CondonationRequest[]>(INITIAL_CONDONATIONS);
   const [parentWarnings, setParentWarnings] = useState<ParentWarningItem[]>(INITIAL_PARENT_WARNINGS);
@@ -466,28 +503,28 @@ export const AttendanceWorkspace: React.FC = () => {
         </div>
 
         {/* Sub-tab Navigation */}
-        <div className="flex items-center gap-2 bg-[#FAF7F2] p-1.5 rounded-xl border border-[#E5DFD7]">
+        <div className="flex items-center gap-2 bg-[#FAF7F2] p-1.5 rounded-xl border border-[#E5DFD7] overflow-x-auto">
           <button
             onClick={() => setSubTab('matrix')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${
               subTab === 'matrix'
                 ? 'bg-[#682038] text-white shadow-sm'
                 : 'text-[#6E6862] hover:bg-[#F4ECE2]'
             }`}
           >
             <Calendar className="w-3.5 h-3.5" />
-            <span>Period Matrix</span>
+            <span>1. Period Matrix</span>
           </button>
           <button
             onClick={() => setSubTab('condonation')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${
               subTab === 'condonation'
                 ? 'bg-[#682038] text-white shadow-sm'
                 : 'text-[#6E6862] hover:bg-[#F4ECE2]'
             }`}
           >
             <ShieldCheck className="w-3.5 h-3.5" />
-            <span>Condonation Desk</span>
+            <span>2. Condonation Desk</span>
             {condonations.filter((c) => c.status === 'PENDING').length > 0 && (
               <span className="w-4 h-4 rounded-full bg-amber-500 text-white text-[10px] flex items-center justify-center">
                 {condonations.filter((c) => c.status === 'PENDING').length}
@@ -496,30 +533,52 @@ export const AttendanceWorkspace: React.FC = () => {
           </button>
           <button
             onClick={() => setSubTab('biometric')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${
               subTab === 'biometric'
                 ? 'bg-[#682038] text-white shadow-sm'
                 : 'text-[#6E6862] hover:bg-[#F4ECE2]'
             }`}
           >
             <Fingerprint className="w-3.5 h-3.5" />
-            <span>Biometric Audit</span>
+            <span>3. Biometric Turnstiles</span>
           </button>
           <button
             onClick={() => setSubTab('radar')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${
               subTab === 'radar'
                 ? 'bg-[#682038] text-white shadow-sm'
                 : 'text-[#6E6862] hover:bg-[#F4ECE2]'
             }`}
           >
             <AlertCircle className="w-3.5 h-3.5" />
-            <span>78% Parent Radar</span>
+            <span>4. 78% Parent Radar</span>
             {parentWarnings.filter((w) => w.zone === 'AMBER_WARNING_78' && !w.warningDispatched).length > 0 && (
               <span className="w-4 h-4 rounded-full bg-amber-500 text-white text-[10px] flex items-center justify-center font-mono">
                 {parentWarnings.filter((w) => w.zone === 'AMBER_WARNING_78' && !w.warningDispatched).length}
               </span>
             )}
+          </button>
+          <button
+            onClick={() => setSubTab('student_leaves')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${
+              subTab === 'student_leaves'
+                ? 'bg-[#682038] text-white shadow-sm'
+                : 'text-[#6E6862] hover:bg-[#F4ECE2]'
+            }`}
+          >
+            <FileText className="w-3.5 h-3.5" />
+            <span>5. Student Leaves &amp; OD</span>
+          </button>
+          <button
+            onClick={() => setSubTab('staff_attendance')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${
+              subTab === 'staff_attendance'
+                ? 'bg-[#682038] text-white shadow-sm'
+                : 'text-[#6E6862] hover:bg-[#F4ECE2]'
+            }`}
+          >
+            <Users className="w-3.5 h-3.5" />
+            <span>6. Staff Daily Punches</span>
           </button>
         </div>
       </div>
@@ -1259,6 +1318,169 @@ export const AttendanceWorkspace: React.FC = () => {
                         </td>
                       </tr>
                     ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* SUB-TAB 5: STUDENT LEAVES & ON-DUTY APPROVAL CHAIN */}
+      {subTab === 'student_leaves' && (
+        <div className="space-y-6">
+          <div className="bg-[#FAF7F2] p-5 rounded-2xl border border-[#D5B3BC] shadow-sm">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-[#682038] text-white flex items-center justify-center">
+                  <FileText className="w-5 h-5 text-amber-300" />
+                </div>
+                <div>
+                  <h3 className="text-xs font-bold text-[#242424] uppercase tracking-wider">
+                    Statutory Leave, Medical &amp; On-Duty (OD) Attendance Exemption Desk
+                  </h3>
+                  <p className="text-[11px] text-[#6E6862]">
+                    Verified institutional leave approvals dynamically credit attendance hours to ensure students representing the college in sports, hackathons, or medical emergencies are not wrongly penalized in exam eligibility calculations.
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => alert('New Student Leave / OD Requisition Form opened.')}
+                className="px-3.5 py-1.5 rounded-lg bg-[#682038] hover:bg-[#54192D] text-white text-xs font-bold shrink-0"
+              >
+                + Apply Student Leave / OD
+              </button>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-2xl border border-[#E5DFD7] shadow-sm overflow-hidden">
+            <div className="px-6 py-4 border-b border-[#E5DFD7] flex items-center justify-between bg-[#FAF7F2]">
+              <h3 className="text-sm font-bold text-[#682038] uppercase tracking-wider">
+                Student Leave &amp; On-Duty Requisition Registry ({INITIAL_STUDENT_LEAVES.length} Requests)
+              </h3>
+              <span className="text-xs text-[#6E6862]">Document Evidence Verified</span>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-[#FAF7F2] text-[#6E6862] font-semibold border-b border-[#E5DFD7]">
+                  <tr>
+                    <th className="px-6 py-3.5">Student Name &amp; Roll No</th>
+                    <th className="px-6 py-3.5">Leave / Exemption Type</th>
+                    <th className="px-6 py-3.5">Duration &amp; Periods</th>
+                    <th className="px-6 py-3.5">Reason &amp; Attached Document</th>
+                    <th className="px-6 py-3.5 text-right">Approval Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#EFE9E1]">
+                  {INITIAL_STUDENT_LEAVES.map((lv) => (
+                    <tr key={lv.id} className="hover:bg-[#FAF7F2]/60">
+                      <td className="px-6 py-4">
+                        <div className="font-bold text-[#242424] text-sm">{lv.studentName}</div>
+                        <div className="font-mono text-[11px] text-[#682038]">{lv.rollNo}</div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className="px-2 py-0.5 rounded bg-[#FAF7F2] border border-[#E5DFD7] font-mono text-[10px] font-bold text-[#682038]">
+                          {lv.leaveType}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="font-bold text-[#242424]">{lv.periodsMissed} Periods Excused</div>
+                        <div className="font-mono text-[10px] text-[#6E6862]">{lv.startDate} to {lv.endDate}</div>
+                      </td>
+                      <td className="px-6 py-4 text-[#242424]">
+                        <div>{lv.reason}</div>
+                        <div className="font-mono text-[10px] text-blue-700 mt-0.5 underline cursor-pointer">
+                          📄 {lv.documentAttached}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <span
+                          className={`inline-flex px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                            lv.status === 'APPROVED'
+                              ? 'bg-emerald-100 text-emerald-800'
+                              : 'bg-amber-100 text-amber-800'
+                          }`}
+                        >
+                          {lv.status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* SUB-TAB 6: STAFF DAILY ATTENDANCE & PUNCH RECONCILER */}
+      {subTab === 'staff_attendance' && (
+        <div className="space-y-6">
+          <div className="bg-white rounded-2xl border border-[#E5DFD7] shadow-sm overflow-hidden">
+            <div className="px-6 py-4 border-b border-[#E5DFD7] flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#FAF7F2]">
+              <div>
+                <h3 className="text-sm font-bold text-[#682038] uppercase tracking-wider">
+                  Staff Daily Turnstile Attendance &amp; Shift Register
+                </h3>
+                <p className="text-xs text-[#6E6862]">
+                  Aggregated from physical RFID campus turnstiles and optical fingerprint terminals.
+                </p>
+              </div>
+              <button
+                onClick={() => alert('Synchronizing real-time turnstile telemetry across all gates...')}
+                className="px-3.5 py-1.5 rounded-lg bg-[#682038] hover:bg-[#54192D] text-white text-xs font-bold self-start flex items-center gap-1.5"
+              >
+                <RefreshCw className="w-3.5 h-3.5" />
+                <span>Re-Sync Turnstiles</span>
+              </button>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-[#FAF7F2] text-[#6E6862] font-semibold border-b border-[#E5DFD7]">
+                  <tr>
+                    <th className="px-6 py-3.5">Employee Name &amp; Code</th>
+                    <th className="px-6 py-3.5">Department</th>
+                    <th className="px-6 py-3.5 text-center">In Time</th>
+                    <th className="px-6 py-3.5 text-center">Out Time</th>
+                    <th className="px-6 py-3.5">Capture Terminal</th>
+                    <th className="px-6 py-3.5 text-right">Daily Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#EFE9E1]">
+                  {INITIAL_STAFF_PUNCHES.map((p) => (
+                    <tr key={p.id} className="hover:bg-[#FAF7F2]/60">
+                      <td className="px-6 py-4">
+                        <div className="font-bold text-[#242424] text-sm">{p.employeeName}</div>
+                        <div className="font-mono text-[11px] text-[#682038]">{p.employeeCode}</div>
+                      </td>
+                      <td className="px-6 py-4 font-semibold text-[#6E6862]">
+                        {p.department}
+                      </td>
+                      <td className="px-6 py-4 text-center font-mono font-bold text-emerald-800">
+                        {p.inTime}
+                      </td>
+                      <td className="px-6 py-4 text-center font-mono font-bold text-[#242424]">
+                        {p.outTime}
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className="px-2 py-0.5 rounded bg-[#FAF7F2] border border-[#E5DFD7] font-mono text-[10px] font-bold text-[#682038]">
+                          {p.source}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <span
+                          className={`inline-flex px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                            p.status === 'ON_TIME'
+                              ? 'bg-emerald-100 text-emerald-800'
+                              : 'bg-amber-100 text-amber-800'
+                          }`}
+                        >
+                          {p.status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>

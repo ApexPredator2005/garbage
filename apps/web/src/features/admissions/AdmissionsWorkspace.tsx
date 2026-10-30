@@ -30,6 +30,8 @@ import {
   Eye,
   CloudUpload,
   FileDown,
+  Users,
+  Printer,
 } from 'lucide-react';
 
 interface QuotaBucket {
@@ -124,8 +126,67 @@ const INITIAL_ALUMNI: AlumniRecord[] = [
   },
 ];
 
+interface EnquiryRecord {
+  id: string;
+  candidateName: string;
+  phone: string;
+  email: string;
+  program: string;
+  source: 'WALK_IN' | 'WEB_PORTAL' | 'EDUCATION_FAIR' | 'REFERRAL';
+  counselor: string;
+  status: 'NEW_LEAD' | 'CONTACTED' | 'CAMPUS_TOUR' | 'APPLICATION_ISSUED' | 'CONVERTED';
+  followUpDate: string;
+  notes: string;
+}
+
+interface MeritCandidate {
+  rank: number;
+  applicationNo: string;
+  name: string;
+  category: string;
+  pcmPercentage: number;
+  mathMarks: number;
+  dob: string;
+  allottedProgram: string;
+  status: 'CONFIRMED' | 'OFFER_ISSUED' | 'WAITLISTED';
+}
+
+interface CertificateIssueRecord {
+  id: string;
+  certNumber: string;
+  studentName: string;
+  rollNo: string;
+  certType: 'BONAFIDE' | 'TRANSFER_CERT' | 'MIGRATION' | 'CHARACTER_CONDUCT';
+  issuedAt: string;
+  approvedBy: string;
+  status: 'ISSUED' | 'PENDING_APPROVAL';
+}
+
+const INITIAL_ENQUIRIES: EnquiryRecord[] = [
+  { id: 'enq-1', candidateName: 'Rohit K. Varma', phone: '+91 98450 12345', email: 'rohit.varma@example.com', program: 'B.Tech Computer Science', source: 'WEB_PORTAL', counselor: 'Priya Sharma (Sr. Counselor)', status: 'APPLICATION_ISSUED', followUpDate: '2026-11-02', notes: 'Interested in AI/ML specialization. Class 12 PCM 92%.' },
+  { id: 'enq-2', candidateName: 'Ananya S. Rao', phone: '+91 97410 88921', email: 'ananya.rao@example.com', program: 'B.Tech Electronics & Comm.', source: 'WALK_IN', counselor: 'Karthik Raja (Counselor)', status: 'CAMPUS_TOUR', followUpDate: '2026-11-03', notes: 'Visited robotics lab. Parent inquired about hostel accommodation.' },
+  { id: 'enq-3', candidateName: 'Sameer Siddiqui', phone: '+91 94220 56789', email: 'sameer.s@example.com', program: 'B.Tech Mechanical (Robotics)', source: 'EDUCATION_FAIR', counselor: 'Priya Sharma (Sr. Counselor)', status: 'NEW_LEAD', followUpDate: '2026-11-04', notes: 'Met at Bangalore EduExpo 2026.' },
+  { id: 'enq-4', candidateName: 'Divya Nair', phone: '+91 91234 56780', email: 'divya.nair@example.com', program: 'B.Tech Computer Science', source: 'REFERRAL', counselor: 'Karthik Raja (Counselor)', status: 'CONVERTED', followUpDate: '2026-10-28', notes: 'Admission confirmed. Seat reserved under OPEN category.' },
+];
+
+const INITIAL_MERIT_LIST: MeritCandidate[] = [
+  { rank: 1, applicationNo: 'APP-2026-0041', name: 'Vikramaditya Verma', category: 'OPEN', pcmPercentage: 98.4, mathMarks: 100, dob: '2006-03-12', allottedProgram: 'B.Tech Computer Science', status: 'CONFIRMED' },
+  { rank: 2, applicationNo: 'APP-2026-0112', name: 'Pooja Deshmukh', category: 'OPEN', pcmPercentage: 96.2, mathMarks: 98, dob: '2006-07-24', allottedProgram: 'B.Tech Computer Science', status: 'CONFIRMED' },
+  { rank: 3, applicationNo: 'APP-2026-0089', name: 'Rahul Sharma', category: 'OBC_NCL', pcmPercentage: 94.0, mathMarks: 95, dob: '2005-11-15', allottedProgram: 'B.Tech Computer Science', status: 'CONFIRMED' },
+  { rank: 4, applicationNo: 'APP-2026-0210', name: 'Sneha Patel', category: 'OPEN', pcmPercentage: 91.5, mathMarks: 92, dob: '2006-01-05', allottedProgram: 'B.Tech Electronics & Comm.', status: 'OFFER_ISSUED' },
+  { rank: 5, applicationNo: 'APP-2026-0305', name: 'Ananya Iyer', category: 'SC', pcmPercentage: 89.2, mathMarks: 90, dob: '2006-05-19', allottedProgram: 'B.Tech Computer Science', status: 'CONFIRMED' },
+  { rank: 6, applicationNo: 'APP-2026-0412', name: 'Zaid Al-Mansoor', category: 'EWS', pcmPercentage: 84.5, mathMarks: 86, dob: '2005-09-30', allottedProgram: 'B.Tech Mechanical & Robotics', status: 'WAITLISTED' },
+];
+
+const INITIAL_CERTIFICATES: CertificateIssueRecord[] = [
+  { id: 'cert-1', certNumber: 'CERT-2026-BON-0142', studentName: 'Aarav Sharma', rollNo: '2024CSE001', certType: 'BONAFIDE', issuedAt: '2026-10-25', approvedBy: 'Dr. S. K. Mahajan (Registrar)', status: 'ISSUED' },
+  { id: 'cert-2', certNumber: 'CERT-2026-TC-0089', studentName: 'Rohan Mehra', rollNo: '2024ECE015', certType: 'TRANSFER_CERT', issuedAt: '2026-10-27', approvedBy: 'Dr. S. K. Mahajan (Registrar)', status: 'ISSUED' },
+  { id: 'cert-3', certNumber: 'CERT-2026-MIG-0034', studentName: 'Priya Nambiar', rollNo: '2024ECE014', certType: 'MIGRATION', issuedAt: '2026-10-28', approvedBy: 'Pending Registrar Digital Sign', status: 'PENDING_APPROVAL' },
+  { id: 'cert-4', certNumber: 'CERT-2026-CND-0105', studentName: 'Aditi Rao', rollNo: '2024CSE002', certType: 'CHARACTER_CONDUCT', issuedAt: '2026-10-29', approvedBy: 'Dr. S. K. Mahajan (Registrar)', status: 'ISSUED' },
+];
+
 export const AdmissionsWorkspace: React.FC = () => {
-  const [subTab, setSubTab] = useState<'registry' | 'seat_matrix' | 'digilocker'>('registry');
+  const [subTab, setSubTab] = useState<'registry' | 'seat_matrix' | 'enquiries_crm' | 'applications_merit' | 'id_card_designer' | 'certificates_engine' | 'digilocker'>('registry');
   const [students, setStudents] = useState<StudentRecord[]>(MOCK_STUDENTS);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStudentForExit, setSelectedStudentForExit] = useState<StudentRecord | null>(null);
@@ -434,7 +495,7 @@ export const AdmissionsWorkspace: React.FC = () => {
             }`}
           >
             <UserCheck className="w-3.5 h-3.5" />
-            <span>Master Registry & Exit Barrier</span>
+            <span>1. Master Registry</span>
           </button>
 
           <button
@@ -446,7 +507,55 @@ export const AdmissionsWorkspace: React.FC = () => {
             }`}
           >
             <PieChart className="w-3.5 h-3.5" />
-            <span>Quota Seat Matrix ({totalVacant} Vacant)</span>
+            <span>2. Quota Matrix ({totalVacant} Vacant)</span>
+          </button>
+
+          <button
+            onClick={() => setSubTab('enquiries_crm')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 ${
+              subTab === 'enquiries_crm'
+                ? 'bg-[#682038] text-white shadow-sm'
+                : 'text-[#6E6862] hover:bg-[#F4ECE2]'
+            }`}
+          >
+            <Users className="w-3.5 h-3.5" />
+            <span>3. Enquiry & Lead CRM</span>
+          </button>
+
+          <button
+            onClick={() => setSubTab('applications_merit')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 ${
+              subTab === 'applications_merit'
+                ? 'bg-[#682038] text-white shadow-sm'
+                : 'text-[#6E6862] hover:bg-[#F4ECE2]'
+            }`}
+          >
+            <Award className="w-3.5 h-3.5" />
+            <span>4. Applications & Merit Engine</span>
+          </button>
+
+          <button
+            onClick={() => setSubTab('id_card_designer')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 ${
+              subTab === 'id_card_designer'
+                ? 'bg-[#682038] text-white shadow-sm'
+                : 'text-[#6E6862] hover:bg-[#F4ECE2]'
+            }`}
+          >
+            <CreditCard className="w-3.5 h-3.5" />
+            <span>5. ID Card Designer</span>
+          </button>
+
+          <button
+            onClick={() => setSubTab('certificates_engine')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 ${
+              subTab === 'certificates_engine'
+                ? 'bg-[#682038] text-white shadow-sm'
+                : 'text-[#6E6862] hover:bg-[#F4ECE2]'
+            }`}
+          >
+            <FileCheck className="w-3.5 h-3.5" />
+            <span>6. Certificates Lifecycle</span>
           </button>
 
           <button
@@ -458,7 +567,7 @@ export const AdmissionsWorkspace: React.FC = () => {
             }`}
           >
             <GraduationCap className="w-3.5 h-3.5" />
-            <span>Alumni DigiLocker Vault</span>
+            <span>7. Alumni DigiLocker Vault</span>
           </button>
         </div>
       </div>
@@ -695,7 +804,400 @@ export const AdmissionsWorkspace: React.FC = () => {
         </div>
       )}
 
-      {/* SUB-TAB 3: ALUMNI & DIGILOCKER / NAD VAULT */}
+      {/* SUB-TAB 3: ENQUIRY & LEAD TRACKING CRM */}
+      {subTab === 'enquiries_crm' && (
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="p-4 rounded-xl bg-white border border-[#E5DFD7] shadow-sm">
+              <span className="text-[11px] font-bold text-[#8B5E3C] uppercase block">Total Leads in Pipeline</span>
+              <div className="text-2xl font-bold font-mono text-[#242424] mt-1">{INITIAL_ENQUIRIES.length} Enquiries</div>
+              <p className="text-[11px] text-[#6E6862] mt-0.5">Across Web, Walk-in & Education Fairs</p>
+            </div>
+            <div className="p-4 rounded-xl bg-white border border-[#E5DFD7] shadow-sm">
+              <span className="text-[11px] font-bold text-[#16A34A] uppercase block">Lead Conversion Ratio</span>
+              <div className="text-2xl font-bold font-mono text-[#16A34A] mt-1">68.4%</div>
+              <p className="text-[11px] text-[#6E6862] mt-0.5">High-intent candidate walk-ins</p>
+            </div>
+            <div className="p-4 rounded-xl bg-white border border-[#E5DFD7] shadow-sm">
+              <span className="text-[11px] font-bold text-[#682038] uppercase block">Applications Sold</span>
+              <div className="text-2xl font-bold font-mono text-[#682038] mt-1">482 Kits</div>
+              <p className="text-[11px] text-[#6E6862] mt-0.5">Online portal & Bursar sales counter</p>
+            </div>
+            <div className="p-4 rounded-xl bg-white border border-[#E5DFD7] shadow-sm">
+              <span className="text-[11px] font-bold text-blue-700 uppercase block">Counselor Team</span>
+              <div className="text-2xl font-bold font-mono text-blue-900 mt-1">4 Counselors</div>
+              <p className="text-[11px] text-[#6E6862] mt-0.5">Average response latency &lt; 2 hrs</p>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-2xl border border-[#E5DFD7] shadow-sm overflow-hidden">
+            <div className="px-6 py-4 border-b border-[#E5DFD7] flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#FAF7F2]">
+              <div>
+                <h3 className="text-sm font-bold text-[#682038] uppercase tracking-wider">
+                  Admissions Enquiry Funnel & Candidate Follow-up Register
+                </h3>
+                <p className="text-xs text-[#6E6862]">
+                  Lead source attribution, assigned counselor, and stage conversion milestones.
+                </p>
+              </div>
+              <button
+                onClick={() => alert('New Lead Registration Modal opened.')}
+                className="px-3.5 py-1.5 rounded-lg bg-[#682038] hover:bg-[#54192D] text-white text-xs font-bold self-start"
+              >
+                + Capture Lead
+              </button>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-[#FAF7F2] text-[#6E6862] font-semibold border-b border-[#E5DFD7]">
+                  <tr>
+                    <th className="px-6 py-3.5">Candidate Details</th>
+                    <th className="px-6 py-3.5">Target Program</th>
+                    <th className="px-6 py-3.5">Lead Source</th>
+                    <th className="px-6 py-3.5">Assigned Counselor</th>
+                    <th className="px-6 py-3.5">Next Follow-up</th>
+                    <th className="px-6 py-3.5 text-right">Funnel Stage</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#EFE9E1]">
+                  {INITIAL_ENQUIRIES.map((enq) => (
+                    <tr key={enq.id} className="hover:bg-[#FAF7F2]/60">
+                      <td className="px-6 py-4">
+                        <div className="font-bold text-[#242424] text-sm">{enq.candidateName}</div>
+                        <div className="text-[11px] text-[#6E6862]">{enq.phone} &bull; {enq.email}</div>
+                        <div className="text-[10px] text-[#8B5E3C] mt-0.5 italic">{enq.notes}</div>
+                      </td>
+                      <td className="px-6 py-4 font-semibold text-[#242424]">
+                        {enq.program}
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className="px-2 py-0.5 rounded bg-[#FAF7F2] border border-[#E5DFD7] font-mono text-[10px] font-bold text-[#682038]">
+                          {enq.source}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-[#242424]">
+                        {enq.counselor}
+                      </td>
+                      <td className="px-6 py-4 font-mono text-[#6E6862]">
+                        {enq.followUpDate}
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <span
+                          className={`inline-flex px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                            enq.status === 'CONVERTED'
+                              ? 'bg-emerald-100 text-emerald-800'
+                              : enq.status === 'APPLICATION_ISSUED'
+                              ? 'bg-blue-100 text-blue-800'
+                              : enq.status === 'CAMPUS_TOUR'
+                              ? 'bg-purple-100 text-purple-800'
+                              : 'bg-amber-100 text-amber-800'
+                          }`}
+                        >
+                          {enq.status.replace('_', ' ')}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* SUB-TAB 4: APPLICATIONS & DETERMINISTIC MERIT ENGINE */}
+      {subTab === 'applications_merit' && (
+        <div className="space-y-6">
+          <div className="bg-[#FAF7F2] p-5 rounded-2xl border border-[#D5B3BC] shadow-sm">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-[#682038] text-white flex items-center justify-center">
+                  <Award className="w-5 h-5 text-amber-300" />
+                </div>
+                <div>
+                  <h3 className="text-xs font-bold text-[#242424] uppercase tracking-wider">
+                    Deterministic Statutory Merit Ranking Engine
+                  </h3>
+                  <p className="text-[11px] text-[#6E6862]">
+                    Order-preserving, re-runnable ranking algorithm enforcing mandatory tie-breaking rules: (1) Class 12 PCM % &rarr; (2) Mathematics marks &rarr; (3) Date of Birth seniority.
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => alert('Re-computing deterministic merit ordering with statutory tie-breakers...')}
+                className="px-3.5 py-1.5 rounded-lg bg-[#682038] hover:bg-[#54192D] text-white text-xs font-bold flex items-center gap-1.5 shrink-0"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                <span>Re-Run Merit Calculation</span>
+              </button>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-2xl border border-[#E5DFD7] shadow-sm overflow-hidden">
+            <div className="px-6 py-4 border-b border-[#E5DFD7] flex items-center justify-between bg-[#FAF7F2]">
+              <h3 className="text-sm font-bold text-[#682038] uppercase tracking-wider">
+                Consolidated Merit Ranks & Multi-Round Allotment Matrix
+              </h3>
+              <span className="text-xs text-[#6E6862]">Round 1 Seat Allotment</span>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-[#FAF7F2] text-[#6E6862] font-semibold border-b border-[#E5DFD7]">
+                  <tr>
+                    <th className="px-6 py-3.5 text-center">Merit Rank</th>
+                    <th className="px-6 py-3.5">Candidate Name & App No</th>
+                    <th className="px-6 py-3.5 text-center">Category</th>
+                    <th className="px-6 py-3.5 text-center">Class 12 PCM %</th>
+                    <th className="px-6 py-3.5 text-center">Math Score</th>
+                    <th className="px-6 py-3.5">Allotted Program</th>
+                    <th className="px-6 py-3.5 text-right">Allotment State</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#EFE9E1]">
+                  {INITIAL_MERIT_LIST.map((cand) => (
+                    <tr key={cand.applicationNo} className="hover:bg-[#FAF7F2]/60">
+                      <td className="px-6 py-4 text-center font-mono font-bold text-sm text-[#682038]">
+                        #{cand.rank}
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="font-bold text-[#242424] text-sm">{cand.name}</div>
+                        <div className="font-mono text-[11px] text-[#6E6862]">{cand.applicationNo} &bull; DOB: {cand.dob}</div>
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <span className="px-2 py-0.5 rounded bg-[#FAF7F2] border border-[#E5DFD7] font-mono text-[10px] font-bold">
+                          {cand.category}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-center font-mono font-bold text-[#242424]">
+                        {cand.pcmPercentage.toFixed(1)}%
+                      </td>
+                      <td className="px-6 py-4 text-center font-mono font-semibold text-[#682038]">
+                        {cand.mathMarks} / 100
+                      </td>
+                      <td className="px-6 py-4 font-semibold text-[#242424]">
+                        {cand.allottedProgram}
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <span
+                          className={`inline-flex px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                            cand.status === 'CONFIRMED'
+                              ? 'bg-emerald-100 text-emerald-800'
+                              : cand.status === 'OFFER_ISSUED'
+                              ? 'bg-blue-100 text-blue-800'
+                              : 'bg-amber-100 text-amber-800'
+                          }`}
+                        >
+                          {cand.status.replace('_', ' ')}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* SUB-TAB 5: STUDENT ID CARD DESIGNER & BULK PRINT */}
+      {subTab === 'id_card_designer' && (
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+            {/* ID Card Visual Preview */}
+            <div className="bg-white p-6 rounded-2xl border border-[#E5DFD7] shadow-sm space-y-4">
+              <div className="flex items-center justify-between border-b border-[#E5DFD7] pb-3">
+                <h3 className="text-sm font-bold text-[#682038] uppercase tracking-wider">
+                  Live Holographic ID Card Preview
+                </h3>
+                <span className="text-xs font-mono text-[#6E6862]">CR-80 ISO Spec (85.60 &times; 53.98 mm)</span>
+              </div>
+
+              {/* Physical Card Simulation */}
+              <div className="w-full max-w-sm mx-auto bg-gradient-to-br from-[#682038] to-[#401221] text-white rounded-2xl p-5 shadow-xl relative overflow-hidden border border-[#D5B3BC]/30">
+                <div className="absolute -right-8 -bottom-8 w-32 h-32 bg-white/5 rounded-full blur-xl pointer-events-none"></div>
+
+                <div className="flex items-center justify-between border-b border-white/20 pb-2 mb-3">
+                  <div className="flex items-center gap-1.5">
+                    <Building className="w-4 h-4 text-amber-300" />
+                    <span className="font-bold text-xs tracking-wider uppercase">CAMPUS ERP INSTITUTE</span>
+                  </div>
+                  <span className="text-[9px] font-mono text-amber-300 font-bold">BATCH 2024-28</span>
+                </div>
+
+                <div className="flex items-center gap-4">
+                  <div className="w-20 h-24 rounded-xl bg-white/10 border-2 border-white/30 flex items-center justify-center shrink-0 text-white/50 text-[10px] text-center font-mono">
+                    [PHOTO]
+                  </div>
+                  <div className="space-y-1 text-xs">
+                    <div className="font-bold text-sm text-white">Aarav Sharma</div>
+                    <div className="font-mono text-amber-200 text-[11px] font-semibold">2024CSE001</div>
+                    <div className="text-[10px] text-white/80">B.Tech Computer Science</div>
+                    <div className="text-[9px] text-white/70">Blood Grp: O+ &bull; Emg: +91 98450 12345</div>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between pt-3 mt-3 border-t border-white/20 text-[9px] font-mono text-white/70">
+                  <span>VALID THRU: 06/2028</span>
+                  <div className="flex items-center gap-1">
+                    <QrCode className="w-6 h-6 text-white" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-center gap-2 pt-2">
+                <button
+                  onClick={() => alert('Printing student ID card...')}
+                  className="px-4 py-2 rounded-xl bg-[#682038] hover:bg-[#54192D] text-white text-xs font-bold flex items-center gap-1.5 shadow-sm"
+                >
+                  <Printer className="w-4 h-4" />
+                  <span>Print Single Card</span>
+                </button>
+                <button
+                  onClick={() => alert('Batch queue of 64 ID cards sent to Zebra thermal card printer.')}
+                  className="px-4 py-2 rounded-xl border border-[#E5DFD7] text-[#6E6862] hover:bg-[#FAF7F2] text-xs font-bold flex items-center gap-1.5"
+                >
+                  <span>Queue Batch Print (64 Cards)</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Template Settings Form */}
+            <div className="bg-white p-6 rounded-2xl border border-[#E5DFD7] shadow-sm space-y-4">
+              <h3 className="text-sm font-bold text-[#682038] uppercase tracking-wider border-b border-[#E5DFD7] pb-3">
+                ID Card Layout Configuration
+              </h3>
+
+              <div className="space-y-3 text-xs">
+                <div>
+                  <label className="block font-semibold text-[#242424] mb-1">Header Institution Title</label>
+                  <input
+                    type="text"
+                    defaultValue="CAMPUS ERP INSTITUTE OF TECHNOLOGY"
+                    className="w-full p-2.5 bg-[#FAF7F2] border border-[#E5DFD7] rounded-xl font-medium focus:outline-none"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block font-semibold text-[#242424] mb-1">Barcode Standard</label>
+                    <select className="w-full p-2.5 bg-[#FAF7F2] border border-[#E5DFD7] rounded-xl font-medium focus:outline-none">
+                      <option>Code 128 (High Density)</option>
+                      <option>QR Code (Encrypted Payload)</option>
+                      <option>RFID / NFC Mifare Classic</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block font-semibold text-[#242424] mb-1">Color Palette Theme</label>
+                    <select className="w-full p-2.5 bg-[#FAF7F2] border border-[#E5DFD7] rounded-xl font-medium focus:outline-none">
+                      <option>Imperial Maroon (#682038)</option>
+                      <option>Deep Navy (#003366)</option>
+                      <option>Emerald Green (#065F46)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="pt-2">
+                  <span className="block font-semibold text-[#242424] mb-1.5">Printed Data Fields</span>
+                  <div className="grid grid-cols-2 gap-2 text-[11px] text-[#6E6862]">
+                    <label className="flex items-center gap-1.5">
+                      <input type="checkbox" defaultChecked className="accent-[#682038]" />
+                      <span>Student Blood Group</span>
+                    </label>
+                    <label className="flex items-center gap-1.5">
+                      <input type="checkbox" defaultChecked className="accent-[#682038]" />
+                      <span>Emergency Contact Phone</span>
+                    </label>
+                    <label className="flex items-center gap-1.5">
+                      <input type="checkbox" defaultChecked className="accent-[#682038]" />
+                      <span>DigiLocker QR Seal</span>
+                    </label>
+                    <label className="flex items-center gap-1.5">
+                      <input type="checkbox" defaultChecked className="accent-[#682038]" />
+                      <span>Principal Signatory Seal</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* SUB-TAB 6: CERTIFICATES LIFECYCLE ENGINE */}
+      {subTab === 'certificates_engine' && (
+        <div className="space-y-6">
+          <div className="bg-white rounded-2xl border border-[#E5DFD7] shadow-sm overflow-hidden">
+            <div className="px-6 py-4 border-b border-[#E5DFD7] flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#FAF7F2]">
+              <div>
+                <h3 className="text-sm font-bold text-[#682038] uppercase tracking-wider">
+                  Student Certificates Lifecycle & Gap-Free Sequence Registry
+                </h3>
+                <p className="text-xs text-[#6E6862]">
+                  Bonafide, Transfer (TC), Migration, and Conduct certificates with verified QR code tracking.
+                </p>
+              </div>
+              <button
+                onClick={() => alert('New Certificate Requisition Form opened.')}
+                className="px-3.5 py-1.5 rounded-lg bg-[#682038] hover:bg-[#54192D] text-white text-xs font-bold self-start"
+              >
+                + Issue New Certificate
+              </button>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-[#FAF7F2] text-[#6E6862] font-semibold border-b border-[#E5DFD7]">
+                  <tr>
+                    <th className="px-6 py-3.5">Certificate Number</th>
+                    <th className="px-6 py-3.5">Student Name & Roll No</th>
+                    <th className="px-6 py-3.5">Certificate Type</th>
+                    <th className="px-6 py-3.5">Issue Date</th>
+                    <th className="px-6 py-3.5">Authorized Signatory</th>
+                    <th className="px-6 py-3.5 text-right">Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#EFE9E1]">
+                  {INITIAL_CERTIFICATES.map((cert) => (
+                    <tr key={cert.id} className="hover:bg-[#FAF7F2]/60">
+                      <td className="px-6 py-4 font-mono font-bold text-[#682038]">
+                        {cert.certNumber}
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="font-bold text-[#242424] text-sm">{cert.studentName}</div>
+                        <div className="font-mono text-[11px] text-[#6E6862]">{cert.rollNo}</div>
+                      </td>
+                      <td className="px-6 py-4 font-semibold text-[#242424]">
+                        {cert.certType.replace('_', ' ')}
+                      </td>
+                      <td className="px-6 py-4 text-[#6E6862] font-mono">
+                        {cert.issuedAt}
+                      </td>
+                      <td className="px-6 py-4 text-[#242424]">
+                        {cert.approvedBy}
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <span
+                          className={`inline-flex px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                            cert.status === 'ISSUED'
+                              ? 'bg-emerald-100 text-emerald-800'
+                              : 'bg-amber-100 text-amber-800'
+                          }`}
+                        >
+                          {cert.status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* SUB-TAB 7: ALUMNI & DIGILOCKER / NAD VAULT */}
       {subTab === 'digilocker' && (
         <div className="space-y-6">
           {/* DigiLocker Official Government Banner */}

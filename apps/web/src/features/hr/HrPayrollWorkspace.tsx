@@ -45,10 +45,99 @@ import {
   KeyRound,
   Shield,
   FileSpreadsheet,
+  Briefcase,
+  Award,
+  Clock,
+  CheckCircle,
+  XCircle,
+  FileCheck,
 } from 'lucide-react';
 
 type PayrollStatus = 'DRAFT' | 'APPROVED' | 'LOCKED';
-type WorkspaceTab = 'payroll' | 'directory' | 'succession';
+type WorkspaceTab =
+  | 'payroll'
+  | 'directory'
+  | 'recruitment'
+  | 'leave_engine'
+  | 'pbas_appraisal'
+  | 'exit_settlement'
+  | 'succession';
+
+interface JobVacancy {
+  id: string;
+  position: string;
+  department: string;
+  openings: number;
+  applicantsCount: number;
+  deadline: string;
+  status: 'OPEN' | 'INTERVIEW_STAGE' | 'SELECTION_BOARD' | 'CLOSED';
+}
+
+interface LeaveRecord {
+  id: string;
+  employeeName: string;
+  employeeCode: string;
+  leaveType: 'CASUAL' | 'EARNED' | 'MEDICAL' | 'ON_DUTY';
+  startDate: string;
+  endDate: string;
+  days: number;
+  reason: string;
+  lopApplied: boolean;
+  status: 'APPROVED' | 'PENDING_HOD';
+}
+
+interface FacultyPbas {
+  id: string;
+  facultyName: string;
+  department: string;
+  designation: string;
+  teachingScore: number;
+  researchScore: number;
+  serviceScore: number;
+  totalApi: number;
+  publicationsCount: number;
+  patentsCount: number;
+  status: 'VERIFIED' | 'UNDER_REVIEW';
+}
+
+interface ExitSettlement {
+  id: string;
+  employeeName: string;
+  employeeCode: string;
+  department: string;
+  resignationDate: string;
+  lastWorkingDay: string;
+  libraryCleared: boolean;
+  labCleared: boolean;
+  accountsCleared: boolean;
+  adminCleared: boolean;
+  settlementAmount: number;
+  status: 'IN_CLEARANCE' | 'SETTLEMENT_APPROVED';
+}
+
+const INITIAL_VACANCIES: JobVacancy[] = [
+  { id: 'vac-1', position: 'Professor & Head (AI & Data Science)', department: 'Computer Science', openings: 1, applicantsCount: 18, deadline: '2026-11-15', status: 'INTERVIEW_STAGE' },
+  { id: 'vac-2', position: 'Associate Professor (Embedded Systems / IoT)', department: 'Electronics & Comm.', openings: 2, applicantsCount: 24, deadline: '2026-11-20', status: 'OPEN' },
+  { id: 'vac-3', position: 'Assistant Professor (Robotics & Automation)', department: 'Mechanical & Robotics', openings: 2, applicantsCount: 31, deadline: '2026-11-10', status: 'SELECTION_BOARD' },
+];
+
+const INITIAL_LEAVES: LeaveRecord[] = [
+  { id: 'lv-1', employeeName: 'Dr. Aris Thorne', employeeCode: 'FAC-CSE-001', leaveType: 'ON_DUTY', startDate: '2026-11-04', endDate: '2026-11-06', days: 3, reason: 'Keynote Speaker at IEEE International Conference', lopApplied: false, status: 'APPROVED' },
+  { id: 'lv-2', employeeName: 'Prof. Ramesh K.', employeeCode: 'FAC-CSE-003', leaveType: 'CASUAL', startDate: '2026-10-31', endDate: '2026-10-31', days: 1, reason: 'Personal family emergency', lopApplied: false, status: 'APPROVED' },
+  { id: 'lv-3', employeeName: 'Dr. Sarah Jenkins', employeeCode: 'FAC-ECE-001', leaveType: 'MEDICAL', startDate: '2026-10-24', endDate: '2026-10-27', days: 4, reason: 'Viral fever with medical certificate', lopApplied: false, status: 'APPROVED' },
+  { id: 'lv-4', employeeName: 'Kavita Sundaram', employeeCode: 'STAFF-LIB-002', leaveType: 'CASUAL', startDate: '2026-11-02', endDate: '2026-11-03', days: 2, reason: 'Out of town travel', lopApplied: false, status: 'PENDING_HOD' },
+];
+
+const INITIAL_PBAS: FacultyPbas[] = [
+  { id: 'pbas-1', facultyName: 'Dr. Aris Thorne', department: 'Computer Science', designation: 'Professor & HOD', teachingScore: 92, researchScore: 145, serviceScore: 48, totalApi: 285, publicationsCount: 14, patentsCount: 2, status: 'VERIFIED' },
+  { id: 'pbas-2', facultyName: 'Dr. Sarah Jenkins', department: 'Electronics & Comm.', designation: 'Professor', teachingScore: 88, researchScore: 130, serviceScore: 45, totalApi: 263, publicationsCount: 11, patentsCount: 1, status: 'VERIFIED' },
+  { id: 'pbas-3', facultyName: 'Prof. Ramesh K.', department: 'Computer Science', designation: 'Assistant Professor', teachingScore: 85, researchScore: 68, serviceScore: 40, totalApi: 193, publicationsCount: 4, patentsCount: 0, status: 'UNDER_REVIEW' },
+];
+
+const INITIAL_EXITS: ExitSettlement[] = [
+  { id: 'exit-1', employeeName: 'Suresh Babu', employeeCode: 'STAFF-ADM-004', department: 'Administration', resignationDate: '2026-09-15', lastWorkingDay: '2026-10-31', libraryCleared: true, labCleared: true, accountsCleared: true, adminCleared: true, settlementAmount: 142500, status: 'SETTLEMENT_APPROVED' },
+  { id: 'exit-2', employeeName: 'Meenakshi Iyer', employeeCode: 'FAC-MATH-002', department: 'Mathematics & Science', resignationDate: '2026-10-01', lastWorkingDay: '2026-11-15', libraryCleared: true, labCleared: false, accountsCleared: true, adminCleared: false, settlementAmount: 98000, status: 'IN_CLEARANCE' },
+];
 
 // Sandboxed formula calculation without eval
 function calculateSalaryComponents(basic: number, special: number, lopDays: number) {
@@ -348,41 +437,89 @@ export const HrPayrollWorkspace: React.FC = () => {
       </div>
 
       {/* Workspace Sub-Navigation Tabs */}
-      <div className="flex items-center gap-2 border-b border-[#E5DFD7] pb-2">
+      <div className="flex items-center gap-2 border-b border-[#E5DFD7] pb-2 overflow-x-auto">
         <button
           onClick={() => setActiveTab('payroll')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
             activeTab === 'payroll'
               ? 'bg-[#682038] text-white shadow-sm'
               : 'text-[#6E6862] hover:bg-white hover:text-[#242424]'
           }`}
         >
           <DollarSign className="w-4 h-4 text-[#FB923C]" />
-          <span>Monthly Payroll Engine ({activeEmployees.length} Active Staff)</span>
+          <span>1. Monthly Payroll</span>
         </button>
 
         <button
           onClick={() => setActiveTab('directory')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
             activeTab === 'directory'
               ? 'bg-[#682038] text-white shadow-sm'
               : 'text-[#6E6862] hover:bg-white hover:text-[#242424]'
           }`}
         >
           <Users className="w-4 h-4 text-[#FB923C]" />
-          <span>Staff Service Books &amp; Credentials ({staffList.length})</span>
+          <span>2. Service Books ({staffList.length})</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('recruitment')}
+          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
+            activeTab === 'recruitment'
+              ? 'bg-[#682038] text-white shadow-sm'
+              : 'text-[#6E6862] hover:bg-white hover:text-[#242424]'
+          }`}
+        >
+          <Briefcase className="w-4 h-4 text-[#FB923C]" />
+          <span>3. Recruitment Pipeline</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('leave_engine')}
+          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
+            activeTab === 'leave_engine'
+              ? 'bg-[#682038] text-white shadow-sm'
+              : 'text-[#6E6862] hover:bg-white hover:text-[#242424]'
+          }`}
+        >
+          <Clock className="w-4 h-4 text-[#FB923C]" />
+          <span>4. Leave &amp; LOP Engine</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('pbas_appraisal')}
+          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
+            activeTab === 'pbas_appraisal'
+              ? 'bg-[#682038] text-white shadow-sm'
+              : 'text-[#6E6862] hover:bg-white hover:text-[#242424]'
+          }`}
+        >
+          <Award className="w-4 h-4 text-[#FB923C]" />
+          <span>5. PBAS / API Appraisal</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('exit_settlement')}
+          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
+            activeTab === 'exit_settlement'
+              ? 'bg-[#682038] text-white shadow-sm'
+              : 'text-[#6E6862] hover:bg-white hover:text-[#242424]'
+          }`}
+        >
+          <FileCheck className="w-4 h-4 text-[#FB923C]" />
+          <span>6. Separation &amp; F&amp;F</span>
         </button>
 
         <button
           onClick={() => setActiveTab('succession')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
             activeTab === 'succession'
               ? 'bg-[#682038] text-white shadow-sm'
               : 'text-[#6E6862] hover:bg-white hover:text-[#242424]'
           }`}
         >
           <History className="w-4 h-4 text-[#FB923C]" />
-          <span>Role Succession &amp; Handover Audit Register ({handoverLogs.length})</span>
+          <span>7. Succession &amp; Handover</span>
         </button>
       </div>
 
@@ -692,7 +829,408 @@ export const HrPayrollWorkspace: React.FC = () => {
         </div>
       )}
 
-      {/* TAB 3: ROLE SUCCESSION & HANDOVER AUDIT REGISTER */}
+      {/* TAB 3: FACULTY & STAFF RECRUITMENT PIPELINE */}
+      {activeTab === 'recruitment' && (
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="p-4 rounded-xl bg-white border border-[#E5DFD7] shadow-sm">
+              <span className="text-[11px] font-bold text-[#8B5E3C] uppercase block">Open Requisitions</span>
+              <div className="text-2xl font-bold font-mono text-[#242424] mt-1">{INITIAL_VACANCIES.length} Positions</div>
+              <p className="text-[11px] text-[#6E6862] mt-0.5">Across CSE, ECE &amp; Mechanical</p>
+            </div>
+            <div className="p-4 rounded-xl bg-white border border-[#E5DFD7] shadow-sm">
+              <span className="text-[11px] font-bold text-[#16A34A] uppercase block">Total Applications</span>
+              <div className="text-2xl font-bold font-mono text-[#16A34A] mt-1">73 Resumes</div>
+              <p className="text-[11px] text-[#6E6862] mt-0.5">Scrutiny ratio 4.2 : 1</p>
+            </div>
+            <div className="p-4 rounded-xl bg-white border border-[#E5DFD7] shadow-sm">
+              <span className="text-[11px] font-bold text-[#682038] uppercase block">Interviews Scheduled</span>
+              <div className="text-2xl font-bold font-mono text-[#682038] mt-1">12 Candidates</div>
+              <p className="text-[11px] text-[#6E6862] mt-0.5">Includes teaching demo lectures</p>
+            </div>
+            <div className="p-4 rounded-xl bg-white border border-[#E5DFD7] shadow-sm">
+              <span className="text-[11px] font-bold text-blue-700 uppercase block">Offers Issued (YTD)</span>
+              <div className="text-2xl font-bold font-mono text-blue-900 mt-1">6 Offers</div>
+              <p className="text-[11px] text-[#6E6862] mt-0.5">100% acceptance rate</p>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-2xl border border-[#E5DFD7] shadow-sm overflow-hidden">
+            <div className="px-6 py-4 border-b border-[#E5DFD7] flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#FAF7F2]">
+              <div>
+                <h3 className="text-sm font-bold text-[#682038] uppercase tracking-wider">
+                  Faculty &amp; Staff Recruitment Pipeline &amp; Scrutiny Board
+                </h3>
+                <p className="text-xs text-[#6E6862]">
+                  Manages academic requisitions, qualification scrutiny, demo lectures, and selection committee approvals.
+                </p>
+              </div>
+              <button
+                onClick={() => alert('New Faculty Requisition Form opened.')}
+                className="px-3.5 py-1.5 rounded-lg bg-[#682038] hover:bg-[#54192D] text-white text-xs font-bold self-start"
+              >
+                + Post New Vacancy
+              </button>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-[#FAF7F2] text-[#6E6862] font-semibold border-b border-[#E5DFD7]">
+                  <tr>
+                    <th className="px-6 py-3.5">Position &amp; Specialization</th>
+                    <th className="px-6 py-3.5">Department</th>
+                    <th className="px-6 py-3.5 text-center">Sanctioned Openings</th>
+                    <th className="px-6 py-3.5 text-center">Applications Received</th>
+                    <th className="px-6 py-3.5">Application Deadline</th>
+                    <th className="px-6 py-3.5 text-right">Hiring Stage</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#EFE9E1]">
+                  {INITIAL_VACANCIES.map((vac) => (
+                    <tr key={vac.id} className="hover:bg-[#FAF7F2]/60">
+                      <td className="px-6 py-4 font-bold text-[#242424] text-sm">
+                        {vac.position}
+                      </td>
+                      <td className="px-6 py-4 font-semibold text-[#6E6862]">
+                        {vac.department}
+                      </td>
+                      <td className="px-6 py-4 text-center font-mono font-bold text-sm text-[#242424]">
+                        {vac.openings}
+                      </td>
+                      <td className="px-6 py-4 text-center font-mono font-bold text-sm text-[#682038]">
+                        {vac.applicantsCount}
+                      </td>
+                      <td className="px-6 py-4 font-mono text-[#6E6862]">
+                        {vac.deadline}
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <span
+                          className={`inline-flex px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                            vac.status === 'SELECTION_BOARD'
+                              ? 'bg-purple-100 text-purple-800'
+                              : vac.status === 'INTERVIEW_STAGE'
+                              ? 'bg-blue-100 text-blue-800'
+                              : 'bg-emerald-100 text-emerald-800'
+                          }`}
+                        >
+                          {vac.status.replace('_', ' ')}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* TAB 4: LEAVE POLICY, BALANCES & LOSS-OF-PAY (LOP) ENGINE */}
+      {activeTab === 'leave_engine' && (
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="p-4 rounded-xl bg-white border border-[#E5DFD7] shadow-sm">
+              <span className="text-[11px] font-bold text-[#8B5E3C] uppercase block">Casual Leave (CL)</span>
+              <div className="text-2xl font-bold font-mono text-[#242424] mt-1">12 Days / Yr</div>
+              <p className="text-[11px] text-[#6E6862] mt-0.5">Maximum 3 days consecutive</p>
+            </div>
+            <div className="p-4 rounded-xl bg-white border border-[#E5DFD7] shadow-sm">
+              <span className="text-[11px] font-bold text-[#16A34A] uppercase block">Earned Leave (EL)</span>
+              <div className="text-2xl font-bold font-mono text-[#16A34A] mt-1">30 Days / Yr</div>
+              <p className="text-[11px] text-[#6E6862] mt-0.5">Encashable up to 300 days on exit</p>
+            </div>
+            <div className="p-4 rounded-xl bg-white border border-[#E5DFD7] shadow-sm">
+              <span className="text-[11px] font-bold text-[#682038] uppercase block">Medical Leave (ML)</span>
+              <div className="text-2xl font-bold font-mono text-[#682038] mt-1">10 Days / Yr</div>
+              <p className="text-[11px] text-[#6E6862] mt-0.5">Requires registered medical certificate</p>
+            </div>
+            <div className="p-4 rounded-xl bg-white border border-[#E5DFD7] shadow-sm">
+              <span className="text-[11px] font-bold text-blue-700 uppercase block">On-Duty Leave (OD)</span>
+              <div className="text-2xl font-bold font-mono text-blue-900 mt-1">15 Days / Yr</div>
+              <p className="text-[11px] text-[#6E6862] mt-0.5">For conferences, valuation &amp; PhD</p>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-2xl border border-[#E5DFD7] shadow-sm overflow-hidden">
+            <div className="px-6 py-4 border-b border-[#E5DFD7] flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#FAF7F2]">
+              <div>
+                <h3 className="text-sm font-bold text-[#682038] uppercase tracking-wider">
+                  Staff Leave Approvals &amp; LOP Salary Deduction Link
+                </h3>
+                <p className="text-xs text-[#6E6862]">
+                  Approved leaves automatically feed into payroll run to prevent improper loss-of-pay deductions.
+                </p>
+              </div>
+              <button
+                onClick={() => alert('New Staff Leave Application opened.')}
+                className="px-3.5 py-1.5 rounded-lg bg-[#682038] hover:bg-[#54192D] text-white text-xs font-bold self-start"
+              >
+                + Apply Staff Leave
+              </button>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-[#FAF7F2] text-[#6E6862] font-semibold border-b border-[#E5DFD7]">
+                  <tr>
+                    <th className="px-6 py-3.5">Staff Name &amp; Code</th>
+                    <th className="px-6 py-3.5">Leave Type</th>
+                    <th className="px-6 py-3.5">Duration &amp; Days</th>
+                    <th className="px-6 py-3.5">Reason</th>
+                    <th className="px-6 py-3.5 text-center">Payroll LOP Applied?</th>
+                    <th className="px-6 py-3.5 text-right">Approval State</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#EFE9E1]">
+                  {INITIAL_LEAVES.map((lv) => (
+                    <tr key={lv.id} className="hover:bg-[#FAF7F2]/60">
+                      <td className="px-6 py-4">
+                        <div className="font-bold text-[#242424] text-sm">{lv.employeeName}</div>
+                        <div className="font-mono text-[11px] text-[#682038]">{lv.employeeCode}</div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className="px-2 py-0.5 rounded bg-[#FAF7F2] border border-[#E5DFD7] font-mono text-[10px] font-bold text-[#682038]">
+                          {lv.leaveType}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="font-bold text-[#242424]">{lv.days} Day(s)</div>
+                        <div className="text-[10px] text-[#6E6862] font-mono">{lv.startDate} to {lv.endDate}</div>
+                      </td>
+                      <td className="px-6 py-4 text-[#242424] max-w-xs truncate">
+                        {lv.reason}
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        {lv.lopApplied ? (
+                          <span className="px-2 py-0.5 rounded bg-red-100 text-red-800 text-[10px] font-bold">
+                            YES (Salary Cut)
+                          </span>
+                        ) : (
+                          <span className="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[10px] font-bold">
+                            NO (Paid Leave)
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <span
+                          className={`inline-flex px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                            lv.status === 'APPROVED'
+                              ? 'bg-emerald-100 text-emerald-800'
+                              : 'bg-amber-100 text-amber-800'
+                          }`}
+                        >
+                          {lv.status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* TAB 5: FACULTY PBAS / API APPRAISAL & RESEARCH DESK */}
+      {activeTab === 'pbas_appraisal' && (
+        <div className="space-y-6">
+          <div className="bg-[#FAF7F2] p-5 rounded-2xl border border-[#D5B3BC] shadow-sm">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-[#682038] text-white flex items-center justify-center">
+                  <Award className="w-5 h-5 text-amber-300" />
+                </div>
+                <div>
+                  <h3 className="text-xs font-bold text-[#242424] uppercase tracking-wider">
+                    UGC / AICTE Career Advancement Scheme (CAS) - PBAS API Scoring
+                  </h3>
+                  <p className="text-[11px] text-[#6E6862]">
+                    Performance Based Appraisal System measuring Category I (Teaching: 100), Category II (Governance: 50), and Category III (Research &amp; Publications: 150).
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => alert('Faculty Self-Appraisal Submission opened.')}
+                className="px-3.5 py-1.5 rounded-lg bg-[#682038] hover:bg-[#54192D] text-white text-xs font-bold shrink-0"
+              >
+                + Submit Annual Appraisal
+              </button>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-2xl border border-[#E5DFD7] shadow-sm overflow-hidden">
+            <div className="px-6 py-4 border-b border-[#E5DFD7] flex items-center justify-between bg-[#FAF7F2]">
+              <h3 className="text-sm font-bold text-[#682038] uppercase tracking-wider">
+                Faculty API Score Registry &amp; Research Portfolio (AY 2025-26)
+              </h3>
+              <span className="text-xs text-[#6E6862]">Min Qualifying API: 200 points for Associate Prof</span>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-[#FAF7F2] text-[#6E6862] font-semibold border-b border-[#E5DFD7]">
+                  <tr>
+                    <th className="px-6 py-3.5">Faculty Name &amp; Role</th>
+                    <th className="px-6 py-3.5">Department</th>
+                    <th className="px-6 py-3.5 text-center">Teaching (Max 100)</th>
+                    <th className="px-6 py-3.5 text-center">Research (Max 150)</th>
+                    <th className="px-6 py-3.5 text-center">Service (Max 50)</th>
+                    <th className="px-6 py-3.5 text-center">Total API Score</th>
+                    <th className="px-6 py-3.5 text-right">Scrutiny State</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#EFE9E1]">
+                  {INITIAL_PBAS.map((item) => (
+                    <tr key={item.id} className="hover:bg-[#FAF7F2]/60">
+                      <td className="px-6 py-4">
+                        <div className="font-bold text-[#242424] text-sm">{item.facultyName}</div>
+                        <div className="text-[11px] text-[#6E6862]">{item.designation}</div>
+                        <div className="text-[10px] text-[#8B5E3C] mt-0.5">
+                          {item.publicationsCount} Scopus papers &bull; {item.patentsCount} Patents
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 font-semibold text-[#242424]">
+                        {item.department}
+                      </td>
+                      <td className="px-6 py-4 text-center font-mono font-bold text-sm text-[#242424]">
+                        {item.teachingScore}
+                      </td>
+                      <td className="px-6 py-4 text-center font-mono font-bold text-sm text-[#16A34A]">
+                        {item.researchScore}
+                      </td>
+                      <td className="px-6 py-4 text-center font-mono font-bold text-sm text-[#682038]">
+                        {item.serviceScore}
+                      </td>
+                      <td className="px-6 py-4 text-center font-mono font-bold text-base text-[#682038]">
+                        {item.totalApi} pts
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <span
+                          className={`inline-flex px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                            item.status === 'VERIFIED'
+                              ? 'bg-emerald-100 text-emerald-800'
+                              : 'bg-amber-100 text-amber-800'
+                          }`}
+                        >
+                          {item.status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* TAB 6: EMPLOYEE SEPARATION & FULL-AND-FINAL (F&F) SETTLEMENT */}
+      {activeTab === 'exit_settlement' && (
+        <div className="space-y-6">
+          <div className="bg-white rounded-2xl border border-[#E5DFD7] shadow-sm overflow-hidden">
+            <div className="px-6 py-4 border-b border-[#E5DFD7] flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#FAF7F2]">
+              <div>
+                <h3 className="text-sm font-bold text-[#682038] uppercase tracking-wider">
+                  Employee Resignation, 4-Way Statutory Clearance &amp; F&amp;F Ledger
+                </h3>
+                <p className="text-xs text-[#6E6862]">
+                  Enforces mandatory clearance across Library, Department Lab, Accounts Bursar, and Administration before releasing gratuity.
+                </p>
+              </div>
+              <button
+                onClick={() => alert('New Resignation Notification Form opened.')}
+                className="px-3.5 py-1.5 rounded-lg bg-[#682038] hover:bg-[#54192D] text-white text-xs font-bold self-start"
+              >
+                + Log Resignation
+              </button>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-[#FAF7F2] text-[#6E6862] font-semibold border-b border-[#E5DFD7]">
+                  <tr>
+                    <th className="px-6 py-3.5">Employee Name &amp; Code</th>
+                    <th className="px-6 py-3.5">Department</th>
+                    <th className="px-6 py-3.5">Exit Dates</th>
+                    <th className="px-6 py-3.5 text-center">4-Dept Clearance State</th>
+                    <th className="px-6 py-3.5 text-right">Computed F&amp;F Amount</th>
+                    <th className="px-6 py-3.5 text-right">Settlement State</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#EFE9E1]">
+                  {INITIAL_EXITS.map((item) => (
+                    <tr key={item.id} className="hover:bg-[#FAF7F2]/60">
+                      <td className="px-6 py-4">
+                        <div className="font-bold text-[#242424] text-sm">{item.employeeName}</div>
+                        <div className="font-mono text-[11px] text-[#682038]">{item.employeeCode}</div>
+                      </td>
+                      <td className="px-6 py-4 font-semibold text-[#242424]">
+                        {item.department}
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="font-mono text-[11px] text-[#242424]">LWD: {item.lastWorkingDay}</div>
+                        <div className="text-[10px] text-[#6E6862]">Resigned: {item.resignationDate}</div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center justify-center gap-1.5">
+                          <span
+                            title="Library Clearance"
+                            className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${
+                              item.libraryCleared ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'
+                            }`}
+                          >
+                            LIB {item.libraryCleared ? '✓' : '✗'}
+                          </span>
+                          <span
+                            title="Lab Clearance"
+                            className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${
+                              item.labCleared ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'
+                            }`}
+                          >
+                            LAB {item.labCleared ? '✓' : '✗'}
+                          </span>
+                          <span
+                            title="Accounts Clearance"
+                            className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${
+                              item.accountsCleared ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'
+                            }`}
+                          >
+                            ACC {item.accountsCleared ? '✓' : '✗'}
+                          </span>
+                          <span
+                            title="Admin Clearance"
+                            className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${
+                              item.adminCleared ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'
+                            }`}
+                          >
+                            ADM {item.adminCleared ? '✓' : '✗'}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-right font-mono font-bold text-sm text-[#16A34A]">
+                        ₹{item.settlementAmount.toLocaleString()}
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <span
+                          className={`inline-flex px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                            item.status === 'SETTLEMENT_APPROVED'
+                              ? 'bg-emerald-100 text-emerald-800'
+                              : 'bg-amber-100 text-amber-800'
+                          }`}
+                        >
+                          {item.status.replace('_', ' ')}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* TAB 7: ROLE SUCCESSION & HANDOVER AUDIT REGISTER */}
       {activeTab === 'succession' && (
         <div className="space-y-4">
           <div className="bg-[#FAF7F2] border border-[#E5DFD7] rounded-2xl p-4 flex items-start gap-3">
