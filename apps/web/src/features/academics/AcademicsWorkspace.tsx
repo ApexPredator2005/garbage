@@ -37,6 +37,7 @@ import {
   Bell,
   BookMarked,
   LayoutGrid,
+  Upload,
 } from 'lucide-react';
 import {
   TimetableSlotItem,
@@ -197,6 +198,147 @@ const INITIAL_COURSES: AcademicCourse[] = [
       { code: 'CO1', description: 'Understand clinical AI models and radiological computer vision.', bloomLevel: 'UNDERSTAND', poMapping: { PO1: 2, PO6: 3, PO7: 2 } },
     ],
   },
+  {
+    id: 'crs-5',
+    code: 'CS302',
+    title: 'Database Management Systems',
+    credits: 4,
+    ltpHours: '3-1-0',
+    lectureHours: 3,
+    tutorialHours: 1,
+    practicalHours: 0,
+    type: 'THEORY',
+    department: 'Computer Science & Engg',
+    semester: 4,
+    regulationCode: 'R-2026-CBCS',
+    prerequisites: ['CS201 Data Structures'],
+    textbooks: ['Database System Concepts - Silberschatz, Korth, Sudarshan'],
+    syllabusUnits: [
+      { unitNumber: 1, title: 'Relational Model & Relational Algebra', hours: 9, content: 'Tuple relational calculus, domain relational calculus, integrity constraints.' },
+      { unitNumber: 2, title: 'SQL & Query Optimization', hours: 10, content: 'Nested subqueries, joins, indexing structures, B+ trees, query cost estimation.' },
+      { unitNumber: 3, title: 'Database Design & Normalization', hours: 9, content: 'Functional dependencies, 1NF, 2NF, 3NF, BCNF, multi-valued dependencies, 4NF.' },
+      { unitNumber: 4, title: 'Transaction Processing & ACID Properties', hours: 8, content: 'Serializability, conflict vs view equivalence, logging and write-ahead log (WAL).' },
+      { unitNumber: 5, title: 'Concurrency Control & Recovery', hours: 8, content: 'Two-phase locking (2PL), deadlock prevention, ARIES recovery algorithm.' },
+    ],
+    courseOutcomes: [
+      { code: 'CO1', description: 'Design normalized relational schemas for enterprise applications.', bloomLevel: 'APPLY', poMapping: { PO2: 3, PO3: 3 } },
+      { code: 'CO2', description: 'Evaluate transaction schedules and concurrency guarantees.', bloomLevel: 'EVALUATE', poMapping: { PO3: 3, PO4: 2 } },
+    ],
+  },
+  {
+    id: 'crs-6',
+    code: 'CS302L',
+    title: 'Database Management Systems Laboratory',
+    credits: 1.5,
+    ltpHours: '0-0-3',
+    lectureHours: 0,
+    tutorialHours: 0,
+    practicalHours: 3,
+    type: 'LAB',
+    department: 'Computer Science & Engg',
+    semester: 4,
+    regulationCode: 'R-2026-CBCS',
+    prerequisites: ['CS201L Data Structures Lab'],
+    textbooks: ['DBMS Laboratory Manual - JSSATE Press'],
+    syllabusUnits: [
+      { unitNumber: 1, title: 'DDL/DML Queries & Complex Joins', hours: 12, content: 'Schema creation, constraints, view materialization, triggers, stored procedures.' },
+      { unitNumber: 2, title: 'Full-Stack Database Connectivity', hours: 12, content: 'Connection pooling, ORM transactions, indexed performance benchmarks.' },
+    ],
+    courseOutcomes: [
+      { code: 'CO1', description: 'Write optimized SQL queries and PL/SQL stored procedures.', bloomLevel: 'APPLY', poMapping: { PO4: 3, PO5: 3 } },
+    ],
+  },
+  {
+    id: 'crs-7',
+    code: 'CS305',
+    title: 'Data Science Foundations',
+    credits: 3,
+    ltpHours: '3-0-0',
+    lectureHours: 3,
+    tutorialHours: 0,
+    practicalHours: 0,
+    type: 'THEORY',
+    department: 'Computer Science & Engg',
+    semester: 4,
+    regulationCode: 'R-2026-CBCS',
+    prerequisites: ['Engineering Mathematics IV'],
+    textbooks: ['Python for Data Analysis - Wes McKinney'],
+    syllabusUnits: [
+      { unitNumber: 1, title: 'Exploratory Data Analysis', hours: 9, content: 'Data wrangling, cleaning, distributions, feature normalization.' },
+      { unitNumber: 2, title: 'Statistical Inference & Hypothesis Testing', hours: 9, content: 'P-values, t-test, ANOVA, chi-square, Bayesian inference.' },
+      { unitNumber: 3, title: 'Supervised Learning Foundations', hours: 10, content: 'Linear regression, logistic regression, decision trees, cross-validation.' },
+    ],
+    courseOutcomes: [
+      { code: 'CO1', description: 'Analyze complex multidimensional datasets using statistical models.', bloomLevel: 'ANALYZE', poMapping: { PO1: 3, PO2: 3 } },
+    ],
+  },
+  {
+    id: 'crs-8',
+    code: 'CS305L',
+    title: 'Data Science & Machine Learning Laboratory',
+    credits: 1.5,
+    ltpHours: '0-0-3',
+    lectureHours: 0,
+    tutorialHours: 0,
+    practicalHours: 3,
+    type: 'LAB',
+    department: 'Computer Science & Engg',
+    semester: 4,
+    regulationCode: 'R-2026-CBCS',
+    prerequisites: ['CS305 Data Science Foundations'],
+    textbooks: ['Hands-on Machine Learning with Scikit-Learn - Aurelien Geron'],
+    syllabusUnits: [
+      { unitNumber: 1, title: 'Pandas, NumPy & Scikit-Learn Experiments', hours: 12, content: 'Data transformation, PCA dimensionality reduction, model scoring.' },
+    ],
+    courseOutcomes: [
+      { code: 'CO1', description: 'Build and validate predictive machine learning pipelines.', bloomLevel: 'APPLY', poMapping: { PO5: 3, PO9: 2 } },
+    ],
+  },
+  {
+    id: 'crs-9',
+    code: 'CS406',
+    title: 'Operating Systems Architecture',
+    credits: 3,
+    ltpHours: '3-0-0',
+    lectureHours: 3,
+    tutorialHours: 0,
+    practicalHours: 0,
+    type: 'THEORY',
+    department: 'Computer Science & Engg',
+    semester: 4,
+    regulationCode: 'R-2026-CBCS',
+    prerequisites: ['Computer Organization & Architecture'],
+    textbooks: ['Operating System Concepts - Silberschatz, Galvin'],
+    syllabusUnits: [
+      { unitNumber: 1, title: 'Processes, Threads & CPU Scheduling', hours: 9, content: 'PCB, context switching, multithreading models, CFS scheduling.' },
+      { unitNumber: 2, title: 'Memory Management & Paging', hours: 9, content: 'Virtual memory, demand paging, page replacement algorithms (LRU, FIFO).' },
+    ],
+    courseOutcomes: [
+      { code: 'CO1', description: 'Analyze kernel synchronization primitives and virtual memory paging.', bloomLevel: 'ANALYZE', poMapping: { PO1: 3, PO2: 2 } },
+    ],
+  },
+  {
+    id: 'crs-10',
+    code: 'UHV201',
+    title: 'Universal Human Values & Professional Ethics',
+    credits: 1,
+    ltpHours: '1-0-0',
+    lectureHours: 1,
+    tutorialHours: 0,
+    practicalHours: 0,
+    type: 'THEORY',
+    department: 'Basic Sciences & Humanities',
+    semester: 4,
+    regulationCode: 'R-2026-CBCS',
+    prerequisites: ['None'],
+    textbooks: ['Universal Human Values and Professional Ethics - R.R. Gaur'],
+    syllabusUnits: [
+      { unitNumber: 1, title: 'Self-Exploration & Harmony in Existence', hours: 8, content: 'Value education, continuous happiness, harmony in self, family, society, and nature.' },
+    ],
+    courseOutcomes: [
+      { code: 'CO1', description: 'Practice institutional ethical standards and professional social responsibility.', bloomLevel: 'UNDERSTAND', poMapping: { PO8: 3 } },
+    ],
+  },
 ];
 
 const INITIAL_REGISTRATIONS: CourseRegistrationItem[] = [
@@ -355,12 +497,37 @@ const INITIAL_VIRTUAL_CLASSES: VirtualClassSession[] = [
   { id: 'vc-1', courseCode: 'CS401', courseTitle: 'Algorithms Tutorial & Doubts Clearing Session', platform: 'GOOGLE_MEET', meetingUrl: 'https://meet.google.com/abc-defg-hij', meetingId: 'abc-defg-hij', passcode: 'ACET2026', scheduledTime: 'Today, 16:30 - 17:30 IST', facultyName: 'Dr. Ramesh Kulkarni' },
 ];
 
-// Initial Timetable Slots (preserved and enhanced)
+// Initial Timetable Slots (Complete Institutional Multi-Day Schedule for Teachers & Students)
 const INITIAL_SLOTS: TimetableSlotItem[] = [
+  // Monday
   { id: 'slot-1', day: 'Monday', period: 1, time: '09:00 - 10:00 AM', courseCode: 'CS401', courseTitle: 'Design & Analysis of Algorithms', facultyName: 'Dr. Ramesh Kulkarni', facultyId: 'fac-101', room: 'LH-201', hasClash: false },
-  { id: 'slot-2', day: 'Monday', period: 2, time: '10:00 - 11:00 AM', courseCode: 'CS403PE', courseTitle: 'Cloud Computing & DevOps', facultyName: 'Prof. Sunita Rao', facultyId: 'fac-102', room: 'LH-201', hasClash: true },
+  { id: 'slot-2', day: 'Monday', period: 2, time: '10:00 - 11:00 AM', courseCode: 'CS403PE', courseTitle: 'Cloud Computing & DevOps', facultyName: 'Prof. Sunita Rao', facultyId: 'fac-102', room: 'LH-201', hasClash: false },
   { id: 'slot-3', day: 'Monday', period: 3, time: '11:15 - 12:15 PM', courseCode: 'OE401', courseTitle: 'AI for Healthcare', facultyName: 'Dr. Anand Joshi', facultyId: 'fac-103', room: 'LH-202', hasClash: false },
   { id: 'slot-4', day: 'Monday', period: 4, time: '01:00 - 04:00 PM', courseCode: 'CS402L', courseTitle: 'Algorithms Laboratory (Batches A1/A2)', facultyName: 'Dr. Ramesh Kulkarni', facultyId: 'fac-101', room: 'Lab-CSE-3', hasClash: false },
+
+  // Tuesday
+  { id: 'slot-5', day: 'Tuesday', period: 1, time: '09:00 - 10:00 AM', courseCode: 'CS305', courseTitle: 'Data Science Foundations', facultyName: 'Dr. Ananya Sen', facultyId: 'fac-104', room: 'LH-202', hasClash: false },
+  { id: 'slot-6', day: 'Tuesday', period: 2, time: '10:00 - 11:00 AM', courseCode: 'CS302', courseTitle: 'Database Management Systems', facultyName: 'Dr. Ramesh Kulkarni', facultyId: 'fac-101', room: 'LH-202', hasClash: false },
+  { id: 'slot-7', day: 'Tuesday', period: 3, time: '11:15 - 12:15 PM', courseCode: 'CS403PE', courseTitle: 'Cloud Computing & DevOps', facultyName: 'Prof. Sunita Rao', facultyId: 'fac-102', room: 'LH-201', hasClash: false },
+  { id: 'slot-8', day: 'Tuesday', period: 4, time: '01:00 - 03:00 PM', courseCode: 'CS406', courseTitle: 'Operating Systems Architecture', facultyName: 'Prof. Rajesh Nair', facultyId: 'fac-105', room: 'LH-201', hasClash: false },
+
+  // Wednesday
+  { id: 'slot-9', day: 'Wednesday', period: 1, time: '09:00 - 10:00 AM', courseCode: 'CS401', courseTitle: 'Design & Analysis of Algorithms', facultyName: 'Dr. Ramesh Kulkarni', facultyId: 'fac-101', room: 'LH-201', hasClash: false },
+  { id: 'slot-10', day: 'Wednesday', period: 2, time: '10:00 - 11:00 AM', courseCode: 'OE401', courseTitle: 'AI for Healthcare', facultyName: 'Dr. Anand Joshi', facultyId: 'fac-103', room: 'LH-202', hasClash: false },
+  { id: 'slot-11', day: 'Wednesday', period: 3, time: '11:15 - 12:15 PM', courseCode: 'CS305', courseTitle: 'Data Science Foundations', facultyName: 'Dr. Ananya Sen', facultyId: 'fac-104', room: 'LH-201', hasClash: false },
+  { id: 'slot-12', day: 'Wednesday', period: 4, time: '01:00 - 04:00 PM', courseCode: 'CS302L', courseTitle: 'DBMS Laboratory (Batches B1/B2)', facultyName: 'Prof. Sunita Rao', facultyId: 'fac-102', room: 'Lab-CSE-2', hasClash: false },
+
+  // Thursday
+  { id: 'slot-13', day: 'Thursday', period: 1, time: '09:00 - 10:00 AM', courseCode: 'OE401', courseTitle: 'AI for Healthcare', facultyName: 'Dr. Anand Joshi', facultyId: 'fac-103', room: 'LH-202', hasClash: false },
+  { id: 'slot-14', day: 'Thursday', period: 2, time: '10:00 - 11:00 AM', courseCode: 'CS401', courseTitle: 'Design & Analysis of Algorithms', facultyName: 'Dr. Ramesh Kulkarni', facultyId: 'fac-101', room: 'LH-201', hasClash: false },
+  { id: 'slot-15', day: 'Thursday', period: 3, time: '11:15 - 12:15 PM', courseCode: 'CS302', courseTitle: 'Database Management Systems', facultyName: 'Dr. Ramesh Kulkarni', facultyId: 'fac-101', room: 'LH-201', hasClash: false },
+  { id: 'slot-16', day: 'Thursday', period: 4, time: '01:00 - 04:00 PM', courseCode: 'CS305L', courseTitle: 'Data Science & ML Laboratory', facultyName: 'Dr. Ananya Sen', facultyId: 'fac-104', room: 'Lab-CSE-1', hasClash: false },
+
+  // Friday
+  { id: 'slot-17', day: 'Friday', period: 1, time: '09:00 - 10:00 AM', courseCode: 'CS403PE', courseTitle: 'Cloud Computing & DevOps', facultyName: 'Prof. Sunita Rao', facultyId: 'fac-102', room: 'LH-201', hasClash: false },
+  { id: 'slot-18', day: 'Friday', period: 2, time: '10:00 - 11:00 AM', courseCode: 'CS305', courseTitle: 'Data Science Foundations', facultyName: 'Dr. Ananya Sen', facultyId: 'fac-104', room: 'LH-202', hasClash: false },
+  { id: 'slot-19', day: 'Friday', period: 3, time: '11:15 - 12:15 PM', courseCode: 'CS406', courseTitle: 'Operating Systems Architecture', facultyName: 'Prof. Rajesh Nair', facultyId: 'fac-105', room: 'LH-201', hasClash: false },
+  { id: 'slot-20', day: 'Friday', period: 4, time: '01:00 - 03:00 PM', courseCode: 'UHV201', courseTitle: 'Universal Human Values & Professional Ethics', facultyName: 'Dr. Ramesh Kulkarni', facultyId: 'fac-101', room: 'Seminar Hall-1', hasClash: false },
 ];
 
 // ==========================================
@@ -462,6 +629,87 @@ export const AcademicsWorkspace: React.FC<AcademicsWorkspaceProps> = ({ currentR
   const [slotFacultyName, setSlotFacultyName] = useState('Dr. Ramesh Kulkarni');
   const [slotRoom, setSlotRoom] = useState('LH-201');
   const [slotSaveSuccess, setSlotSaveSuccess] = useState<string | null>(null);
+
+  // Perspective Filter for Timetable (Student Batch vs Faculty Workload)
+  const [timetablePerspective, setTimetablePerspective] = useState<'STUDENT_BATCH' | 'FACULTY_WORKLOAD'>('STUDENT_BATCH');
+  const [selectedTimetableBranch, setSelectedTimetableBranch] = useState('B.Tech Computer Science');
+  const [selectedTimetableSemester, setSelectedTimetableSemester] = useState(4);
+  const [selectedTimetableSection, setSelectedTimetableSection] = useState('Section A');
+  const [selectedFacultyFilter, setSelectedFacultyFilter] = useState('ALL');
+  const [selectedDayFilter, setSelectedDayFilter] = useState('ALL');
+
+  // Timetable Upload Modal State
+  const [isUploadTimetableModalOpen, setIsUploadTimetableModalOpen] = useState(false);
+  const [timetableUploadSuccess, setTimetableUploadSuccess] = useState<string | null>(null);
+
+  // Subjects Upload Modal State
+  const [isUploadCoursesModalOpen, setIsUploadCoursesModalOpen] = useState(false);
+  const [coursesUploadSuccess, setCoursesUploadSuccess] = useState<string | null>(null);
+
+  const handleBulkLoadTimetable = () => {
+    setSlots(INITIAL_SLOTS);
+    setTimetableUploadSuccess('Successfully uploaded institutional timetable (20 slots) for both teachers and student batches!');
+    setTimeout(() => {
+      setTimetableUploadSuccess(null);
+      setIsUploadTimetableModalOpen(false);
+    }, 1500);
+  };
+
+  const handleBulkLoadCourses = () => {
+    const additionalCourses: AcademicCourse[] = [
+      {
+        id: `crs-aicte-1`,
+        code: 'CS407',
+        title: 'Machine Learning & Neural Computations',
+        credits: 4,
+        ltpHours: '3-1-0',
+        lectureHours: 3,
+        tutorialHours: 1,
+        practicalHours: 0,
+        type: 'THEORY',
+        department: 'Computer Science & Engg',
+        semester: 4,
+        regulationCode: 'R-2026-CBCS',
+        prerequisites: ['CS305 Data Science Foundations'],
+        textbooks: ['Pattern Recognition & Machine Learning - Bishop'],
+        syllabusUnits: [
+          { unitNumber: 1, title: 'Gradient Descent & Cost Optimization', hours: 9, content: 'Backpropagation, cross-entropy, stochastic gradient descent.' },
+        ],
+        courseOutcomes: [
+          { code: 'CO1', description: 'Train and optimize multilayer deep neural network architectures.', bloomLevel: 'APPLY', poMapping: { PO2: 3, PO3: 3 } },
+        ],
+      },
+      {
+        id: `crs-aicte-2`,
+        code: 'CS407L',
+        title: 'Neural Networks & Deep Learning Laboratory',
+        credits: 1.5,
+        ltpHours: '0-0-3',
+        lectureHours: 0,
+        tutorialHours: 0,
+        practicalHours: 3,
+        type: 'LAB',
+        department: 'Computer Science & Engg',
+        semester: 4,
+        regulationCode: 'R-2026-CBCS',
+        prerequisites: ['CS407'],
+        textbooks: ['PyTorch Deep Learning Lab Manual'],
+        syllabusUnits: [
+          { unitNumber: 1, title: 'CNN & Vision Transformers', hours: 12, content: 'Image classification, transfer learning, fine-tuning.' },
+        ],
+        courseOutcomes: [
+          { code: 'CO1', description: 'Implement vision models with PyTorch.', bloomLevel: 'APPLY', poMapping: { PO5: 3 } },
+        ],
+      },
+    ];
+
+    setCourses((prev) => [...additionalCourses, ...prev]);
+    setCoursesUploadSuccess(`Successfully imported ${additionalCourses.length} model curriculum subjects with variable credits into catalog!`);
+    setTimeout(() => {
+      setCoursesUploadSuccess(null);
+      setIsUploadCoursesModalOpen(false);
+    }, 1500);
+  };
 
   const handleOpenEditSyllabus = (course: AcademicCourse) => {
     setEditingCourse(course);
@@ -922,6 +1170,14 @@ export const AcademicsWorkspace: React.FC<AcademicsWorkspaceProps> = ({ currentR
             <div className="flex items-center gap-2 flex-wrap">
               <button
                 type="button"
+                onClick={() => setIsUploadCoursesModalOpen(true)}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white border border-[#E5DFD7] hover:bg-[#FAF7F2] text-[#682038] text-xs font-bold transition-all shadow-2xs cursor-pointer"
+              >
+                <Upload className="w-3.5 h-3.5 text-[#8B5E3C]" />
+                <span>Upload Subjects (CSV/Excel)</span>
+              </button>
+              <button
+                type="button"
                 onClick={() => setIsAddCourseModalOpen(true)}
                 className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#682038] hover:bg-[#54192D] text-white text-xs font-bold transition-all shadow-2xs cursor-pointer"
               >
@@ -1203,19 +1459,28 @@ export const AcademicsWorkspace: React.FC<AcademicsWorkspaceProps> = ({ currentR
       {activeTab === 'timetable' && (
         <div className="space-y-4">
           <div className="bg-white rounded-2xl border border-[#E5DFD7] shadow-sm overflow-hidden">
+            {/* Header & Primary Actions */}
             <div className="px-6 py-4 border-b border-[#E5DFD7] flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#FAF7F2]">
               <div>
                 <div className="flex items-center gap-2">
                   <Calendar className="w-4 h-4 text-[#682038]" />
                   <h3 className="text-sm font-bold text-[#682038] uppercase tracking-wider">
-                    B.Tech CSE — Semester 4 (Section A) Schedule
+                    Institutional Master Timetable &amp; Schedule Matrix
                   </h3>
                 </div>
                 <p className="text-xs text-[#6E6862] mt-0.5">
-                  Authority: <strong>Timetable Coordinator &amp; HOD</strong> (Schedule generation, room constraints &amp; faculty clash checks).
+                  Authority: <strong>Academic Registrar &amp; Timetable Coordinator</strong> (Class schedules, faculty workload allocations, room constraints &amp; clash resolution).
                 </p>
               </div>
               <div className="flex items-center gap-2 flex-wrap">
+                <button
+                  type="button"
+                  onClick={() => setIsUploadTimetableModalOpen(true)}
+                  className="px-3 py-1.5 rounded-lg bg-white border border-[#E5DFD7] hover:bg-[#FAF7F2] text-[#682038] text-xs font-bold flex items-center gap-1.5 shadow-2xs cursor-pointer"
+                >
+                  <Upload className="w-3.5 h-3.5 text-[#8B5E3C]" />
+                  <span>Upload Timetable (CSV / Excel)</span>
+                </button>
                 <button
                   type="button"
                   onClick={() => handleOpenAddSlot()}
@@ -1235,68 +1500,237 @@ export const AcademicsWorkspace: React.FC<AcademicsWorkspaceProps> = ({ currentR
               </div>
             </div>
 
-            <div className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {slots.map((slot) => (
-                  <div
-                    key={slot.id}
-                    className={`p-4 rounded-xl border transition-all ${
-                      slot.hasClash
-                        ? 'bg-amber-50/70 border-amber-300 shadow-sm ring-1 ring-amber-400'
-                        : 'bg-[#FAF7F2] border-[#E5DFD7] hover:border-[#682038]'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between text-xs mb-2">
-                      <span className="font-mono font-bold text-[#682038]">Period {slot.period}</span>
-                      <span className="text-[11px] text-[#6E6862] flex items-center gap-1">
-                        <Clock className="w-3.5 h-3.5" /> {slot.time}
-                      </span>
+            {/* Timetable Perspective Toggle & Context Filters */}
+            <div className="p-4 bg-[#FDFCFA] border-b border-[#E5DFD7] flex flex-col md:flex-row md:items-center justify-between gap-4">
+              {/* Dual Perspective Toggle */}
+              <div className="flex items-center gap-2 bg-[#FAF7F2] p-1 rounded-xl border border-[#E5DFD7] w-fit">
+                <button
+                  type="button"
+                  onClick={() => setTimetablePerspective('STUDENT_BATCH')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                    timetablePerspective === 'STUDENT_BATCH'
+                      ? 'bg-white text-[#682038] shadow-2xs border border-[#E5DFD7]'
+                      : 'text-[#6E6862] hover:text-[#242424]'
+                  }`}
+                >
+                  <GraduationCap className="w-3.5 h-3.5 text-[#8B5E3C]" />
+                  <span>Student Batch View</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setTimetablePerspective('FACULTY_WORKLOAD')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                    timetablePerspective === 'FACULTY_WORKLOAD'
+                      ? 'bg-white text-[#682038] shadow-2xs border border-[#E5DFD7]'
+                      : 'text-[#6E6862] hover:text-[#242424]'
+                  }`}
+                >
+                  <Users className="w-3.5 h-3.5 text-[#8B5E3C]" />
+                  <span>Teacher / Faculty Workload View</span>
+                </button>
+              </div>
+
+              {/* Dynamic Filter Controls based on Perspective */}
+              <div className="flex items-center gap-2 flex-wrap">
+                {timetablePerspective === 'STUDENT_BATCH' ? (
+                  <>
+                    <div className="flex items-center gap-1 text-xs">
+                      <span className="text-[#6E6862] font-medium">Program:</span>
+                      <select
+                        value={selectedTimetableBranch}
+                        onChange={(e) => setSelectedTimetableBranch(e.target.value)}
+                        className="px-2.5 py-1 rounded-lg border border-[#E5DFD7] bg-white text-xs font-semibold text-[#242424] cursor-pointer"
+                      >
+                        <option value="B.Tech Computer Science">B.Tech Computer Science</option>
+                        <option value="B.Tech Information Technology">B.Tech Information Technology</option>
+                        <option value="B.Tech Electronics & Comm">B.Tech Electronics & Comm</option>
+                        <option value="M.Tech Data Science">M.Tech Data Science</option>
+                      </select>
                     </div>
 
-                    <div className="text-sm font-bold text-[#242424] line-clamp-1">{slot.courseTitle}</div>
-                    <div className="text-[11px] font-mono font-semibold text-[#8B5E3C] mt-0.5">{slot.courseCode}</div>
+                    <div className="flex items-center gap-1 text-xs">
+                      <span className="text-[#6E6862] font-medium">Sem:</span>
+                      <select
+                        value={selectedTimetableSemester}
+                        onChange={(e) => setSelectedTimetableSemester(Number(e.target.value))}
+                        className="px-2.5 py-1 rounded-lg border border-[#E5DFD7] bg-white text-xs font-semibold text-[#242424] cursor-pointer"
+                      >
+                        {[1, 2, 3, 4, 5, 6, 7, 8].map((s) => (
+                          <option key={s} value={s}>Semester {s}</option>
+                        ))}
+                      </select>
+                    </div>
 
-                    <div className="mt-3 pt-3 border-t border-[#E5DFD7] flex items-center justify-between text-xs">
-                      <div>
-                        <div className="font-semibold text-[#242424] text-[11px]">{slot.facultyName}</div>
-                        <div className="text-[10px] text-[#6E6862] flex items-center gap-1 mt-0.5">
-                          <MapPin className="w-3 h-3 text-[#9B948D]" /> {slot.room}
+                    <div className="flex items-center gap-1 text-xs">
+                      <span className="text-[#6E6862] font-medium">Section:</span>
+                      <select
+                        value={selectedTimetableSection}
+                        onChange={(e) => setSelectedTimetableSection(e.target.value)}
+                        className="px-2.5 py-1 rounded-lg border border-[#E5DFD7] bg-white text-xs font-semibold text-[#242424] cursor-pointer"
+                      >
+                        <option value="Section A">Section A (LH-201)</option>
+                        <option value="Section B">Section B (LH-202)</option>
+                      </select>
+                    </div>
+                  </>
+                ) : (
+                  <div className="flex items-center gap-1 text-xs">
+                    <span className="text-[#6E6862] font-medium">Instructor / Faculty:</span>
+                    <select
+                      value={selectedFacultyFilter}
+                      onChange={(e) => setSelectedFacultyFilter(e.target.value)}
+                      className="px-2.5 py-1 rounded-lg border border-[#E5DFD7] bg-white text-xs font-semibold text-[#242424] cursor-pointer"
+                    >
+                      <option value="ALL">All Instructors (Aggregated Schedule)</option>
+                      <option value="Dr. Ramesh Kulkarni">Dr. Ramesh Kulkarni (Professor, CSE)</option>
+                      <option value="Prof. Sunita Rao">Prof. Sunita Rao (Associate Prof, CSE)</option>
+                      <option value="Dr. Anand Joshi">Dr. Anand Joshi (Associate Prof, CSE)</option>
+                      <option value="Dr. Ananya Sen">Dr. Ananya Sen (Assistant Prof, AI/ML)</option>
+                      <option value="Prof. Rajesh Nair">Prof. Rajesh Nair (Assistant Prof, Systems)</option>
+                    </select>
+                  </div>
+                )}
+
+                <div className="flex items-center gap-1 text-xs pl-2 border-l border-[#E5DFD7]">
+                  <span className="text-[#6E6862] font-medium">Day:</span>
+                  <select
+                    value={selectedDayFilter}
+                    onChange={(e) => setSelectedDayFilter(e.target.value)}
+                    className="px-2.5 py-1 rounded-lg border border-[#E5DFD7] bg-white text-xs font-semibold text-[#242424] cursor-pointer"
+                  >
+                    <option value="ALL">Monday - Friday (Full Week)</option>
+                    <option value="Monday">Monday</option>
+                    <option value="Tuesday">Tuesday</option>
+                    <option value="Wednesday">Wednesday</option>
+                    <option value="Thursday">Thursday</option>
+                    <option value="Friday">Friday</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {/* Context Notice / Workload Insight */}
+            <div className="px-6 py-2.5 bg-[#FAF7F2]/60 border-b border-[#E5DFD7] flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+              <div className="text-[#6E6862] flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
+                {timetablePerspective === 'STUDENT_BATCH' ? (
+                  <span>
+                    Viewing Cohort Schedule for <strong>{selectedTimetableBranch}</strong> • <strong>Semester {selectedTimetableSemester}</strong> • <strong>{selectedTimetableSection}</strong>
+                  </span>
+                ) : (
+                  <span>
+                    Viewing Faculty Workload Schedule for <strong>{selectedFacultyFilter === 'ALL' ? 'All Departmental Faculty' : selectedFacultyFilter}</strong>
+                  </span>
+                )}
+              </div>
+              <span className="font-mono text-[11px] text-[#8B5E3C] font-semibold">
+                Total Rendered Slots: {slots.filter(s => (timetablePerspective === 'FACULTY_WORKLOAD' && selectedFacultyFilter !== 'ALL' ? s.facultyName === selectedFacultyFilter : true) && (selectedDayFilter !== 'ALL' ? s.day === selectedDayFilter : true)).length}
+              </span>
+            </div>
+
+            {/* Weekly Days and Period Grid */}
+            <div className="p-6 space-y-6">
+              {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
+                .filter((d) => selectedDayFilter === 'ALL' || selectedDayFilter === d)
+                .map((dayName) => {
+                  const daySlots = slots.filter((s) => {
+                    if (s.day !== dayName) return false;
+                    if (timetablePerspective === 'FACULTY_WORKLOAD' && selectedFacultyFilter !== 'ALL') {
+                      return s.facultyName === selectedFacultyFilter;
+                    }
+                    return true;
+                  });
+
+                  return (
+                    <div key={dayName} className="space-y-3">
+                      <div className="flex items-center justify-between border-b border-[#E5DFD7] pb-1.5">
+                        <div className="flex items-center gap-2">
+                          <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#682038] text-white">
+                            {dayName}
+                          </span>
+                          <span className="text-xs text-[#6E6862] font-medium">
+                            {daySlots.length} {daySlots.length === 1 ? 'Period' : 'Periods'} Scheduled
+                          </span>
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-1.5">
-                        <button
-                          type="button"
-                          onClick={() => handleOpenAddSlot(slot)}
-                          className="p-1 rounded text-[#9B948D] hover:text-[#682038] hover:bg-[#E5DFD7]/50 cursor-pointer"
-                          title="Edit Schedule Slot (Timetable Coordinator)"
-                        >
-                          <BookMarked className="w-3.5 h-3.5" />
-                        </button>
-                        {slot.hasClash ? (
-                          <button
-                            type="button"
-                            onClick={() => handleOpenSubstitutionAssistant(slot)}
-                            className="px-2.5 py-1 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-bold text-[11px] shadow-sm flex items-center gap-1 transition-all cursor-pointer"
-                          >
-                            <UserPlus className="w-3 h-3" />
-                            <span>Substitute</span>
-                          </button>
-                        ) : (
-                          <button
-                            type="button"
-                            onClick={() => handleOpenSubstitutionAssistant(slot)}
-                            className="p-1 rounded text-[#9B948D] hover:text-[#682038] hover:bg-[#E5DFD7]/50 cursor-pointer"
-                            title="Request Substitution"
-                          >
-                            <UserPlus className="w-3 h-3" />
-                          </button>
-                        )}
-                      </div>
+                      {daySlots.length === 0 ? (
+                        <div className="p-4 rounded-xl border border-dashed border-[#E5DFD7] text-center text-xs text-[#9B948D]">
+                          No scheduled periods on {dayName} for this filter.
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                          {daySlots.map((slot) => (
+                            <div
+                              key={slot.id}
+                              className={`p-4 rounded-xl border transition-all ${
+                                slot.hasClash
+                                  ? 'bg-amber-50/70 border-amber-300 shadow-sm ring-1 ring-amber-400'
+                                  : 'bg-[#FAF7F2] border-[#E5DFD7] hover:border-[#682038]'
+                              }`}
+                            >
+                              <div className="flex items-center justify-between text-xs mb-2">
+                                <span className="font-mono font-bold text-[#682038]">Period {slot.period}</span>
+                                <span className="text-[11px] text-[#6E6862] flex items-center gap-1 font-mono">
+                                  <Clock className="w-3.5 h-3.5 text-[#8B5E3C]" /> {slot.time}
+                                </span>
+                              </div>
+
+                              <div className="text-sm font-bold text-[#242424] line-clamp-1">{slot.courseTitle}</div>
+                              <div className="flex items-center justify-between mt-1">
+                                <span className="text-[11px] font-mono font-bold text-[#8B5E3C] bg-white px-1.5 py-0.5 rounded border border-[#E5DFD7]">
+                                  {slot.courseCode}
+                                </span>
+                                <span className="text-[10px] text-[#6E6862] font-semibold">
+                                  {slot.day}
+                                </span>
+                              </div>
+
+                              <div className="mt-3 pt-3 border-t border-[#E5DFD7] flex items-center justify-between text-xs">
+                                <div>
+                                  <div className="font-semibold text-[#242424] text-[11px]">{slot.facultyName}</div>
+                                  <div className="text-[10px] text-[#6E6862] flex items-center gap-1 mt-0.5">
+                                    <MapPin className="w-3 h-3 text-[#9B948D]" /> {slot.room}
+                                  </div>
+                                </div>
+
+                                <div className="flex items-center gap-1.5">
+                                  <button
+                                    type="button"
+                                    onClick={() => handleOpenAddSlot(slot)}
+                                    className="p-1 rounded text-[#9B948D] hover:text-[#682038] hover:bg-[#E5DFD7]/50 cursor-pointer"
+                                    title="Edit Schedule Slot (Timetable Coordinator)"
+                                  >
+                                    <BookMarked className="w-3.5 h-3.5" />
+                                  </button>
+                                  {slot.hasClash ? (
+                                    <button
+                                      type="button"
+                                      onClick={() => handleOpenSubstitutionAssistant(slot)}
+                                      className="px-2.5 py-1 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-bold text-[11px] shadow-sm flex items-center gap-1 transition-all cursor-pointer"
+                                    >
+                                      <UserPlus className="w-3 h-3" />
+                                      <span>Substitute</span>
+                                    </button>
+                                  ) : (
+                                    <button
+                                      type="button"
+                                      onClick={() => handleOpenSubstitutionAssistant(slot)}
+                                      className="p-1 rounded text-[#9B948D] hover:text-[#682038] hover:bg-[#E5DFD7]/50 cursor-pointer"
+                                      title="Request Substitution"
+                                    >
+                                      <UserPlus className="w-3 h-3" />
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
-                  </div>
-                ))}
-              </div>
+                  );
+                })}
             </div>
           </div>
         </div>
@@ -2541,6 +2975,196 @@ export const AcademicsWorkspace: React.FC<AcademicsWorkspaceProps> = ({ currentR
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================
+          MODAL: UPLOAD TIMETABLE (CSV / EXCEL)
+          (Authorized Role: Academic Registrar & Timetable Coordinator)
+         ======================================================== */}
+      {isUploadTimetableModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-xl w-full p-6 shadow-2xl border border-[#E5DFD7] space-y-4 animate-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between border-b border-[#E5DFD7] pb-3">
+              <div className="flex items-center gap-2">
+                <Upload className="w-5 h-5 text-[#682038]" />
+                <div>
+                  <h3 className="text-sm font-bold text-[#242424]">
+                    Upload Institutional Master Timetable (CSV / Excel)
+                  </h3>
+                  <p className="text-[11px] text-[#6E6862]">
+                    Bulk upload weekly lecture &amp; lab schedules for student cohorts and faculty members.
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsUploadTimetableModalOpen(false)}
+                className="text-[#6E6862] hover:text-[#242424] cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            {timetableUploadSuccess && (
+              <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span>{timetableUploadSuccess}</span>
+              </div>
+            )}
+
+            <div className="space-y-4 text-xs">
+              <div className="p-4 rounded-2xl border-2 border-dashed border-[#E5DFD7] bg-[#FAF7F2] text-center space-y-2">
+                <div className="w-10 h-10 mx-auto rounded-full bg-white border border-[#E5DFD7] flex items-center justify-center text-[#682038]">
+                  <Upload className="w-5 h-5" />
+                </div>
+                <div className="text-xs font-bold text-[#242424]">
+                  Drag and drop your weekly timetable spreadsheet here
+                </div>
+                <p className="text-[11px] text-[#6E6862]">
+                  Accepts standard .CSV, .XLSX format. Maximum file size: 5 MB.
+                </p>
+                <div className="pt-2">
+                  <label className="px-3.5 py-1.5 rounded-xl bg-white border border-[#E5DFD7] hover:bg-[#FAF7F2] text-[#682038] font-bold text-xs shadow-2xs cursor-pointer inline-flex items-center gap-1.5">
+                    <FileText className="w-3.5 h-3.5" />
+                    <span>Choose File from Computer</span>
+                    <input type="file" accept=".csv,.xlsx" className="hidden" onChange={handleBulkLoadTimetable} />
+                  </label>
+                </div>
+              </div>
+
+              <div className="p-3.5 rounded-xl bg-[#FAF7F2] border border-[#E5DFD7] space-y-2">
+                <div className="font-bold text-[#242424] flex items-center justify-between">
+                  <span>Expected CSV Column Header Schema:</span>
+                  <span className="font-mono text-[10px] text-[#8B5E3C] bg-white px-2 py-0.5 rounded border border-[#E5DFD7]">RFC 4180</span>
+                </div>
+                <div className="overflow-x-auto text-[11px] font-mono text-[#6E6862] bg-white p-2 rounded-lg border border-[#E5DFD7]">
+                  Day,Period,Time,CourseCode,CourseTitle,FacultyName,FacultyID,Room,Section
+                </div>
+                <p className="text-[11px] text-[#6E6862]">
+                  Contains 20 standard instructional slots (4 periods daily, Monday to Friday) with automated conflict and room collision detection.
+                </p>
+              </div>
+
+              <div className="p-3 rounded-xl bg-amber-50/70 border border-amber-200 text-amber-900 text-[11px] space-y-1">
+                <div className="font-bold flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-700" />
+                  <span>Institutional One-Click Template Loader</span>
+                </div>
+                <p>
+                  Click the button below to instantly load and verify the pre-calibrated weekly master timetable for all 5 faculty members and B.Tech CSE Section A &amp; B.
+                </p>
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-[#E5DFD7]">
+                <button
+                  type="button"
+                  onClick={() => setIsUploadTimetableModalOpen(false)}
+                  className="px-4 py-2 rounded-xl bg-[#FAF7F2] text-[#6E6862] font-semibold hover:bg-[#E5DFD7]"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleBulkLoadTimetable}
+                  className="px-4 py-2 rounded-xl bg-[#682038] hover:bg-[#54192D] text-white font-bold transition-all shadow-sm flex items-center gap-1.5"
+                >
+                  <Upload className="w-3.5 h-3.5" />
+                  <span>Load Complete Weekly Timetable (20 Slots)</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================
+          MODAL: UPLOAD SUBJECTS CATALOG & CURRICULA (CSV / EXCEL)
+          (Authorized Role: Academic Dean & Board of Studies)
+         ======================================================== */}
+      {isUploadCoursesModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-xl w-full p-6 shadow-2xl border border-[#E5DFD7] space-y-4 animate-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between border-b border-[#E5DFD7] pb-3">
+              <div className="flex items-center gap-2">
+                <Upload className="w-5 h-5 text-[#682038]" />
+                <div>
+                  <h3 className="text-sm font-bold text-[#242424]">
+                    Upload Subject Catalog &amp; Curricula (CSV / Excel)
+                  </h3>
+                  <p className="text-[11px] text-[#6E6862]">
+                    Import university subjects with variable credits (Theory, Lab, Professional &amp; Open Electives).
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsUploadCoursesModalOpen(false)}
+                className="text-[#6E6862] hover:text-[#242424] cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            {coursesUploadSuccess && (
+              <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span>{coursesUploadSuccess}</span>
+              </div>
+            )}
+
+            <div className="space-y-4 text-xs">
+              <div className="p-4 rounded-2xl border-2 border-dashed border-[#E5DFD7] bg-[#FAF7F2] text-center space-y-2">
+                <div className="w-10 h-10 mx-auto rounded-full bg-white border border-[#E5DFD7] flex items-center justify-center text-[#682038]">
+                  <Upload className="w-5 h-5" />
+                </div>
+                <div className="text-xs font-bold text-[#242424]">
+                  Upload University Approved Syllabus &amp; Subject Catalog
+                </div>
+                <p className="text-[11px] text-[#6E6862]">
+                  Accepts CSV with L-T-P breakdown and AICTE/UGC credit allocations.
+                </p>
+                <div className="pt-2">
+                  <label className="px-3.5 py-1.5 rounded-xl bg-white border border-[#E5DFD7] hover:bg-[#FAF7F2] text-[#682038] font-bold text-xs shadow-2xs cursor-pointer inline-flex items-center gap-1.5">
+                    <FileText className="w-3.5 h-3.5" />
+                    <span>Choose File from Computer</span>
+                    <input type="file" accept=".csv,.xlsx" className="hidden" onChange={handleBulkLoadCourses} />
+                  </label>
+                </div>
+              </div>
+
+              <div className="p-3.5 rounded-xl bg-[#FAF7F2] border border-[#E5DFD7] space-y-2">
+                <div className="font-bold text-[#242424] flex items-center justify-between">
+                  <span>Variable Credit Ingestion Schema:</span>
+                  <span className="font-mono text-[10px] text-[#8B5E3C] bg-white px-2 py-0.5 rounded border border-[#E5DFD7]">AICTE Model 2026</span>
+                </div>
+                <div className="overflow-x-auto text-[11px] font-mono text-[#6E6862] bg-white p-2 rounded-lg border border-[#E5DFD7]">
+                  Code,Title,Credits,LTP,Type,Dept,Sem,Regulation,Prerequisites
+                </div>
+                <p className="text-[11px] text-[#6E6862]">
+                  Supports differential credit ratings: Theory (4.0 credits), Lab / Practical (1.5 - 2.0 credits), Electives (3.0 credits), Value-Added / UHV (1.0 credit).
+                </p>
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-[#E5DFD7]">
+                <button
+                  type="button"
+                  onClick={() => setIsUploadCoursesModalOpen(false)}
+                  className="px-4 py-2 rounded-xl bg-[#FAF7F2] text-[#6E6862] font-semibold hover:bg-[#E5DFD7]"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleBulkLoadCourses}
+                  className="px-4 py-2 rounded-xl bg-[#682038] hover:bg-[#54192D] text-white font-bold transition-all shadow-sm flex items-center gap-1.5"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>Load AICTE Model Curriculum Subjects</span>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

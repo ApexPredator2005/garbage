@@ -631,6 +631,22 @@ This document chronicles the fundamental engineering and product decisions made 
 
 ---
 
+### [ADR-042] Dual-Perspective Timetable Governance & CSV Bulk Ingestion Suite
+- **Classification:** Academic Operations, Scheduling & Institutional Data Ingestion (ACAD / TIMETABLE / UX / BULK)
+- **Status:** Approved & Implemented
+- **Decision Owner:** Institutional Registrar & Timetable Coordinator
+- **Context:** The user requested confirmation on whether timetables for both teachers and students, as well as comprehensive subject catalogs with variable credits, have been uploaded and seeded into the system. Academic timetables require two distinct operational perspectives: (1) **Student Batch View** (enabling cohorts to view their weekly period distribution by program, semester, and section), and (2) **Teacher / Faculty Workload View** (enabling instructors and academic administrators to filter schedules by individual faculty member, ensuring AICTE workload compliance, room allocations, and absence substitution tracking). Furthermore, real-world Day 1 institutional setup necessitates bulk CSV/Excel ingestion capabilities for both master weekly timetables and the academic subject catalog.
+- **Decision:** Architected, implemented, and verified the complete dual-perspective timetable governance and bulk import suite:
+  1. **Dual-Perspective Schedule Switcher:** Implemented a unified switcher pill in Tab 5 (`Timetable & Substitutions`) supporting two operational modes:
+     - `🎓 Student Batch View`: Filterable by Academic Program (`B.Tech Computer Science`, `Information Technology`, etc.), Semester (`Semester 1` through `8`), and Section (`Section A`, `Section B`).
+     - `👨‍🏫 Teacher / Faculty Workload View`: Filterable by Instructor (`All Faculty`, `Dr. Ramesh Kulkarni`, `Prof. Sunita Rao`, `Dr. Anand Joshi`, `Dr. Ananya Sen`, `Prof. Rajesh Nair`), displaying faculty-specific schedules and zero-period notices for non-teaching days.
+  2. **Multi-Day Period Grouping:** Grouped timetable slots by Day of the Week (`Monday`, `Tuesday`, `Wednesday`, `Thursday`, `Friday`) with real-time period counts, course titles, course codes, room numbers (`LH-201`, `Lab-CSE-1`, etc.), instructor assignments, and conflict badges.
+  3. **Timetable Bulk Ingestion Modal (`isUploadTimetableModalOpen`):** Added a dedicated "Upload Timetable (CSV / Excel)" modal supporting RFC 4180 CSV specifications (`Day,Period,Time,CourseCode,CourseTitle,FacultyName,FacultyID,Room,Section`) and an institutional one-click loader seeding 20 instructional slots across 5 faculty members and 2 student sections.
+  4. **Subject Catalog Bulk Ingestion Modal (`isUploadCoursesModalOpen`):** Added an "Upload Subjects (CSV / Excel)" modal in Tab 1 (`Courses & CO-PO`) supporting AICTE Model Curriculum specifications (`Code,Title,Credits,LTP,Type,Dept,Sem,Regulation,Prerequisites`) with variable credit weighting (Theory 4.0cr, Lab 1.5–2.0cr, Electives 3.0cr, Value-Added 1.0cr) and a 1-click model curriculum importer adding courses like `CS407` (4.0cr) and `CS407L` (1.5cr).
+- **Rationale:** Guarantees that both faculty members and students have tailored, clash-free schedules, while empowering academic registrars to bulk-import or modify institutional schedules and curricula seamlessly on Day 1.
+
+---
+
 ## 6. Comprehensive Decision Summary Matrix
 
 | ID | Decision Title | Category | Status | Primary Rationale & Impact |
@@ -676,3 +692,4 @@ This document chronicles the fundamental engineering and product decisions made 
 | **ADR-039** | Faculty Subject-Scoped Isolation & Admission USN Authority | SEC/GOV/UX | Implemented | Faculty data-scoping to assigned subjects/cohorts with access restriction barriers, persona switcher & Registrar USN governance. |
 | **ADR-040** | Institutional RACI Matrix, Parent Login, Syllabus & Timetable | GOV/SEC/FUNC | Implemented | Parent login portal option, HOD syllabus revision modal, manual timetable builder & walk-in admission desk with auto-USN. |
 | **ADR-041** | Institutional Registrar Day-One Seed & Operations Verification | GOV/SIS/ACAD/HR/LIB | Implemented | Course catalog creation, variable credit subject weights, syllabus unit editor, calendar milestones, student section reallocation, batch promotion, quota adjustments, faculty onboarding, and library circulation desk. |
+| **ADR-042** | Dual-Perspective Timetable Governance & CSV Bulk Ingestion Suite | ACAD/TIMETABLE/UX/BULK | Implemented | Student batch vs faculty workload timetable perspectives, multi-day scheduling grid, CSV bulk import modal, and AICTE model curriculum subject catalog loader. |
